@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="entries">
+        <item>@string/_1</item>
+        <item>@string/_2</item>
+        <item>@string/_3</item>
+        <item>@string/_4</item>
+    </string-array>
+</resources>

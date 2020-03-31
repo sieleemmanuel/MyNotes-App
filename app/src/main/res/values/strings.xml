@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">MyToDo</string>
+    <string name="add_note">ADD NOTE</string>
+    <string name="delete_note">DELETE NOTE</string>
+    <string name="my_notes">My Notes</string>
+    <string name="note_title">Note Title</string>
+    <string name="date">Date</string>
+
+    <string name="note_category">Select Category:</string>
+
+    <string name="_1">Uncategorized</string>
+    <string name="_2">Daily Tasks</string>
+    <string name="_3">Study</string>
+    <string name="_4">Private</string>
+    <string name="notes">notes</string>
+</resources>

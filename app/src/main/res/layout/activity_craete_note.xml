@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".CraeteNote"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:orientation="vertical">
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp">
+        <Spinner
+                android:prompt="@string/note_category"
+                android:entries="@array/entries"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/spinnerCategory"
+                />
+        <TextView
+                android:text="@string/date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/txtDate"
+                android:layout_toEndOf="@id/spinnerCategory"
+                android:textSize="15sp"
+                android:textStyle="italic"
+                android:layout_marginStart="20dp"
+                android:textColor="#342F2F"/>
+    </RelativeLayout>
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/relative"
+    >
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="23sp"
+                android:id="@+id/etxtTitle"
+                android:paddingLeft="5dp"
+                android:hint="Note title"
+                android:textColor="#000"
+                android:inputType="textCapWords"
+                android:background="@drawable/edittext_background"
+               />
+
+    </RelativeLayout>
+    <RelativeLayout
+            android:layout_width="297dp"
+            android:layout_height="330dp"
+            android:paddingBottom="5dp">
+        <EditText
+                android:id="@+id/etxtNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:inputType="textMultiLine"
+                android:hint="Type in your notes"
+                android:textColor="#000"
+
+        />
+
+    </RelativeLayout>
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp"
+            android:gravity="center"
+            android:layout_alignParentStart="true">
+
+        <Button
+
+                android:text="cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnCancel"
+                android:background="#E99F9F"
+                android:layout_weight="1"/>
+        <Button
+                android:text="save"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnSave"
+                android:background="#FA5DE370"
+                android:layout_weight="1"/>
+    </LinearLayout>
+</LinearLayout>

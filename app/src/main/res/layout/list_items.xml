@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+>
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+    >
+        <View
+                android:id="@+id/categoryColor"
+                android:layout_width="5dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="left|start"
+                android:layout_marginRight="2dp">
+        </View>
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:id="@+id/relative"
+        >
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                <TextView
+                        android:text="Category"
+                        android:layout_width="164dp"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/txtcategory"
+                        android:textSize="18sp"
+                        android:textColor="#0810CF"
+                />
+                <TextView
+                        android:text="@string/date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/txtdate"
+                        android:textSize="18sp"
+                        android:layout_marginLeft="30dp"
+                        android:textStyle="italic"
+                />
+            </LinearLayout>
+
+
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="25dp"
+                    android:id="@+id/txttitle"
+                    android:text="@string/note_title"
+                    android:textSize="20sp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+            />
+            <TextView
+                    android:id="@+id/txtnotes"
+                    android:layout_width="match_parent"
+                    android:layout_height="25dp"
+                    android:text="@string/notes"
+                    android:textSize="18sp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+
+            />
+
+        </LinearLayout>
+    </LinearLayout>
+
+
+</androidx.cardview.widget.CardView>
