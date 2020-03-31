@@ -4,7 +4,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".CraeteNote"
+        tools:context=".CreateNote"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:orientation="vertical">

@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity(){
         enableSwipe()
 
         btnAddNote.setOnClickListener {
-            val intent = Intent(this, CraeteNote::class.java)
+            val intent = Intent(this, CreateNote::class.java)
             startActivity(intent)
         }
 
