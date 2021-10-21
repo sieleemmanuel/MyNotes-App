@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+       <!-- <variable
+                name="notesViewModel"
+                type="com.developerkim.mytodo.screens.listnotes.ListNoteViewModel"/>-->
+    </data>
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/list_notes_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            tools:context=".ui.listnotes.ListNotesFragment"
+            >
+        <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="100dp"
+                android:clipToPadding="false"
+                >
+            <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    tools:itemCount="29"
+                    tools:listitem="@layout/list_categories"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:spanCount="2"
+                    android:orientation="vertical"
+                    />
+
+        </androidx.core.widget.NestedScrollView>
+
+        <com.google.android.material.bottomappbar.BottomAppBar
+                android:id="@+id/bottomAppBar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_gravity="bottom"
+                style="@style/Widget.MaterialComponents.BottomAppBar.Colored"
+                app:fabAlignmentMode="center"
+                >
+            <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                <TextView
+                        android:id="@+id/recent_notes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/recent_item_txt"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="@+id/guideline1"
+                        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:drawableTopCompat="@drawable/ic_recent"
+                        android:textColor="@color/colorOnPrimary"/>
+
+                <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintGuide_percent="0.07"
+                        android:orientation="vertical"/>
+                <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintGuide_percent="0.3"
+                    android:orientation="vertical"/>
+
+
+                <TextView
+                        android:id="@+id/notes_categories"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/category_item_txt"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="@+id/guideline3"
+                        app:layout_constraintEnd_toStartOf="@+id/guideline4"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:drawableTopCompat="@drawable/ic_category"
+                        android:textColor="@color/colorOnPrimary"/>
+
+                <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintGuide_percent="0.65"
+                        android:orientation="vertical"/>
+                <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintGuide_percent="0.9"
+                        android:orientation="vertical"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.bottomappbar.BottomAppBar>
+            <!--<com.google.android.material.bottomnavigation.BottomNavigationView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:menu="@menu/bottom_bar_menu"
+                    app:itemTextAppearanceInactive="@color/colorPrimary"
+                    />-->
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btnAddNote"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_add_24"
+                android:contentDescription="@string/text_add_note"
+                app:layout_anchor="@id/bottomAppBar"
+                app:backgroundTint="@color/colorPrimary"
+                app:rippleColor="@color/colorOnPrimary"
+                />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

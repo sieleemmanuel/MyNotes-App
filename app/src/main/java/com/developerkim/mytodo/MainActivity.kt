@@ -1,26 +1,17 @@
 package com.developerkim.mytodo
 
-import android.content.Intent
-import android.graphics.*
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(){
-    companion object{
-        lateinit var databaseHandler: DatabaseHandler
-    }
-    private var adapter:NoteAdapter? = null
-    private var notelist:ArrayList<Note>? = null
-    private val p = Paint()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+    }
+}
+
 /*
         databaseHandler= DatabaseHandler(this,null,null,1)
         notelist = databaseHandler.showNotes(this)
@@ -28,18 +19,7 @@ class MainActivity : AppCompatActivity(){
         val recyclerView:RecyclerView = findViewById(R.id.rv)
         recyclerView.layoutManager= LinearLayoutManager(this, RecyclerView.VERTICAL,false)
         recyclerView.adapter = adapter*/
-
-        viewNotes()
-        enableSwipe()
-
-        btnAddNote.setOnClickListener {
-            val intent = Intent(this, CreateNote::class.java)
-            startActivity(intent)
-        }
-
-    }
-
-    private fun enableSwipe() {
+    /*private fun enableSwipe() {
         val simpleItemTouchCallback = object : ItemTouchHelper.SimpleCallback(
             0, ItemTouchHelper.LEFT or  ItemTouchHelper.RIGHT ){
 
@@ -138,9 +118,9 @@ class MainActivity : AppCompatActivity(){
         val itemTouchHelper = ItemTouchHelper(simpleItemTouchCallback)
         itemTouchHelper.attachToRecyclerView(rv)
 
-    }
+    }*/
 
-    private fun viewNotes() {
+   /* private fun viewNotes() {
         databaseHandler= DatabaseHandler(this,null,null,1)
         notelist = databaseHandler.showNotes(this)
         adapter = NoteAdapter(this,notelist!!)
@@ -149,11 +129,8 @@ class MainActivity : AppCompatActivity(){
         recyclerView.adapter = adapter
 
 
-    }
+    }*/
 
-    override fun onResume() {
-        viewNotes()
-        super.onResume()
-    }
 
-}
+
+

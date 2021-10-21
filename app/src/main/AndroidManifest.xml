@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:dist="http://schemas.android.com/apk/distribution"
-          package="com.developerkim.mytodo">
+        xmlns:tools="http://schemas.android.com/tools"
+        package="com.developerkim.mytodo">
 
     <dist:module dist:instant="true"/>
 
@@ -12,12 +13,6 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-        <activity android:name=".UpdateNote" android:parentActivityName=".ReadNotes">
-        </activity>
-        <activity android:name=".ReadNotes" android:parentActivityName=".MainActivity">
-        </activity>
-        <activity android:name=".CreateNote" android:parentActivityName=".MainActivity">
-        </activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
