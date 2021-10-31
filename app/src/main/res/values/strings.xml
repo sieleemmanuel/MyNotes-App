@@ -1,16 +1,41 @@
 <resources>
-    <string name="app_name">MyToDo</string>
+    <string name="app_name">NoteIt</string>
     <string name="add_note">ADD NOTE</string>
     <string name="delete_note">DELETE NOTE</string>
     <string name="my_notes">My Notes</string>
     <string name="note_title">Note Title</string>
-    <string name="date">Date</string>
+    <string name="date">16/09/2021, 6:42PM</string>
 
     <string name="note_category">Select Category:</string>
 
-    <string name="_1">Uncategorized</string>
-    <string name="_2">Daily Tasks</string>
-    <string name="_3">Study</string>
-    <string name="_4">Private</string>
-    <string name="notes">notes</string>
+    <string-array name="notes_categories">
+        <item name="select_category">select category</item>
+        <item name="uncategorized">Uncategorized</item>
+        <item name="daily_task">Daily Tasks</item>
+        <item name="study">Study</item>
+        <item name="private">Private</item>
+        <item name="shopping">Shopping</item>
+    </string-array>
+
+    <string name="text_add_note">Add Note Button</string>
+    <string name="recent_item_txt">Recent</string>
+    <string name="category_item_txt">Category</string>
+    <string name="note_hint_text">This a is my note sometime back just want to revisit it to know what exactly what I wrote inside it. Lets try to opern it and check!</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hint_note_title_text">Note Title</string>
+    <string name="hnt_type_note_txt">Type note</string>
+    <string name="btn_done_text">Done</string>
+    <string name="btn_close_text">Close</string>
+    <string name="note_tittle_text">Note Tittle</string>
+    <string name="button_edit_text">Button Edit</string>
+    <string name="close_text">Close</string>
+    <string name="save_text">Save</string>
+    <string name="tv_category_name">Category Name</string>
+    <string name="delete_all_item">Delete All</string>
+    <string name="btn_update_note_text">Update</string>
+    <string name="hide_private">Hide Private</string>
+    <string name="show_all_item">Show All</string>
+    <string name="item_share_text">Share</string>
+    <string name="item_list_notes">List Notes</string>
+    <string name="item_list_show_categories">Show Categories</string>
 </resources>
