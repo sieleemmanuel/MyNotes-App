@@ -4,7 +4,7 @@ This is a simple Note taking App implemented in Kotlin Using recyclerview librar
 - Create note
 - Read saved notes
 - Update notes
-- Swipe recyclerview item to delete note
+- Share notes etc
 ## Screenshots
 |![mainActivity](https://user-images.githubusercontent.com/42119641/83104447-762cc800-a0c1-11ea-8e64-9985aa294be8.png) | ![createNote](https://user-images.githubusercontent.com/42119641/83104544-a5dbd000-a0c1-11ea-8ff4-a4229dda6b07.png) |
 | ![readNote](https://user-images.githubusercontent.com/42119641/83104553-ae340b00-a0c1-11ea-9c21-1dcfa9f03108.png) |
