@@ -1,21 +1,32 @@
 package com.developerkim.mytodo.ui.listnotes
 
+import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.Context
+import android.content.res.Resources
 import android.graphics.Color
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import com.developerkim.mytodo.R
+import com.developerkim.mytodo.databinding.ListCategoriesBinding
 import com.developerkim.mytodo.databinding.ListItemsBinding
 import com.developerkim.mytodo.model.Note
 import com.developerkim.mytodo.model.NoteCategory
 import com.developerkim.mytodo.util.ClickListener
 import com.developerkim.mytodo.util.LongClickListener
+import android.content.ClipData.Item
+import android.widget.Button
+import com.developerkim.mytodo.databinding.ListCategoriesFolderBinding
+import com.developerkim.mytodo.util.FoldersListener
 
 
-class NoteAdapter(private val notes: MutableList<Note>,val listener: ClickListener,val longClickListener: LongClickListener) :
+class NoteAdapter(private val notes: MutableList<Note>, val listener: ClickListener, private val longClickListener: LongClickListener) :
     RecyclerView.Adapter<NoteAdapter.ViewHolder>() {
 
     class ViewHolder(val binding: ListItemsBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -31,6 +42,7 @@ class NoteAdapter(private val notes: MutableList<Note>,val listener: ClickListen
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.M)
         fun bind(
             note: Note, listener: ClickListener, position: Int, longClickListener: LongClickListener
         ) {
@@ -40,11 +52,11 @@ class NoteAdapter(private val notes: MutableList<Note>,val listener: ClickListen
             binding.txtDate.text = note.noteDate
 
             binding.tvNoteTitle.setTextColor(when(binding.txtCategory.text){
-                "Study" ->Color.GREEN
-                "Daily Tasks" ->Color.CYAN
-                "Private" ->Color.RED
-                "Shopping" -> Color.MAGENTA
-                else -> Color.BLACK
+                "Study" ->binding.root.context.getColor(R.color.colorStudy)
+                "Daily Tasks" ->binding.root.context.getColor(R.color.colorDailTasks)
+                "Private" ->binding.root.context.getColor(R.color.colorPrivate)
+                "Shopping" -> binding.root.context.getColor(R.color.colorShopping)
+                else -> binding.root.context.getColor(R.color.colorUncategorized)
             })
             binding.deleteNote.setOnClickListener {
                 listener.onClick(it,note,position)
@@ -67,6 +79,7 @@ class NoteAdapter(private val notes: MutableList<Note>,val listener: ClickListen
 
     override fun getItemCount(): Int = notes.size
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val note = notes[position]
         holder.bind(note,listener,position,longClickListener)
@@ -76,43 +89,109 @@ class NoteAdapter(private val notes: MutableList<Note>,val listener: ClickListen
 
 
 /*Adapter to adapt category notes */
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP) // for context to access resource values
 class CategoryAdapter(private val listener: ClickListener,private val longClickListener: LongClickListener) :
-    RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    companion object{
+        private const val TYPE_CATEGORY_LIST:Int = 1
+        private  const val  TYPE_CATEGORY_FOLDER:Int = 2
+
+        var isFolderView:Boolean = true
+    }
     var noteCategories = listOf<NoteCategory>()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
 
+    override fun getItemViewType(position: Int): Int {
+        return if (isFolderView) TYPE_CATEGORY_LIST
+        else TYPE_CATEGORY_FOLDER
+    }
+    fun toggleItemViewType(): Boolean {
+        isFolderView = !isFolderView
+        return isFolderView
+    }
 
-    class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val rvListCategories: RecyclerView = itemView.findViewById(R.id.rvCategoryList)
-        val categoryHeader: TextView = itemView.findViewById(R.id.txtCategoryName)
+    class CategoryViewHolder(val binding: ListCategoriesBinding) : RecyclerView.ViewHolder(binding.root) {
 
+        @SuppressLint("UseCompatLoadingForDrawables")
+        fun binder(
+            category: NoteCategory,
+            position: Int,
+            listener: ClickListener,
+            longClickListener: LongClickListener
+        ) {
+            binding.rvCategoryList.adapter = category.notes?.let {
+                NoteAdapter(it, listener, longClickListener)
+            }
+            binding.txtCategoryName.text = category.categoryName
+            binding.root.setOnLongClickListener {
+                longClickListener.onCategoryLongClick(it, category, position, binding.btnDelCat)
+            }
+            binding.btnDelCat.setOnClickListener {
+                listener.onClickCategory(it,category)
+            }
+            val context = binding.root.context //in place  of Resources.getSystem()
+            binding.categoryColor.background = when(binding.txtCategoryName.text){
+                "Study"->context.getDrawable(R.drawable.category_color_study)
+                "Daily Tasks"->context.getDrawable(R.drawable.category_color_daily_tasks)
+                "Shopping"->context.getDrawable(R.drawable.category_color_shopping)
+                "Private"->context.getDrawable(R.drawable.category_color_private)
+
+                else ->context.getDrawable(R.drawable.category_color_uncategorized)
+            }
+        }
         companion object {
+
             fun from(parent: ViewGroup): CategoryViewHolder {
-                val view = LayoutInflater.from(parent.context).inflate(
-                    R.layout.list_categories,
-                    parent,
-                    false
-                )
-                return CategoryViewHolder(view)
+                val binding = ListCategoriesBinding.inflate(
+                        LayoutInflater.from(parent.context),
+                        parent,
+                        false
+                    )
+                return CategoryViewHolder(binding)
             }
         }
     }
 
+    class CategoryFolderHolder(val binding: ListCategoriesFolderBinding): RecyclerView.ViewHolder(binding.root){
+        companion object{
+            fun from(parent: ViewGroup):CategoryFolderHolder{
+                val binding =  ListCategoriesFolderBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+                return CategoryFolderHolder(binding)
+            }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
-        return CategoryViewHolder.from(parent)
-    }
-
-    override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
-        val category = noteCategories[position]
-        holder.rvListCategories.adapter = category.notes?.let {
-            NoteAdapter(it,listener,longClickListener)
         }
-        holder.categoryHeader.text = category.categoryName
     }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int):RecyclerView.ViewHolder {
+
+        return when(viewType){
+            TYPE_CATEGORY_LIST -> CategoryViewHolder.from(parent)
+            TYPE_CATEGORY_FOLDER -> CategoryFolderHolder.from(parent)
+            else -> throw IllegalArgumentException("Unknown viewType")
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val category = noteCategories[position]
+        when(holder) {
+            is CategoryViewHolder -> {
+                holder.binder(category, position, listener, longClickListener)
+            }
+            is CategoryFolderHolder -> {
+                holder.binding.noteCategoryName.text = category.categoryName
+                holder.binding.notesCount.text = category.notes?.size.toString()
+            }
+        }
+
+    }
+
     override fun getItemCount(): Int = noteCategories.size
 }
 

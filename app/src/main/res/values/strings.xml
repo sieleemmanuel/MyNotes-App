@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MyToDo</string>
+    <string name="app_name">NoteIt</string>
     <string name="add_note">ADD NOTE</string>
     <string name="delete_note">DELETE NOTE</string>
     <string name="my_notes">My Notes</string>
@@ -35,4 +35,7 @@
     <string name="btn_update_note_text">Update</string>
     <string name="hide_private">Hide Private</string>
     <string name="show_all_item">Show All</string>
+    <string name="item_share_text">Share</string>
+    <string name="item_list_notes">List Notes</string>
+    <string name="item_list_show_categories">Show Categories</string>
 </resources>

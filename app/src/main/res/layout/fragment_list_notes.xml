@@ -28,7 +28,6 @@
                     tools:itemCount="29"
                     tools:listitem="@layout/list_categories"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    app:spanCount="2"
                     android:orientation="vertical"
                     />
 
@@ -76,13 +75,14 @@
                         android:id="@+id/notes_categories"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/category_item_txt"
+                        android:text="@string/item_list_show_categories"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintStart_toStartOf="@+id/guideline3"
                         app:layout_constraintEnd_toStartOf="@+id/guideline4"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:drawableTopCompat="@drawable/ic_category"
-                        android:textColor="@color/colorOnPrimary"/>
+                        android:textColor="@color/colorOnPrimary"
+                        android:focusable="true"/>
 
                 <androidx.constraintlayout.widget.Guideline
                         android:id="@+id/guideline3"
@@ -109,11 +109,9 @@
                 android:id="@+id/btnAddNote"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_baseline_add_24"
+                android:src="@drawable/ic_add_black_24dp"
                 android:contentDescription="@string/text_add_note"
                 app:layout_anchor="@id/bottomAppBar"
-                app:backgroundTint="@color/colorPrimary"
-                app:rippleColor="@color/colorOnPrimary"
                 />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

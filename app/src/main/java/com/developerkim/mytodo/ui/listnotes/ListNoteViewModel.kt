@@ -1,6 +1,5 @@
 package com.developerkim.mytodo.ui.listnotes
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,16 +11,17 @@ import kotlinx.coroutines.launch
 class ListNoteViewModel(
     private val dataSource: NoteCategoriesDao
 ) : ViewModel() {
+    var noteCategory: NoteCategory = NoteCategory()
+    val categoriesList = dataSource.getAllNoteCategories()
+    val privateHiddenCategories = dataSource.getCategoriesPrivateHidden()
 
-    var categoriesList = dataSource.getAllNoteCategories()
-
-    private val _filteredList = MutableLiveData<List<NoteCategory>>()
+   /* private val _filteredList = MutableLiveData<List<NoteCategory>>()
     val filteredList: LiveData<List<NoteCategory>>
         get()= _filteredList
 
     fun filteredList(){
         _filteredList.value = categoriesList.value?.filter { it.categoryName != "private" }
-    }
+    }*/
 
     private suspend fun deleteAllCategories() {
         dataSource.clearAllCategories()
