@@ -15,3 +15,4 @@ This is a simple Note taking App implemented in Kotlin.
 - MVVM Architecture
 - Room Database for persistent storage of notes
 - Navigation components
+- Data Binding
