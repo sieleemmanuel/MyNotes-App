@@ -8,7 +8,7 @@
     <fragment
             android:id="@+id/listNotesFragment"
             android:name="com.developerkim.mytodo.ui.listnotes.ListNotesFragment"
-            android:label="ListNotesFragment"
+            android:label="NoteIT"
             tools:layout="@layout/fragment_list_notes">
         <action
                 android:id="@+id/action_listNotesFragment_to_readNotesFragment"
@@ -45,7 +45,7 @@
     <fragment
             android:id="@+id/newNoteFragment"
             android:name="com.developerkim.mytodo.ui.newnote.NewNoteFragment"
-            android:label="NewNoteFragment"
+            android:label="New Note"
             tools:layout="@layout/fragment_new_note">
         <action
                 android:id="@+id/action_newNoteFragment_to_listNotesFragment"
@@ -60,7 +60,7 @@
     <fragment
             android:id="@+id/readNotesFragment"
             android:name="com.developerkim.mytodo.ui.read.ReadNotesFragment"
-            android:label="ReadNotesFragment"
+            android:label="Read Note"
             tools:layout="@layout/fragment_read_note">
         <action
                 android:id="@+id/action_readNotesFragment_to_updateNoteFragment"
@@ -86,19 +86,11 @@
                     app:argType="string" />
 
         </action>
-        <action
-                android:id="@+id/action_readNotesFragment_to_listNotesFragment"
-                app:destination="@id/listNotesFragment"
-                app:enterAnim="@anim/nav_default_enter_anim"
-                app:exitAnim="@anim/nav_default_exit_anim"
-                app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-                app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-
     </fragment>
     <fragment
             android:id="@+id/updateNoteFragment"
             android:name="com.developerkim.mytodo.ui.update.UpdateNoteFragment"
-            android:label="UpdateNoteFragment"
+            android:label="Update Note"
             tools:layout="@layout/fragment_update_note" >
         <action
                 android:id="@+id/action_updateNoteFragment_to_listNotesFragment"

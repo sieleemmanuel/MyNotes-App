@@ -10,10 +10,15 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupActionBarWithNavController
 import com.developerkim.mytodo.R
 import com.developerkim.mytodo.database.NoteDatabase
 import com.developerkim.mytodo.databinding.FragmentUpdateNoteBinding
@@ -71,6 +76,12 @@ class UpdateNoteFragment : Fragment(),
             this.findNavController().navigate(
                 UpdateNoteFragmentDirections.actionUpdateNoteFragmentToListNotesFragment())
         }
+       /* //Set up up button
+        val navHostFragment =requireActivity()
+            .supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        val appBarConfiguration = AppBarConfiguration(navController.graph)
+        (activity as AppCompatActivity).setupActionBarWithNavController(navController,appBarConfiguration)*/
         return binding.root
     }
 

@@ -10,10 +10,10 @@
     <color name="colorSecondaryVariant">#60ad5e</color>
 
 <!--    Category colors-->
-    <color name="colorStudy">#0BB512</color>
+    <color name="colorStudy">#04830A</color>
     <color name="colorPrivate">#E91E63</color>
-    <color name="colorUncategorized">#03A9F4</color>
-    <color name="colorShopping">#FF9800</color>
+    <color name="colorUncategorized">#0078AE</color>
+    <color name="colorShopping">#C47400</color>
     <color name="colorDailTasks">#3F51B5</color>
 
 </resources>

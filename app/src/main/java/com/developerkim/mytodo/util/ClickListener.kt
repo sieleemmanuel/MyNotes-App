@@ -30,10 +30,8 @@ interface LongClickListener {
         return true
     }
 }
-interface FoldersListener {
-    fun onClick(clickCategories:Button):Boolean{
-        return true
-    }
+interface RecentNotesListener {
+    fun onClickRecent(notes:MutableList<Note>,view: View)
 
 }
 

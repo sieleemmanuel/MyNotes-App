@@ -16,7 +16,8 @@
         android:layout_margin="5dp"
         android:elevation="8dp"
         android:background="@drawable/rounded_corners"
-        android:id="@+id/noteItem">
+        android:id="@+id/noteItem"
+        android:onClick="">
 
 
     <TextView
