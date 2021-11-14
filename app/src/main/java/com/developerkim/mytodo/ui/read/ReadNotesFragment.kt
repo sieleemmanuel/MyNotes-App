@@ -1,16 +1,16 @@
 package com.developerkim.mytodo.ui.read
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.*
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.navigation.NavArgument
 import androidx.navigation.fragment.findNavController
 import com.developerkim.mytodo.R
 import com.developerkim.mytodo.databinding.FragmentReadNoteBinding
-import kotlin.properties.Delegates
 
 
 class ReadNotesFragment : Fragment() {
@@ -27,7 +27,7 @@ class ReadNotesFragment : Fragment() {
             false
         )
 
-        setHasOptionsMenu(true)
+
         val arguments = requireArguments()
 
         binding.noteDate.text = arguments.getString("note_date")
@@ -35,9 +35,7 @@ class ReadNotesFragment : Fragment() {
         binding.openNoteNotes.text = arguments.getString("note_texts")
 
         binding.openNoteNotes.movementMethod = ScrollingMovementMethod()
-
-
-
+        setHasOptionsMenu(true)
         return binding.root
     }
 
@@ -49,7 +47,7 @@ class ReadNotesFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.shareNote ->
-                Toast.makeText(requireContext(),"Todo Share Note",Toast.LENGTH_SHORT).show()
+                shareNote()
             R.id.updateNote ->{
                 val arguments = requireArguments()
                 val notePosition = arguments.getInt("note_position")
@@ -66,5 +64,20 @@ class ReadNotesFragment : Fragment() {
             else ->super.onOptionsItemSelected(item)
         }
         return  true
+    }
+
+    private fun shareNote() {
+        val shareNote = "${binding.openNoteTittle.text}\n ${binding.openNoteNotes.text}"
+        val shareIntent = Intent()
+        shareIntent.apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT,shareNote)
+            type = "text/plain"
+        }
+        try {
+            startActivity(shareIntent)
+        }catch (e:ActivityNotFoundException){
+            Toast.makeText(requireContext(),e.message,Toast.LENGTH_LONG).show()
+        }
     }
 }

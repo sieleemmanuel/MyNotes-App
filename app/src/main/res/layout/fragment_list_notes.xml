@@ -3,9 +3,9 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-       <!-- <variable
+        <variable
                 name="notesViewModel"
-                type="com.developerkim.mytodo.screens.listnotes.ListNoteViewModel"/>-->
+                type="com.developerkim.mytodo.ui.listnotes.ListNoteViewModel"/>
     </data>
     <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:id="@+id/list_notes_fragment"
@@ -47,8 +47,8 @@
 
                 <TextView
                         android:id="@+id/recent_notes"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:text="@string/recent_item_txt"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintStart_toStartOf="@+id/guideline1"
@@ -74,7 +74,7 @@
                 <TextView
                         android:id="@+id/notes_categories"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="48dp"
                         android:text="@string/item_list_show_categories"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintStart_toStartOf="@+id/guideline3"
@@ -112,6 +112,7 @@
                 android:src="@drawable/ic_add_black_24dp"
                 android:contentDescription="@string/text_add_note"
                 app:layout_anchor="@id/bottomAppBar"
+
                 />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

@@ -17,7 +17,7 @@
         <item name="shopping">Shopping</item>
     </string-array>
 
-    <string name="text_add_note">Add Note Button</string>
+    <string name="text_add_note">Add Note</string>
     <string name="recent_item_txt">Recent</string>
     <string name="category_item_txt">Category</string>
     <string name="note_hint_text">This a is my note sometime back just want to revisit it to know what exactly what I wrote inside it. Lets try to opern it and check!</string>

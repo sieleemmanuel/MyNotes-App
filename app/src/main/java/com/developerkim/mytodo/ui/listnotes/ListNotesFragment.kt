@@ -5,14 +5,16 @@ import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageButton
-import android.widget.SearchView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.developerkim.mytodo.R
 import com.developerkim.mytodo.database.NoteDatabase
 import com.developerkim.mytodo.databinding.FragmentListNotesBinding
@@ -20,21 +22,18 @@ import com.developerkim.mytodo.model.Note
 import com.developerkim.mytodo.model.NoteCategory
 import com.developerkim.mytodo.util.ClickListener
 import com.developerkim.mytodo.util.LongClickListener
+import com.developerkim.mytodo.util.RecentNotesListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import androidx.recyclerview.widget.GridLayoutManager
-
-import androidx.recyclerview.widget.LinearLayoutManager
+import java.util.*
 
 
-
-
-
-class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
+class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNotesListener {
 
     private lateinit var viewModel: ListNoteViewModel
     private lateinit var binding: FragmentListNotesBinding
     private lateinit var adapter: CategoryAdapter
-    private lateinit var globalmenu:Menu
+    private lateinit var globalmenu: Menu
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,12 +56,13 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
         val viewModelFactory = ListNotesViewModelFactory(database)
         viewModel = ViewModelProvider(this, viewModelFactory).get(ListNoteViewModel::class.java)
 
+
 //        reference to adapter with clickListener
-        adapter = CategoryAdapter(this, this)
+        adapter = CategoryAdapter(this, this, this)
         binding.rv.adapter = adapter
 
 //        Observing the changes on category list and update recycler adapter
-        viewModel.privateHiddenCategories .observe(viewLifecycleOwner, {
+        viewModel.privateHiddenCategories.observe(viewLifecycleOwner, {
             it?.let {
                 adapter.noteCategories = it
             }
@@ -75,7 +75,7 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
             )
         }
         binding.notesCategories.setOnClickListener {
-            val isFolder:Boolean = adapter.toggleItemViewType()
+            val isFolder: Boolean = adapter.toggleItemViewType()
             if (!isFolder) {
                 binding.rv.layoutManager = GridLayoutManager(
                     requireContext(),
@@ -87,7 +87,9 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
                 binding.notesCategories.text = getString(R.string.item_list_show_categories)
             }
         }
-
+        binding.recentNotes.setOnClickListener {
+            listAllNotes()
+        }
         return binding.root
     }
 
@@ -101,21 +103,45 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
         /**
          * Search item functionality
          * **/
-        /*val searchItem = globalmenu.findItem(R.id.app_bar_search)
+        val searchItem = globalmenu.findItem(R.id.recycler_search)
         val searchView = searchItem.actionView as SearchView
-        searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener{
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }
+
             override fun onQueryTextChange(newText: String?): Boolean {
-               return false
+                filter(newText)
+                return false
             }
-
-        })*/
-
-
+        })
     }
 
+    private fun filter(newText: String?) {
+        viewModel.categoriesList.observe(viewLifecycleOwner, {
+            val filteredList: MutableList<NoteCategory> = mutableListOf()
+            for (category in it!!) {
+                for (note in category.notes!!) {
+                    // checking if the entered string matched with any item of our recycler view.
+                    if (category.categoryName.lowercase(Locale.getDefault())
+                            .contains(newText!!.lowercase(Locale.getDefault())) ||
+                        note.noteTitle.lowercase(Locale.getDefault())
+                            .contains(newText.lowercase(Locale.getDefault()))
+                    ) {
+                        filteredList.add(category)
+
+                    }
+                }
+            }
+            if (filteredList.isEmpty()) {
+                Toast.makeText(requireContext(), "No match found", Toast.LENGTH_SHORT).show()
+                adapter.noteCategories = filteredList.distinct()
+            } else {
+                adapter.noteCategories = filteredList.distinct()
+            }
+        })
+
+    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
@@ -146,7 +172,6 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
 
             }
         }
-
         return true
     }
 
@@ -168,7 +193,7 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
             .setNegativeButton("CANCEL") { dialog, _ ->
                 dialog.cancel()
             }
-            .setPositiveButton("DELETE") { dialog, _ ->
+            .setPositiveButton("DELETE") { _, _ ->
                 viewModel.updateNote(note, position)
             }
             .show()
@@ -186,6 +211,7 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
                         note.noteText,
                     )
                 )
+
             }
             R.id.delete_note -> {
                 confirmNoteAlert(note, position)
@@ -205,7 +231,8 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
                 ContextCompat.getDrawable(requireContext(), R.drawable.rounded_corners_bg_gray)
             deleteNote.visibility = View.VISIBLE
         } else {
-            view.background = null
+            view.background =
+                ContextCompat.getDrawable(requireContext(), R.drawable.rounded_corners)
             deleteNote.visibility = View.GONE
         }
         return true
@@ -222,7 +249,9 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
                 ContextCompat.getDrawable(requireContext(), R.drawable.rounded_corners_bg_gray)
             deleteNote.visibility = View.VISIBLE
         } else {
-            view.background = null
+            view.background =
+                ContextCompat.getDrawable(requireContext(), R.drawable.rounded_corners)
+
             deleteNote.visibility = View.GONE
         }
         return super.onCategoryLongClick(view, noteCategory, position, deleteNote)
@@ -231,6 +260,35 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
     override fun onClickCategory(view: View, noteCategory: NoteCategory) {
         viewModel.clearCategories(noteCategory)
         Toast.makeText(view.context, "Category deleted Successfully", Toast.LENGTH_SHORT).show()
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.privateHiddenCategories.observe(viewLifecycleOwner, {
+            it?.let {
+                adapter.noteCategories = it
+            }
+        })
+    }
+
+    private fun listAllNotes() {
+        var allNotes: MutableList<Note>
+        viewModel.categoriesList.observe(viewLifecycleOwner, { it ->
+            allNotes = mutableListOf()
+            it.forEach {
+                it.notes?.let { noteList ->
+                    allNotes.addAll(noteList)
+                }
+            }
+            Toast.makeText(requireContext(), "${allNotes.size}", Toast.LENGTH_SHORT).show()
+
+        })
+
+    }
+
+    override fun onClickRecent(notes: MutableList<Note>, view: View) {
+
     }
 
 }
