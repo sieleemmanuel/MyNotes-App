@@ -1,5 +1,5 @@
 # Android-Simple-Notes-App
-This is a simple Note taking App implemented in Kotlin Using recyclerview library.
+This is a simple Note taking App implemented in Kotlin.
 ### Features
 - Create note by categories
 - Read saved notes
