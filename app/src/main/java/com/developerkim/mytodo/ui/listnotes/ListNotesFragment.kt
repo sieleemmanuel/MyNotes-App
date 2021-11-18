@@ -88,7 +88,7 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNo
             }
         }
         binding.recentNotes.setOnClickListener {
-            listAllNotes()
+            listRecentNotes()
         }
         return binding.root
     }
@@ -272,17 +272,16 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNo
         })
     }
 
-    private fun listAllNotes() {
-        var allNotes: MutableList<Note>
-        viewModel.categoriesList.observe(viewLifecycleOwner, { it ->
-            allNotes = mutableListOf()
-            it.forEach {
-                it.notes?.let { noteList ->
-                    allNotes.addAll(noteList)
-                }
-            }
-            Toast.makeText(requireContext(), "${allNotes.size}", Toast.LENGTH_SHORT).show()
+    private fun listRecentNotes() {
 
+        viewModel.categoriesList.observe(viewLifecycleOwner, {
+            val recentCategoryNotes: MutableList<NoteCategory> = mutableListOf()
+            for (category in it){
+                val noteList = category.notes
+                noteList?.reversed()
+                recentCategoryNotes.add(category)
+                adapter.noteCategories = recentCategoryNotes
+            }
         })
 
     }
