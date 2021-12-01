@@ -195,9 +195,7 @@ class CategoryAdapter(private val listener: ClickListener,private val longClickL
         }
 
     }
-
-
-
+    
     override fun getItemCount(): Int = noteCategories.size
 }
 
