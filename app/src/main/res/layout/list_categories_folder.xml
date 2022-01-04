@@ -8,7 +8,7 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="140dp"
+            android:layout_width="135dp"
             android:layout_height="140dp"
             android:layout_margin="10dp"
             android:padding="5dp"
@@ -16,7 +16,7 @@
 
 
         <TextView
-                android:text="Daily Tasks"
+                android:text="@string/tv_placeholder_daily_tasks"
                 android:textColor="@color/colorOnPrimary"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

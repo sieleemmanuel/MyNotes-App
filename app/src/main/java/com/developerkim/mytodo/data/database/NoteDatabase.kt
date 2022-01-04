@@ -1,16 +1,12 @@
-package com.developerkim.mytodo.database
+package com.developerkim.mytodo.data.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.developerkim.mytodo.model.Converter
-import com.developerkim.mytodo.model.Note
-import com.developerkim.mytodo.model.NoteCategory
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.internal.synchronized
-import kotlinx.coroutines.flow.collect
+import com.developerkim.mytodo.data.model.Converter
+import com.developerkim.mytodo.data.model.NoteCategory
 
 @Database(entities = [NoteCategory::class], version = 1, exportSchema = false)
 @TypeConverters(Converter::class)
@@ -23,7 +19,7 @@ abstract class NoteDatabase : RoomDatabase() {
 
 
         fun getInstance(context: Context): NoteDatabase {
-            kotlin.synchronized(this) {
+            synchronized(this) {
                 var instance = INSTANCE
                 if (instance == null) {
                     instance = Room.databaseBuilder(

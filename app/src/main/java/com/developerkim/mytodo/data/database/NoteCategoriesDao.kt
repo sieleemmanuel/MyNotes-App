@@ -1,11 +1,11 @@
-package com.developerkim.mytodo.database
+package com.developerkim.mytodo.data.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.developerkim.mytodo.model.NoteCategory
+import com.developerkim.mytodo.data.model.NoteCategory
 
 @Dao
 interface NoteCategoriesDao{

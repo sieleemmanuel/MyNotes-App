@@ -1,8 +1,10 @@
 package com.developerkim.mytodo.ui.listnotes
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.*
 import android.widget.ImageButton
 import android.widget.Toast
@@ -15,11 +17,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.developerkim.mytodo.R
-import com.developerkim.mytodo.database.NoteDatabase
+import com.developerkim.mytodo.data.database.NoteDatabase
+import com.developerkim.mytodo.data.model.Note
+import com.developerkim.mytodo.data.model.NoteCategory
 import com.developerkim.mytodo.databinding.FragmentListNotesBinding
-import com.developerkim.mytodo.model.Note
-import com.developerkim.mytodo.model.NoteCategory
 import com.developerkim.mytodo.util.ClickListener
 import com.developerkim.mytodo.util.LongClickListener
 import com.developerkim.mytodo.util.RecentNotesListener
@@ -27,12 +30,14 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.*
 
 
-class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNotesListener {
+class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
 
     private lateinit var viewModel: ListNoteViewModel
     private lateinit var binding: FragmentListNotesBinding
     private lateinit var adapter: CategoryAdapter
     private lateinit var globalmenu: Menu
+    private var spanCount: Int = 2
+    private var isFolder:Boolean=false
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreateView(
@@ -50,23 +55,22 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNo
 
         /*getting the reference to application and database*/
         val application = requireActivity().application
-        val database = NoteDatabase.getInstance(application).notesCategoriesDao
-
+        val database = NoteDatabase.getInstance(application)
 
         val viewModelFactory = ListNotesViewModelFactory(database)
         viewModel = ViewModelProvider(this, viewModelFactory).get(ListNoteViewModel::class.java)
 
+        adapter = CategoryAdapter(this, this)
+        // reference to adapter with clickListener
 
-//        reference to adapter with clickListener
-        adapter = CategoryAdapter(this, this, this)
-        binding.rv.adapter = adapter
-
-//        Observing the changes on category list and update recycler adapter
-        viewModel.privateHiddenCategories.observe(viewLifecycleOwner, {
-            it?.let {
-                adapter.noteCategories = it
-            }
-        })
+            binding.rv.layoutManager = LinearLayoutManager(context)
+            binding.rv.adapter = adapter
+            // Observing the changes on category list and update recycler adapter
+            viewModel.privateHiddenCategories.observe(viewLifecycleOwner, {
+                it?.let {
+                    adapter.submitList(it)
+                }
+            })
 
         //navigating to add new note
         binding.btnAddNote.setOnClickListener {
@@ -75,12 +79,20 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNo
             )
         }
         binding.notesCategories.setOnClickListener {
-            val isFolder: Boolean = adapter.toggleItemViewType()
-            if (!isFolder) {
-                binding.rv.layoutManager = GridLayoutManager(
-                    requireContext(),
-                    2
-                )
+             isFolder = !adapter.toggleItemViewType()
+            if (isFolder) {
+                if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    spanCount = 4
+                    binding.rv.layoutManager = GridLayoutManager(
+                        requireContext(),
+                        spanCount
+                    )
+                } else {
+                    binding.rv.layoutManager = GridLayoutManager(
+                        requireContext(),
+                        spanCount
+                    )
+                }
                 binding.notesCategories.text = getString(R.string.item_list_notes)
             } else {
                 binding.rv.layoutManager = LinearLayoutManager(requireContext())
@@ -90,6 +102,7 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNo
         binding.recentNotes.setOnClickListener {
             listRecentNotes()
         }
+        adapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         return binding.root
     }
 
@@ -135,9 +148,9 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNo
             }
             if (filteredList.isEmpty()) {
                 Toast.makeText(requireContext(), "No match found", Toast.LENGTH_SHORT).show()
-                adapter.noteCategories = filteredList.distinct()
+                adapter.submitList(filteredList.distinct())
             } else {
-                adapter.noteCategories = filteredList.distinct()
+                adapter.submitList(filteredList.distinct())
             }
         })
 
@@ -152,7 +165,7 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNo
             R.id.hide_private -> {
                 viewModel.privateHiddenCategories.observe(viewLifecycleOwner, {
                     it.let {
-                        adapter.noteCategories = it
+                        adapter.submitList(it)
                     }
                 })
                 // hide Hide_private menu item and show show_all menu item
@@ -163,7 +176,7 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNo
             R.id.show_all -> {
                 viewModel.categoriesList.observe(viewLifecycleOwner, {
                     it.let {
-                        adapter.noteCategories = it
+                        adapter.submitList (it)
                     }
                 })
                 //show the item only if hide_private menu item is invisible
@@ -262,32 +275,19 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNo
         Toast.makeText(view.context, "Category deleted Successfully", Toast.LENGTH_SHORT).show()
     }
 
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.privateHiddenCategories.observe(viewLifecycleOwner, {
-            it?.let {
-                adapter.noteCategories = it
-            }
-        })
-    }
-
     private fun listRecentNotes() {
 
         viewModel.categoriesList.observe(viewLifecycleOwner, {
             val recentCategoryNotes: MutableList<NoteCategory> = mutableListOf()
-            for (category in it){
+            for (category in it) {
                 val noteList = category.notes
                 noteList?.reversed()
                 recentCategoryNotes.add(category)
-                adapter.noteCategories = recentCategoryNotes
+                adapter.submitList(recentCategoryNotes)
             }
         })
 
     }
 
-    override fun onClickRecent(notes: MutableList<Note>, view: View) {
-
-    }
 
 }

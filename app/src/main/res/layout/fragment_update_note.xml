@@ -32,7 +32,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:text=""
-                        android:hint="Enter title"/>
+                        android:hint="@string/hint_enter_title"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout

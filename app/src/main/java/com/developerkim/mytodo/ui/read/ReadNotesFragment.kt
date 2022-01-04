@@ -27,7 +27,6 @@ class ReadNotesFragment : Fragment() {
             false
         )
 
-
         val arguments = requireArguments()
 
         binding.noteDate.text = arguments.getString("note_date")

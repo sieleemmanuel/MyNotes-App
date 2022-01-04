@@ -9,19 +9,15 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
 import com.developerkim.mytodo.R
-import com.developerkim.mytodo.database.NoteDatabase
+import com.developerkim.mytodo.data.database.NoteDatabase
 import com.developerkim.mytodo.databinding.FragmentNewNoteBinding
-import com.developerkim.mytodo.model.Note
-import com.developerkim.mytodo.model.NoteCategory
+import com.developerkim.mytodo.data.model.Note
+import com.developerkim.mytodo.data.model.NoteCategory
 import kotlinx.android.synthetic.main.fragment_new_note.*
 
 class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {

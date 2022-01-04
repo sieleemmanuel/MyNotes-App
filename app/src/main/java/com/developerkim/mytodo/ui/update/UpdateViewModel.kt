@@ -6,9 +6,9 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.developerkim.mytodo.R
-import com.developerkim.mytodo.database.NoteCategoriesDao
-import com.developerkim.mytodo.model.Note
-import com.developerkim.mytodo.model.NoteCategory
+import com.developerkim.mytodo.data.database.NoteCategoriesDao
+import com.developerkim.mytodo.data.model.Note
+import com.developerkim.mytodo.data.model.NoteCategory
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

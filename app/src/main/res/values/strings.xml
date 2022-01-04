@@ -38,4 +38,6 @@
     <string name="item_share_text">Share</string>
     <string name="item_list_notes">List Notes</string>
     <string name="item_list_show_categories">Show Categories</string>
+    <string name="hint_enter_title">Enter title</string>
+    <string name="tv_placeholder_daily_tasks">Daily Tasks</string>
 </resources>
