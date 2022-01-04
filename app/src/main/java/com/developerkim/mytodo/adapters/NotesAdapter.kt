@@ -7,22 +7,24 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.developerkim.mytodo.R
 import com.developerkim.mytodo.databinding.ListCategoriesBinding
 import com.developerkim.mytodo.databinding.ListCategoriesFolderBinding
 import com.developerkim.mytodo.databinding.ListItemsBinding
-import com.developerkim.mytodo.model.Note
-import com.developerkim.mytodo.model.NoteCategory
+import com.developerkim.mytodo.data.model.Note
+import com.developerkim.mytodo.data.model.NoteCategory
 import com.developerkim.mytodo.util.ClickListener
 import com.developerkim.mytodo.util.LongClickListener
 import com.developerkim.mytodo.util.RecentNotesListener
 
 
-class NoteAdapter(notes: MutableList<Note>, val listener: ClickListener, private val longClickListener: LongClickListener, private val recentNotesListener: RecentNotesListener) :
+class NoteAdapter(notes: MutableList<Note>, private val listener: ClickListener, private val longClickListener: LongClickListener) :
     RecyclerView.Adapter<NoteAdapter.ViewHolder>() {
-    val notesList = notes
-    class ViewHolder(val binding: ListItemsBinding) : RecyclerView.ViewHolder(binding.root) {
+    private val notesList = notes
+    class ViewHolder(private val binding: ListItemsBinding) : RecyclerView.ViewHolder(binding.root) {
 
         companion object {
             fun from(parent: ViewGroup): ViewHolder {
@@ -37,7 +39,7 @@ class NoteAdapter(notes: MutableList<Note>, val listener: ClickListener, private
 
         @RequiresApi(Build.VERSION_CODES.M)
         fun bind(
-            note: Note, listener: ClickListener, position: Int, longClickListener: LongClickListener, recentNotesListener: RecentNotesListener
+            note: Note, listener: ClickListener, position: Int, longClickListener: LongClickListener
         ) {
             binding.txtCategory.text = note.noteCategory
             binding.tvNoteTitle.text = note.noteTitle
@@ -73,7 +75,7 @@ class NoteAdapter(notes: MutableList<Note>, val listener: ClickListener, private
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val note = notesList[position]
-        holder.bind(note,listener,position,longClickListener,recentNotesListener)
+        holder.bind(note,listener,position,longClickListener)
 
     }
 }
@@ -81,19 +83,14 @@ class NoteAdapter(notes: MutableList<Note>, val listener: ClickListener, private
 
 /*Adapter to adapt category notes */
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP) // for context to access resource values
-class CategoryAdapter(private val listener: ClickListener,private val longClickListener: LongClickListener,private val recentNotesListener: RecentNotesListener) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class CategoryAdapter(private val listener: ClickListener,private val longClickListener: LongClickListener) :
+    ListAdapter<NoteCategory,RecyclerView.ViewHolder>(DiffItemCallback()) {
     companion object{
         private const val TYPE_CATEGORY_LIST:Int = 1
         private  const val  TYPE_CATEGORY_FOLDER:Int = 2
 
         var isFolderView:Boolean = true
     }
-    var noteCategories = listOf<NoteCategory>()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
     override fun getItemViewType(position: Int): Int {
         return if (isFolderView) TYPE_CATEGORY_LIST
         else TYPE_CATEGORY_FOLDER
@@ -110,11 +107,10 @@ class CategoryAdapter(private val listener: ClickListener,private val longClickL
             category: NoteCategory,
             position: Int,
             listener: ClickListener,
-            longClickListener: LongClickListener,
-            recentNotesListener: RecentNotesListener
+            longClickListener: LongClickListener
         ) {
             binding.rvCategoryList.adapter = category.notes?.let {
-                NoteAdapter(it, listener, longClickListener,recentNotesListener)
+                NoteAdapter(it, listener, longClickListener)
             }
             binding.txtCategoryName.text = category.categoryName
             binding.root.setOnLongClickListener {
@@ -147,7 +143,7 @@ class CategoryAdapter(private val listener: ClickListener,private val longClickL
         }
     }
 
-    class CategoryFolderHolder(val binding: ListCategoriesFolderBinding): RecyclerView.ViewHolder(binding.root){
+    class CategoryFolderHolder(private val binding: ListCategoriesFolderBinding): RecyclerView.ViewHolder(binding.root){
         fun folderBinder(category: NoteCategory) {
             val folderBackground = binding.root.background as GradientDrawable
             binding.noteCategoryName.text = category.categoryName
@@ -174,6 +170,8 @@ class CategoryAdapter(private val listener: ClickListener,private val longClickL
         }
     }
 
+
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int):RecyclerView.ViewHolder {
 
         return when(viewType){
@@ -184,10 +182,10 @@ class CategoryAdapter(private val listener: ClickListener,private val longClickL
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val category = noteCategories[position]
+        val category = getItem(position)
         when(holder) {
             is CategoryViewHolder -> {
-                holder.binder(category, position, listener, longClickListener,recentNotesListener)
+                holder.binder(category, position, listener, longClickListener)
             }
             is CategoryFolderHolder -> {
                holder.folderBinder(category)
@@ -195,7 +193,15 @@ class CategoryAdapter(private val listener: ClickListener,private val longClickL
         }
 
     }
-    
-    override fun getItemCount(): Int = noteCategories.size
+    class DiffItemCallback :DiffUtil.ItemCallback<NoteCategory>(){
+        override fun areItemsTheSame(oldItem: NoteCategory, newItem: NoteCategory): Boolean {
+            return oldItem.categoryName == newItem.categoryName
+        }
+
+        override fun areContentsTheSame(oldItem: NoteCategory, newItem: NoteCategory): Boolean {
+           return oldItem == newItem
+        }
+
+    }
 }
 
