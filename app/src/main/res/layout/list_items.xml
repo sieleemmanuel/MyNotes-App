@@ -5,10 +5,7 @@
     <data>
         <variable
                 name="note"
-                type="com.developerkim.mytodo.model.Note" />
-        <variable
-                name="listener"
-                type="com.developerkim.mytodo.util.ClickListener" />
+                type="com.developerkim.mytodo.data.model.Note" />
     </data>
 <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="140dp"
@@ -16,8 +13,7 @@
         android:layout_margin="5dp"
         android:elevation="8dp"
         android:background="@drawable/rounded_corners"
-        android:id="@+id/noteItem"
-        android:onClick="">
+        android:id="@+id/noteItem">
 
 
     <TextView
