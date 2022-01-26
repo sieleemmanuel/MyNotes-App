@@ -1,11 +1,13 @@
 # Android-Simple-Notes-App
-This is a simple Note taking App implemented in Kotlin.
+This is a simple Note taking App implemented in Kotlin. Built this to learn more on room database, Navigation component, data binding and MVVM Architecture pattern
 ## Features
 - Create note by categories
 - Read saved notes
 - Update notes
 - Share note etc
 # Screenshots/Demo
+<div align="center">
+
 |<strong>List Notes </strong>|<strong>New Note</strong>|
 |:--:|:--:|
 |<img src ='arts/List Notes.png' width='300'/>|<img src='arts/New Note.png' width='300'/>|
@@ -14,6 +16,7 @@ This is a simple Note taking App implemented in Kotlin.
 |:--:|:--:|
 |<img src ='arts/Read Note.png' width='300'/>|<img src='arts/Update Note.png' width='300'/>|
 
+</div>
 
 ## Tools in use
 - MVVM Architecture
