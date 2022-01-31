@@ -56,6 +56,19 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:drawableTopCompat="@drawable/ic_recent"
                         android:textColor="@color/colorOnPrimary"/>
+                <TextView
+                        android:id="@+id/old_notes"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:text="@string/old_item_txt"
+                        android:textAlignment="center"
+                        android:visibility="gone"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="@+id/guideline1"
+                        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:drawableTopCompat="@drawable/ic_recent"
+                        android:textColor="@color/colorOnPrimary"/>
 
                 <androidx.constraintlayout.widget.Guideline
                         android:id="@+id/guideline1"
