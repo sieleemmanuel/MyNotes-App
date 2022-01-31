@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.*
 import android.widget.ImageButton
 import android.widget.Toast
@@ -25,8 +24,11 @@ import com.developerkim.mytodo.data.model.NoteCategory
 import com.developerkim.mytodo.databinding.FragmentListNotesBinding
 import com.developerkim.mytodo.util.ClickListener
 import com.developerkim.mytodo.util.LongClickListener
-import com.developerkim.mytodo.util.RecentNotesListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.*
 
 
@@ -53,7 +55,7 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
         )
         setHasOptionsMenu(true)
 
-        /*getting the reference to application and database*/
+        /*Getting the reference to application and database*/
         val application = requireActivity().application
         val database = NoteDatabase.getInstance(application)
 
@@ -65,8 +67,9 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
 
             binding.rv.layoutManager = LinearLayoutManager(context)
             binding.rv.adapter = adapter
+
             // Observing the changes on category list and update recycler adapter
-            viewModel.privateHiddenCategories.observe(viewLifecycleOwner, {
+            viewModel.categoriesList.observe(viewLifecycleOwner, {
                 it?.let {
                     adapter.submitList(it)
                 }
@@ -101,6 +104,9 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
         }
         binding.recentNotes.setOnClickListener {
             listRecentNotes()
+        }
+        binding.oldNotes?.setOnClickListener {
+            listOldNotes()
         }
         adapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         return binding.root
@@ -163,22 +169,14 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
             }
 
             R.id.hide_private -> {
-                viewModel.privateHiddenCategories.observe(viewLifecycleOwner, {
-                    it.let {
-                        adapter.submitList(it)
-                    }
-                })
+                viewModel.hidePrivateCategories()
                 // hide Hide_private menu item and show show_all menu item
                 item.isVisible = false
                 globalmenu.findItem(R.id.show_all).isVisible = true
 
             }
             R.id.show_all -> {
-                viewModel.categoriesList.observe(viewLifecycleOwner, {
-                    it.let {
-                        adapter.submitList (it)
-                    }
-                })
+                viewModel.showAllCategories()
                 //show the item only if hide_private menu item is invisible
                 item.isVisible = false
                 globalmenu.findItem(R.id.hide_private).isVisible = true
@@ -264,7 +262,6 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
         } else {
             view.background =
                 ContextCompat.getDrawable(requireContext(), R.drawable.rounded_corners)
-
             deleteNote.visibility = View.GONE
         }
         return super.onCategoryLongClick(view, noteCategory, position, deleteNote)
@@ -275,15 +272,49 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
         Toast.makeText(view.context, "Category deleted Successfully", Toast.LENGTH_SHORT).show()
     }
 
+    @SuppressLint("SimpleDateFormat")
     private fun listRecentNotes() {
 
         viewModel.categoriesList.observe(viewLifecycleOwner, {
             val recentCategoryNotes: MutableList<NoteCategory> = mutableListOf()
             for (category in it) {
-                val noteList = category.notes
-                noteList?.reversed()
-                recentCategoryNotes.add(category)
+                val parser = SimpleDateFormat("yyyy/MM/dd, HH:mm a")
+                val noteList = category.notes?.sortedWith(compareBy { note->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        LocalDateTime.parse( note.noteDate, DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
+                    } else {
+                        parser.format(SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(note.noteDate)!!)
+                    }
+
+                })?.reversed()
+
+                val noteCategory = NoteCategory(categoryName = category.categoryName,notes = noteList as MutableList<Note>?)
+                recentCategoryNotes.add(noteCategory)
                 adapter.submitList(recentCategoryNotes)
+                binding.recentNotes.visibility = View.GONE
+                binding.oldNotes.visibility = View.VISIBLE
+            }
+        })
+
+    }
+    @SuppressLint("SimpleDateFormat")
+    private fun listOldNotes() {
+        viewModel.categoriesList.observe(viewLifecycleOwner, {
+            val recentCategoryNotes: MutableList<NoteCategory> = mutableListOf()
+            for (category in it) {
+                val parser = SimpleDateFormat("yyyy/MM/dd, HH:mm a")
+                val noteList = category.notes?.sortedWith(compareBy { note->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        LocalDateTime.parse( note.noteDate, DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
+                    } else {
+                        parser.format(SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(note.noteDate)!!)
+                    }
+                })
+                val noteCategory = NoteCategory(categoryName = category.categoryName,notes = noteList as MutableList<Note>?)
+                recentCategoryNotes.add(noteCategory)
+                adapter.submitList(recentCategoryNotes)
+                binding.recentNotes.visibility = View.VISIBLE
+                binding.oldNotes.visibility = View.GONE
             }
         })
 

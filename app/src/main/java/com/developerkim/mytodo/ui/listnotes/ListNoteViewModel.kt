@@ -1,5 +1,7 @@
 package com.developerkim.mytodo.ui.listnotes
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.developerkim.mytodo.data.database.NoteDatabase
@@ -13,8 +15,15 @@ class ListNoteViewModel(
 ) : ViewModel() {
     private val notesRepository = NotesRepository(dataSource)
 
-    val categoriesList = notesRepository.categoryNoteList
-    val privateHiddenCategories = notesRepository.privateHiddenNotes
+    private val _categories = MutableLiveData<List<NoteCategory>>()
+    val categoriesList:LiveData<List<NoteCategory>> = _categories
+
+    init {
+        notesRepository.privateHiddenNotes.observeForever{
+            _categories.value =it
+        }
+
+    }
 
 
     private suspend fun deleteAllCategories() {
@@ -51,6 +60,17 @@ class ListNoteViewModel(
             update(toUpdateCategory)
         }
 
+    }
+
+    fun showAllCategories(){
+        notesRepository.categoryNoteList.observeForever {
+            _categories.value = it
+        }
+    }
+    fun hidePrivateCategories(){
+        notesRepository.privateHiddenNotes.observeForever{
+            _categories.value = it
+        }
     }
 
 
