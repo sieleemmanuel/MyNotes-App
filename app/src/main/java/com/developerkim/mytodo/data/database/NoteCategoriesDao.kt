@@ -25,8 +25,8 @@ interface NoteCategoriesDao{
     suspend fun getCategory(categoryName:String):NoteCategory
 
     @Query("SELECT * FROM notes_categories_table")
-
     fun getAllNoteCategories(): LiveData<List<NoteCategory>>
+
     @Query("SELECT * FROM notes_categories_table WHERE category_name !=:categoryName ORDER BY category_name")
     fun getCategoriesPrivateHidden(categoryName:String="Private"): LiveData<List<NoteCategory>>
 

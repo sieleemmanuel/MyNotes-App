@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import com.google.gson.Gson
+import java.util.*
 
 /*Create data class for note category*/
 
@@ -21,5 +22,6 @@ class Converter{
     @TypeConverter
     fun jsonToList(value: String):MutableList<Note> =
         (Gson().fromJson(value, Array<Note>::class.java) as Array<Note>).toMutableList()
+
 }
 

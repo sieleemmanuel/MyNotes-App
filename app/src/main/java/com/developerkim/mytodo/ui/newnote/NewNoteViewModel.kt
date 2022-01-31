@@ -32,15 +32,6 @@ class NewNoteViewModel(private val categoryDatabase: NoteCategoriesDao, applicat
     val noteCategory: LiveData<String>
         get() = _noteCategory
 
-
-    val _noteText = MutableLiveData<String>()
-    val noteText: LiveData<String>
-        get() = _noteText
-
-    private val _navigateToListNotes = MutableLiveData<Boolean?>()
-    val navigateToListNote: LiveData<Boolean?>
-        get() = _navigateToListNotes
-
     private suspend fun insert(noteCategory: NoteCategory) {
         categoryDatabase.insert(noteCategory)
     }

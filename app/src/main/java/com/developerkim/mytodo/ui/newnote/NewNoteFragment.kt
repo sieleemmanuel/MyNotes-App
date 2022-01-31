@@ -29,6 +29,7 @@ class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         // Inflate the layout for this fragment
         val binding: FragmentNewNoteBinding = DataBindingUtil.inflate(
             inflater,
@@ -59,6 +60,7 @@ class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
             setAdapter(adapter)
             onItemClickListener = this@NewNoteFragment
         }
+
         binding.btnSave.setOnClickListener {
             //Creating a list of notes to store in database based on categories
             val newNote = Note(selectedCategory, noteTitle.toString(), noteText.toString(), viewModel.noteDate)
@@ -71,7 +73,6 @@ class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
             viewModel.updateIfExist(newNote,categories)
             this.findNavController().navigate(
                 NewNoteFragmentDirections.actionNewNoteFragmentToListNotesFragment()
-
             )
         }
 
