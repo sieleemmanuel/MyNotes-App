@@ -8,16 +8,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.developerkim.mytodo.R
-import com.developerkim.mytodo.database.NoteCategoriesDao
-import com.developerkim.mytodo.model.Note
-import com.developerkim.mytodo.model.NoteCategory
+import com.developerkim.mytodo.data.database.NoteCategoriesDao
+import com.developerkim.mytodo.data.model.Note
+import com.developerkim.mytodo.data.model.NoteCategory
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 @RequiresApi(Build.VERSION_CODES.O)
-class NewNoteViewModel(val categoryDatabase: NoteCategoriesDao, application: Application) :
+class NewNoteViewModel(private val categoryDatabase: NoteCategoriesDao, application: Application) :
     AndroidViewModel(application) {
 
 
@@ -25,21 +25,12 @@ class NewNoteViewModel(val categoryDatabase: NoteCategoriesDao, application: App
 
     val category = MutableLiveData<NoteCategory>()
 
-    val currentDateTime = LocalDateTime.now()
+    private val currentDateTime: LocalDateTime = LocalDateTime.now()
     val noteDate = currentDateTime.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
 
     val _noteCategory = MutableLiveData<String>()
     val noteCategory: LiveData<String>
         get() = _noteCategory
-
-
-    val _noteText = MutableLiveData<String>()
-    val noteText: LiveData<String>
-        get() = _noteText
-
-    private val _navigateToListNotes = MutableLiveData<Boolean?>()
-    val navigateToListNote: LiveData<Boolean?>
-        get() = _navigateToListNotes
 
     private suspend fun insert(noteCategory: NoteCategory) {
         categoryDatabase.insert(noteCategory)

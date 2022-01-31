@@ -29,6 +29,7 @@
                     tools:listitem="@layout/list_categories"
                     android:orientation="vertical"
                     />
+
         </androidx.core.widget.NestedScrollView>
 
         <com.google.android.material.bottomappbar.BottomAppBar
@@ -80,7 +81,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:layout_constraintGuide_percent="0.3"
-                        android:orientation="vertical"/>
+                    android:orientation="vertical"/>
 
 
                 <TextView
@@ -111,7 +112,6 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.bottomappbar.BottomAppBar>
 
-
         <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnAddNote"
                 android:layout_width="wrap_content"
@@ -119,7 +119,6 @@
                 android:src="@drawable/ic_add_black_24dp"
                 android:contentDescription="@string/text_add_note"
                 app:layout_anchor="@id/bottomAppBar"
-
                 />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

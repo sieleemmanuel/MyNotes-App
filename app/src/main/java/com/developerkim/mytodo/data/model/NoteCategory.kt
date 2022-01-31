@@ -1,12 +1,11 @@
-package com.developerkim.mytodo.model
+package com.developerkim.mytodo.data.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import java.lang.reflect.Type
+import java.util.*
 
 /*Create data class for note category*/
 
@@ -23,5 +22,6 @@ class Converter{
     @TypeConverter
     fun jsonToList(value: String):MutableList<Note> =
         (Gson().fromJson(value, Array<Note>::class.java) as Array<Note>).toMutableList()
+
 }
 

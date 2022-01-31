@@ -5,7 +5,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.developerkim.mytodo.database.NoteCategoriesDao
+import com.developerkim.mytodo.data.database.NoteCategoriesDao
 
 @RequiresApi(Build.VERSION_CODES.O)
 class NewNoteViewModelFactory(private val application: Application, private val dataSource:NoteCategoriesDao):ViewModelProvider.Factory {

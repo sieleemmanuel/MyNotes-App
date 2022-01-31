@@ -19,6 +19,7 @@
 
     <string name="text_add_note">Add Note</string>
     <string name="recent_item_txt">Recent</string>
+    <string name="old_item_txt">Old</string>
     <string name="category_item_txt">Category</string>
     <string name="note_hint_text">This a is my note sometime back just want to revisit it to know what exactly what I wrote inside it. Lets try to opern it and check!</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -38,4 +39,6 @@
     <string name="item_share_text">Share</string>
     <string name="item_list_notes">List Notes</string>
     <string name="item_list_show_categories">Show Categories</string>
+    <string name="hint_enter_title">Enter title</string>
+    <string name="tv_placeholder_daily_tasks">Daily Tasks</string>
 </resources>

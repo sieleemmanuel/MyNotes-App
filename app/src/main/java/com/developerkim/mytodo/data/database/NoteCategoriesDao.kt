@@ -1,11 +1,11 @@
-package com.developerkim.mytodo.database
+package com.developerkim.mytodo.data.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.developerkim.mytodo.model.NoteCategory
+import com.developerkim.mytodo.data.model.NoteCategory
 
 @Dao
 interface NoteCategoriesDao{
@@ -25,8 +25,8 @@ interface NoteCategoriesDao{
     suspend fun getCategory(categoryName:String):NoteCategory
 
     @Query("SELECT * FROM notes_categories_table")
-
     fun getAllNoteCategories(): LiveData<List<NoteCategory>>
+
     @Query("SELECT * FROM notes_categories_table WHERE category_name !=:categoryName ORDER BY category_name")
     fun getCategoriesPrivateHidden(categoryName:String="Private"): LiveData<List<NoteCategory>>
 

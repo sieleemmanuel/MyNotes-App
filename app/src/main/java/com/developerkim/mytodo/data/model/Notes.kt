@@ -1,4 +1,4 @@
-package com.developerkim.mytodo.model
+package com.developerkim.mytodo.data.model
 
 /*
 * data class for each individual note

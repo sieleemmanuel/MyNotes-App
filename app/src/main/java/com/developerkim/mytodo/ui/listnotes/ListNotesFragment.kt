@@ -1,6 +1,7 @@
 package com.developerkim.mytodo.ui.listnotes
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.view.*
@@ -15,24 +16,30 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.developerkim.mytodo.R
-import com.developerkim.mytodo.database.NoteDatabase
+import com.developerkim.mytodo.data.database.NoteDatabase
+import com.developerkim.mytodo.data.model.Note
+import com.developerkim.mytodo.data.model.NoteCategory
 import com.developerkim.mytodo.databinding.FragmentListNotesBinding
-import com.developerkim.mytodo.model.Note
-import com.developerkim.mytodo.model.NoteCategory
 import com.developerkim.mytodo.util.ClickListener
 import com.developerkim.mytodo.util.LongClickListener
-import com.developerkim.mytodo.util.RecentNotesListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.*
 
 
-class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNotesListener {
+class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
 
     private lateinit var viewModel: ListNoteViewModel
     private lateinit var binding: FragmentListNotesBinding
     private lateinit var adapter: CategoryAdapter
     private lateinit var globalmenu: Menu
+    private var spanCount: Int = 2
+    private var isFolder:Boolean=false
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreateView(
@@ -48,25 +55,25 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNo
         )
         setHasOptionsMenu(true)
 
-        /*getting the reference to application and database*/
+        /*Getting the reference to application and database*/
         val application = requireActivity().application
-        val database = NoteDatabase.getInstance(application).notesCategoriesDao
-
+        val database = NoteDatabase.getInstance(application)
 
         val viewModelFactory = ListNotesViewModelFactory(database)
         viewModel = ViewModelProvider(this, viewModelFactory).get(ListNoteViewModel::class.java)
 
+        adapter = CategoryAdapter(this, this)
+        // reference to adapter with clickListener
 
-//        reference to adapter with clickListener
-        adapter = CategoryAdapter(this, this, this)
-        binding.rv.adapter = adapter
+            binding.rv.layoutManager = LinearLayoutManager(context)
+            binding.rv.adapter = adapter
 
-//        Observing the changes on category list and update recycler adapter
-        viewModel.privateHiddenCategories.observe(viewLifecycleOwner, {
-            it?.let {
-                adapter.noteCategories = it
-            }
-        })
+            // Observing the changes on category list and update recycler adapter
+            viewModel.categoriesList.observe(viewLifecycleOwner, {
+                it?.let {
+                    adapter.submitList(it)
+                }
+            })
 
         //navigating to add new note
         binding.btnAddNote.setOnClickListener {
@@ -75,12 +82,20 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNo
             )
         }
         binding.notesCategories.setOnClickListener {
-            val isFolder: Boolean = adapter.toggleItemViewType()
-            if (!isFolder) {
-                binding.rv.layoutManager = GridLayoutManager(
-                    requireContext(),
-                    2
-                )
+             isFolder = !adapter.toggleItemViewType()
+            if (isFolder) {
+                if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    spanCount = 4
+                    binding.rv.layoutManager = GridLayoutManager(
+                        requireContext(),
+                        spanCount
+                    )
+                } else {
+                    binding.rv.layoutManager = GridLayoutManager(
+                        requireContext(),
+                        spanCount
+                    )
+                }
                 binding.notesCategories.text = getString(R.string.item_list_notes)
             } else {
                 binding.rv.layoutManager = LinearLayoutManager(requireContext())
@@ -90,6 +105,10 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNo
         binding.recentNotes.setOnClickListener {
             listRecentNotes()
         }
+        binding.oldNotes?.setOnClickListener {
+            listOldNotes()
+        }
+        adapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         return binding.root
     }
 
@@ -135,9 +154,9 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNo
             }
             if (filteredList.isEmpty()) {
                 Toast.makeText(requireContext(), "No match found", Toast.LENGTH_SHORT).show()
-                adapter.noteCategories = filteredList.distinct()
+                adapter.submitList(filteredList.distinct())
             } else {
-                adapter.noteCategories = filteredList.distinct()
+                adapter.submitList(filteredList.distinct())
             }
         })
 
@@ -150,22 +169,14 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNo
             }
 
             R.id.hide_private -> {
-                viewModel.privateHiddenCategories.observe(viewLifecycleOwner, {
-                    it.let {
-                        adapter.noteCategories = it
-                    }
-                })
+                viewModel.hidePrivateCategories()
                 // hide Hide_private menu item and show show_all menu item
                 item.isVisible = false
                 globalmenu.findItem(R.id.show_all).isVisible = true
 
             }
             R.id.show_all -> {
-                viewModel.categoriesList.observe(viewLifecycleOwner, {
-                    it.let {
-                        adapter.noteCategories = it
-                    }
-                })
+                viewModel.showAllCategories()
                 //show the item only if hide_private menu item is invisible
                 item.isVisible = false
                 globalmenu.findItem(R.id.hide_private).isVisible = true
@@ -251,7 +262,6 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNo
         } else {
             view.background =
                 ContextCompat.getDrawable(requireContext(), R.drawable.rounded_corners)
-
             deleteNote.visibility = View.GONE
         }
         return super.onCategoryLongClick(view, noteCategory, position, deleteNote)
@@ -262,32 +272,53 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener, RecentNo
         Toast.makeText(view.context, "Category deleted Successfully", Toast.LENGTH_SHORT).show()
     }
 
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.privateHiddenCategories.observe(viewLifecycleOwner, {
-            it?.let {
-                adapter.noteCategories = it
-            }
-        })
-    }
-
+    @SuppressLint("SimpleDateFormat")
     private fun listRecentNotes() {
 
         viewModel.categoriesList.observe(viewLifecycleOwner, {
             val recentCategoryNotes: MutableList<NoteCategory> = mutableListOf()
-            for (category in it){
-                val noteList = category.notes
-                noteList?.reversed()
-                recentCategoryNotes.add(category)
-                adapter.noteCategories = recentCategoryNotes
+            for (category in it) {
+                val parser = SimpleDateFormat("yyyy/MM/dd, HH:mm a")
+                val noteList = category.notes?.sortedWith(compareBy { note->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        LocalDateTime.parse( note.noteDate, DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
+                    } else {
+                        parser.format(SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(note.noteDate)!!)
+                    }
+
+                })?.reversed()
+
+                val noteCategory = NoteCategory(categoryName = category.categoryName,notes = noteList as MutableList<Note>?)
+                recentCategoryNotes.add(noteCategory)
+                adapter.submitList(recentCategoryNotes)
+                binding.recentNotes.visibility = View.GONE
+                binding.oldNotes.visibility = View.VISIBLE
+            }
+        })
+
+    }
+    @SuppressLint("SimpleDateFormat")
+    private fun listOldNotes() {
+        viewModel.categoriesList.observe(viewLifecycleOwner, {
+            val recentCategoryNotes: MutableList<NoteCategory> = mutableListOf()
+            for (category in it) {
+                val parser = SimpleDateFormat("yyyy/MM/dd, HH:mm a")
+                val noteList = category.notes?.sortedWith(compareBy { note->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        LocalDateTime.parse( note.noteDate, DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
+                    } else {
+                        parser.format(SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(note.noteDate)!!)
+                    }
+                })
+                val noteCategory = NoteCategory(categoryName = category.categoryName,notes = noteList as MutableList<Note>?)
+                recentCategoryNotes.add(noteCategory)
+                adapter.submitList(recentCategoryNotes)
+                binding.recentNotes.visibility = View.VISIBLE
+                binding.oldNotes.visibility = View.GONE
             }
         })
 
     }
 
-    override fun onClickRecent(notes: MutableList<Note>, view: View) {
-
-    }
 
 }

@@ -4,25 +4,34 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.developerkim.mytodo.database.NoteCategoriesDao
-import com.developerkim.mytodo.model.Note
-import com.developerkim.mytodo.model.NoteCategory
+import com.developerkim.mytodo.data.database.NoteDatabase
+import com.developerkim.mytodo.data.model.Note
+import com.developerkim.mytodo.data.model.NoteCategory
+import com.developerkim.mytodo.data.repository.NotesRepository
 import kotlinx.coroutines.launch
 
 class ListNoteViewModel(
-    private val dataSource: NoteCategoriesDao
+    private val dataSource: NoteDatabase
 ) : ViewModel() {
-    var noteCategory: NoteCategory = NoteCategory()
-    val categoriesList = dataSource.getAllNoteCategories()
-    val privateHiddenCategories = dataSource.getCategoriesPrivateHidden()
+    private val notesRepository = NotesRepository(dataSource)
+
+    private val _categories = MutableLiveData<List<NoteCategory>>()
+    val categoriesList:LiveData<List<NoteCategory>> = _categories
+
+    init {
+        notesRepository.privateHiddenNotes.observeForever{
+            _categories.value =it
+        }
+
+    }
 
 
     private suspend fun deleteAllCategories() {
-        dataSource.clearAllCategories()
+        dataSource.notesCategoriesDao.clearAllCategories()
     }
 
     private suspend fun deleteCategory(noteCategory: NoteCategory) {
-        dataSource.deleteCategory(noteCategory.categoryName)
+        dataSource.notesCategoriesDao.deleteCategory(noteCategory.categoryName)
     }
 
     fun clearAllCategories() {
@@ -37,25 +46,11 @@ class ListNoteViewModel(
         }
     }
 
-    private val _navigateToReadNote = MutableLiveData<Boolean>()
-    val navigateToReadNote:LiveData<Boolean>
-        get() = _navigateToReadNote
-
-    private val _navigateToNewNote = MutableLiveData<Boolean>()
-    val navigateToNewNote:LiveData<Boolean>
-        get() = _navigateToNewNote
-    fun navigateToNewNote(){
-        _navigateToNewNote.value = true
-    }
-    fun newNoteNavigated(){
-        _navigateToNewNote.value = false
-    }
-
     private suspend fun update(noteCategory: NoteCategory) {
-        dataSource.update(noteCategory)
+        dataSource.notesCategoriesDao.update(noteCategory)
     }
     private suspend fun getCategoryToUpdate(categoryName: String): NoteCategory {
-        return dataSource.getCategory(categoryName)
+        return dataSource.notesCategoriesDao.getCategory(categoryName)
     }
 
     fun updateNote(note: Note,notePosition:Int) {
@@ -67,13 +62,15 @@ class ListNoteViewModel(
 
     }
 
-    fun navigateOnNoteClicked() {
-        _navigateToReadNote.value = true
-
+    fun showAllCategories(){
+        notesRepository.categoryNoteList.observeForever {
+            _categories.value = it
+        }
     }
-
-    fun onReadNoteNavigated() {
-        _navigateToReadNote.value = false
+    fun hidePrivateCategories(){
+        notesRepository.privateHiddenNotes.observeForever{
+            _categories.value = it
+        }
     }
 
 
