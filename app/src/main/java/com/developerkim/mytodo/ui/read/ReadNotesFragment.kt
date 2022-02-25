@@ -19,8 +19,7 @@ class ReadNotesFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        binding= DataBindingUtil.inflate(
+        binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_read_note,
             container,
@@ -29,11 +28,13 @@ class ReadNotesFragment : Fragment() {
 
         val arguments = requireArguments()
 
-        binding.noteDate.text = arguments.getString("note_date")
-        binding.openNoteTittle.text = arguments.getString("note_title")
-        binding.openNoteNotes.text = arguments.getString("note_texts")
+        binding.apply {
+            noteDate.text = arguments.getString("note_date")
+            openNoteTittle.text = arguments.getString("note_title")
+            openNoteNotes.text = arguments.getString("note_texts")
+            openNoteNotes.movementMethod = ScrollingMovementMethod()
+        }
 
-        binding.openNoteNotes.movementMethod = ScrollingMovementMethod()
         setHasOptionsMenu(true)
         return binding.root
     }

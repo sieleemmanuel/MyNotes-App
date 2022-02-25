@@ -58,49 +58,47 @@
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
                 android:id="@+id/btnSave"
                 app:icon="@drawable/ic_done"
                 android:text="@string/save_text"
                 android:textAllCaps="false"
+                android:layout_marginBottom="5dp"
                 android:contentDescription="@string/btn_done_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/btnClose"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayout2"
                 app:layout_constraintBottom_toBottomOf="parent" />
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
                 android:id="@+id/btnClose"
                 android:text="@string/close_text"
+                android:layout_marginBottom="5dp"
                 android:textAllCaps="false"
                app:icon="@drawable/ic_close"
                 android:contentDescription="@string/btn_close_text"
-                app:layout_constraintTop_toBottomOf="@id/textInputLayout2"
                 app:layout_constraintEnd_toStartOf="@+id/btnSave"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
         <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayout2"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 app:layout_constraintTop_toBottomOf="@+id/menuCategory"
-                android:id="@+id/textInputLayout2">
+                app:layout_constraintBottom_toTopOf="@+id/btnClose">
 
             <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/noteTextEditText"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:lines="12"
+                    android:layout_height="match_parent"
                     android:hint="@string/hnt_type_note_txt"
-                    android:gravity="start"/>
+                    android:gravity="start" />
         </com.google.android.material.textfield.TextInputLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

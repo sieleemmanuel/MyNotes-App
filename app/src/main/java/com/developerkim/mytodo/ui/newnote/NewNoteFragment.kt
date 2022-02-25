@@ -18,7 +18,6 @@ import com.developerkim.mytodo.data.database.NoteDatabase
 import com.developerkim.mytodo.databinding.FragmentNewNoteBinding
 import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.data.model.NoteCategory
-import kotlinx.android.synthetic.main.fragment_new_note.*
 
 class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
 
