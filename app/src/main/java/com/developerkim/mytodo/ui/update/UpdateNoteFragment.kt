@@ -42,11 +42,10 @@ class UpdateNoteFragment : Fragment(),
         val database = NoteDatabase.getInstance(requireContext()).notesCategoriesDao
         val viewModelFactory = UpdateViewModelFactory(database, requireActivity().application)
         viewModel = ViewModelProvider(this, viewModelFactory).get(UpdateViewModel::class.java)
-
         adapter = ArrayAdapter(requireContext(), R.layout.categories_menu_item, viewModel.categoryItems)
+
         binding.apply {
             updateNoteCategory.setAdapter(adapter)
-
             updateNoteCategory.apply {
                 onItemSelectedListener = this@UpdateNoteFragment
             }
@@ -79,8 +78,6 @@ class UpdateNoteFragment : Fragment(),
         setValuesToUpdate()
 
     }
-
-    //method call to set fields with values to be updated
     private fun setValuesToUpdate() {
         val argument = requireArguments()
         binding.apply {
