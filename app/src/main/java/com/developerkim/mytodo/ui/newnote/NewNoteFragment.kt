@@ -18,19 +18,16 @@ import com.developerkim.mytodo.data.database.NoteDatabase
 import com.developerkim.mytodo.databinding.FragmentNewNoteBinding
 import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.data.model.NoteCategory
-import kotlinx.android.synthetic.main.fragment_new_note.*
 
 class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
 
-    lateinit var selectedCategory: String
+    lateinit var selCategory: String
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        // Inflate the layout for this fragment
         val binding: FragmentNewNoteBinding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_new_note,
@@ -38,49 +35,43 @@ class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
             false
         )
 
-        val noteTitle = binding.noteTitleEditText.text
-        val noteText = binding.noteTextEditText.text
+        val application = requireActivity().application
+        val database = NoteDatabase.getInstance(application).notesCategoriesDao
+        val viewModelFactory = NewNoteViewModelFactory(application, database)
+        val viewModel = ViewModelProvider(this, viewModelFactory).get(NewNoteViewModel::class.java)
+        val adapter =ArrayAdapter(requireContext(), R.layout.categories_menu_item, viewModel.categoryItems)
 
-        binding.btnClose.setOnClickListener {
-            this.findNavController().navigate(
+        binding.apply {
+        val noteTitle = noteTitleEditText.text
+        val noteText = noteTextEditText.text
+        btnClose.setOnClickListener {
+            findNavController().navigate(
                 NewNoteFragmentDirections.actionNewNoteFragmentToListNotesFragment()
             )
         }
 
-        val application = requireActivity().application
-        val database = NoteDatabase.getInstance(application).notesCategoriesDao
-
-        /*Getting the reference to viewModelFactory and initialize viewModel*/
-        val viewModelFactory = NewNoteViewModelFactory(application, database)
-        val viewModel = ViewModelProvider(this, viewModelFactory).get(NewNoteViewModel::class.java)
-
-
-        val adapter =ArrayAdapter(requireContext(), R.layout.categories_menu_item, viewModel.categoryItems)
-        binding.selectedCategory.apply {
+        selectedCategory.apply {
             setAdapter(adapter)
             onItemClickListener = this@NewNoteFragment
         }
 
-        binding.btnSave.setOnClickListener {
-            //Creating a list of notes to store in database based on categories
-            val newNote = Note(selectedCategory, noteTitle.toString(), noteText.toString(), viewModel.noteDate)
-
-            Toast.makeText(requireContext(),newNote.noteText,Toast.LENGTH_LONG ).show()
+        btnSave.setOnClickListener {
+            val newNote = Note(selCategory, noteTitle.toString(), noteText.toString(), viewModel.noteDate)
             val noteList = viewModel.createNoteList(newNote)
             val categories = NoteCategory(newNote.noteCategory, noteList)
 
             //Saving notes to database
             viewModel.updateIfExist(newNote,categories)
-            this.findNavController().navigate(
+            findNavController().navigate(
                 NewNoteFragmentDirections.actionNewNoteFragmentToListNotesFragment()
             )
         }
-
+    }
         return binding.root
     }
 
     override fun onItemClick(parent: AdapterView<*>?, p1: View?, position: Int, id: Long) {
-        selectedCategory = parent?.getItemAtPosition(position).toString()
+        selCategory = parent?.getItemAtPosition(position).toString()
     }
 
 

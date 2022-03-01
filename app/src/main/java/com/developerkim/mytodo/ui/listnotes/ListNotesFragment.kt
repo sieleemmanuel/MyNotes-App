@@ -4,189 +4,313 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.*
+import android.view.View.GONE
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
-import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.selection.SelectionPredicates
+import androidx.recyclerview.selection.SelectionTracker
+import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.developerkim.mytodo.MainActivity
 import com.developerkim.mytodo.R
+import com.developerkim.mytodo.adapters.CategoryItemLookUp
+import com.developerkim.mytodo.adapters.CategoryKeyProvider
+import com.developerkim.mytodo.adapters.NoteAdapter
+import com.developerkim.mytodo.adapters.NotesCategoriesAdapter
 import com.developerkim.mytodo.data.database.NoteDatabase
 import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.data.model.NoteCategory
 import com.developerkim.mytodo.databinding.FragmentListNotesBinding
 import com.developerkim.mytodo.util.ClickListener
-import com.developerkim.mytodo.util.LongClickListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.*
 
 
-class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
+const val IS_FOLDER_VIEW = "IS_FOLDER"
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+class ListNotesFragment : Fragment(), ClickListener, ActionMode.Callback {
 
     private lateinit var viewModel: ListNoteViewModel
     private lateinit var binding: FragmentListNotesBinding
-    private lateinit var adapter: CategoryAdapter
-    private lateinit var globalmenu: Menu
-    private var spanCount: Int = 2
-    private var isFolder:Boolean=false
+    private lateinit var adapter: NotesCategoriesAdapter
+    private lateinit var globalMenu: Menu
+    private var layoutManager: GridLayoutManager? = null
+    private var isFolder: Boolean? = null
+    private var tracker: SelectionTracker<NoteCategory>? = null
+    private var actionMode: ActionMode? = null
+    private var selectedCategories: Int? = null
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        adapter = NotesCategoriesAdapter(this, requireContext())
+        val application = requireActivity().application
+        val database = NoteDatabase.getInstance(application)
+        val viewModelFactory = ListNotesViewModelFactory(database)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(ListNoteViewModel::class.java)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        binding = DataBindingUtil.inflate(
-            inflater,
-            R.layout.fragment_list_notes,
-            container,
-            false
-        )
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_list_notes, container, false)
         setHasOptionsMenu(true)
 
-        /*Getting the reference to application and database*/
-        val application = requireActivity().application
-        val database = NoteDatabase.getInstance(application)
+        isFolder = if (savedInstanceState != null) {
+            tracker?.onRestoreInstanceState(savedInstanceState)
+            savedInstanceState.getBoolean("IS_FOLDER",false)
 
-        val viewModelFactory = ListNotesViewModelFactory(database)
-        viewModel = ViewModelProvider(this, viewModelFactory).get(ListNoteViewModel::class.java)
-
-        adapter = CategoryAdapter(this, this)
-        // reference to adapter with clickListener
-
-            binding.rv.layoutManager = LinearLayoutManager(context)
-            binding.rv.adapter = adapter
-
-            // Observing the changes on category list and update recycler adapter
-            viewModel.categoriesList.observe(viewLifecycleOwner, {
-                it?.let {
-                    adapter.submitList(it)
-                }
-            })
-
-        //navigating to add new note
-        binding.btnAddNote.setOnClickListener {
-            this.findNavController().navigate(
-                ListNotesFragmentDirections.actionListNotesFragmentToNewNoteFragment()
-            )
+        }else{
+            false
         }
-        binding.notesCategories.setOnClickListener {
-             isFolder = !adapter.toggleItemViewType()
-            if (isFolder) {
-                if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    spanCount = 4
-                    binding.rv.layoutManager = GridLayoutManager(
-                        requireContext(),
-                        spanCount
-                    )
-                } else {
-                    binding.rv.layoutManager = GridLayoutManager(
-                        requireContext(),
-                        spanCount
-                    )
-                }
-                binding.notesCategories.text = getString(R.string.item_list_notes)
-            } else {
-                binding.rv.layoutManager = LinearLayoutManager(requireContext())
-                binding.notesCategories.text = getString(R.string.item_list_show_categories)
+
+        binding.apply {
+            changeViewType()
+            layoutManager = GridLayoutManager(context, 1)
+            rv.layoutManager = layoutManager
+            rv.adapter = adapter
+
+            btnAddNote.setOnClickListener {
+                findNavController().navigate(
+                    ListNotesFragmentDirections.actionListNotesFragmentToNewNoteFragment()
+                )
+            }
+
+            notesCategories.setOnClickListener {
+                isFolder = !adapter.toggleItemViewType()
+                changeViewType()
+            }
+
+            recentNotes.setOnClickListener {
+                listRecentNotes()
+            }
+
+            oldNotes.setOnClickListener {
+                listOldNotes()
             }
         }
-        binding.recentNotes.setOnClickListener {
-            listRecentNotes()
+
+        tracker = SelectionTracker.Builder(
+            "selection-1",
+            binding.rv,
+            CategoryKeyProvider(adapter),
+            CategoryItemLookUp(binding.rv),
+            StorageStrategy.createParcelableStorage(NoteCategory::class.java)
+        )
+            .withSelectionPredicate(SelectionPredicates.createSelectAnything())
+            .build()
+
+
+        tracker?.addObserver(object : SelectionTracker.SelectionObserver<NoteCategory>() {
+            override fun onSelectionChanged() {
+                super.onSelectionChanged()
+                if (actionMode == null)
+                    actionMode =
+                        (activity as MainActivity).startSupportActionMode(this@ListNotesFragment)
+
+                selectedCategories = tracker?.selection?.size()
+                if (selectedCategories!! > 0)
+                    actionMode?.title = "$selectedCategories/${adapter.currentList.size}"
+                else
+                    actionMode?.finish()
+            }
+        })
+        adapter.setTracker(tracker!!)
+
+        setAdapterData {
+            Log.d("ListNotes", "onCreateView: called??? ")
+            adapter.submitList(it)
         }
-        binding.oldNotes?.setOnClickListener {
-            listOldNotes()
-        }
-        adapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+
         return binding.root
     }
 
+
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(IS_FOLDER_VIEW, isFolder!!)
+    }
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.top_bar_menu, menu)
-        globalmenu = menu
-        menu.findItem(R.id.hide_private).isVisible = false
-        requireActivity().invalidateOptionsMenu()
-
-        /**
-         * Search item functionality
-         * **/
-        val searchItem = globalmenu.findItem(R.id.recycler_search)
+        globalMenu = menu
+        val searchItem = globalMenu.findItem(R.id.recycler_search)
         val searchView = searchItem.actionView as SearchView
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
-            }
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                filter(newText)
-                return false
-            }
-        })
+        performSearch(searchView)
+        toggleMenuItemsVisibility()
     }
 
-    private fun filter(newText: String?) {
-        viewModel.categoriesList.observe(viewLifecycleOwner, {
-            val filteredList: MutableList<NoteCategory> = mutableListOf()
-            for (category in it!!) {
-                for (note in category.notes!!) {
-                    // checking if the entered string matched with any item of our recycler view.
-                    if (category.categoryName.lowercase(Locale.getDefault())
-                            .contains(newText!!.lowercase(Locale.getDefault())) ||
-                        note.noteTitle.lowercase(Locale.getDefault())
-                            .contains(newText.lowercase(Locale.getDefault()))
-                    ) {
-                        filteredList.add(category)
-
-                    }
-                }
-            }
-            if (filteredList.isEmpty()) {
-                Toast.makeText(requireContext(), "No match found", Toast.LENGTH_SHORT).show()
-                adapter.submitList(filteredList.distinct())
+    private fun toggleMenuItemsVisibility() {
+        setAdapterData {
+            if (viewModel.isPrivateNotesHidden(it)) {
+                globalMenu.findItem(R.id.hide_private).isVisible = false
+                globalMenu.findItem(R.id.show_all).isVisible = true
             } else {
-                adapter.submitList(filteredList.distinct())
+                globalMenu.findItem(R.id.show_all).isVisible = false
+                globalMenu.findItem(R.id.hide_private).isVisible = true
             }
-        })
-
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.delete_all -> {
-                confirmAlert()
+                confirmDeleteAll()
             }
 
             R.id.hide_private -> {
                 viewModel.hidePrivateCategories()
-                // hide Hide_private menu item and show show_all menu item
-                item.isVisible = false
-                globalmenu.findItem(R.id.show_all).isVisible = true
 
             }
             R.id.show_all -> {
                 viewModel.showAllCategories()
-                //show the item only if hide_private menu item is invisible
-                item.isVisible = false
-                globalmenu.findItem(R.id.hide_private).isVisible = true
-
             }
         }
         return true
     }
 
-    private fun confirmAlert() {
+    override fun onClick(view: View, note: Note, position: Int, deleteNote: ImageButton) {
+        when (view.id) {
+            R.id.noteItem -> {
+                if (NoteAdapter.isSelectedMode) {
+                    view.background =  if (NoteAdapter.selectedNotes.contains(note)){
+                        NoteAdapter.selectedNotes.remove(note)
+                        deleteNote.isVisible = false
+                        AppCompatResources.getDrawable(requireContext(), R.drawable.rounded_corners)
+                    }else{
+                        NoteAdapter.selectedNotes.add(note)
+                        deleteNote.visibility = View.VISIBLE
+                        AppCompatResources.getDrawable(requireContext(), R.drawable.rounded_corners_bg_gray)
+                    }
+                    if (NoteAdapter.selectedNotes.size == 0){
+                        NoteAdapter.isSelectedMode = false
+                    }
+                }else{
+                    this.findNavController().navigate(
+                        ListNotesFragmentDirections.actionListNotesFragmentToReadNotesFragment(
+                            position,
+                            note.noteCategory,
+                            note.noteTitle,
+                            note.noteDate,
+                            note.noteText,
+                        )
+                    )
+                }
+
+            }
+            R.id.delete_note -> {
+                confirmDeleteNote(note)
+            }
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onLongClick(view: View, note: Note, deleteNote: ImageButton): Boolean {
+        NoteAdapter.isSelectedMode = true
+        view.background =  if (NoteAdapter.selectedNotes.contains(note)){
+            NoteAdapter.selectedNotes.remove(note)
+            deleteNote.isVisible = false
+            AppCompatResources.getDrawable(requireContext(), R.drawable.rounded_corners)
+
+        }else{
+            NoteAdapter.selectedNotes.add(note)
+            deleteNote.visibility = View.VISIBLE
+            AppCompatResources.getDrawable(requireContext(), R.drawable.rounded_corners_bg_gray)
+
+        }
+        if (NoteAdapter.selectedNotes.size == 0){
+            NoteAdapter.isSelectedMode = false
+        }
+        return true
+    }
+
+    override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+        mode?.menuInflater?.inflate(R.menu.menu_action_mode, menu)
+        return true
+    }
+
+    override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean = true
+
+    override fun onActionItemClicked(mode: ActionMode?, menuItem: MenuItem?): Boolean {
+        return when (menuItem?.itemId) {
+            R.id.deleteSelected -> {
+                tracker!!.selection.forEach {
+                    confirmDeleteCategory(it)
+                }
+                mode?.finish()
+                true
+            }
+            R.id.action_mode_close_button -> {
+                mode?.finish()
+                tracker?.clearSelection()
+                true
+            }
+            else -> false
+        }
+    }
+
+    override fun onDestroyActionMode(mode: ActionMode?) {
+        tracker?.clearSelection()
+        actionMode = null
+    }
+
+    private fun setAdapterData(listHandler: (noteCategory: List<NoteCategory>) -> Unit) {
+        viewModel.categoriesList.observe(viewLifecycleOwner, {
+            listHandler.invoke(it!!)
+        })
+    }
+
+    private fun changeViewType() {
+        if (isFolder!!) {
+            layoutManager?.spanCount = when (resources.configuration.orientation) {
+                Configuration.ORIENTATION_LANDSCAPE -> {
+                    4
+                }
+                else -> {
+                    2
+                }
+            }
+            binding.apply {
+                notesCategories.text = getString(R.string.item_list_notes)
+                recentNotes.isVisible = false
+            }
+        } else {
+            layoutManager?.spanCount = 1
+            binding.apply{
+                notesCategories.text = getString(R.string.item_list_show_categories)
+                recentNotes.isVisible = true
+            }
+        }
+    }
+
+    private fun performSearch(searchView: SearchView) {
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                filterCategories(query)
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                filterCategories(newText)
+                return true
+            }
+        })
+    }
+
+    private fun confirmDeleteAll() {
         MaterialAlertDialogBuilder(requireContext())
             .setMessage("Are you sure you want to delete all categories?")
             .setNegativeButton("CANCEL") { dialog, _ ->
@@ -198,127 +322,63 @@ class ListNotesFragment : Fragment(), ClickListener, LongClickListener {
             .show()
     }
 
-    private fun confirmNoteAlert(note: Note, position: Int) {
+    private fun confirmDeleteCategory(noteCategory: NoteCategory) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setMessage("Are you sure you want to delete category?")
+            .setNegativeButton("CANCEL") { dialog, _ ->
+                dialog.cancel()
+                tracker?.clearSelection()
+            }
+            .setPositiveButton("DELETE") { _, _ ->
+                viewModel.clearCategories(noteCategory)
+            }.setCancelable(false)
+            .show()
+    }
+
+    private fun confirmDeleteNote(note: Note) {
         MaterialAlertDialogBuilder(requireContext())
             .setMessage("Are you sure you want to delete the note?")
             .setNegativeButton("CANCEL") { dialog, _ ->
                 dialog.cancel()
             }
             .setPositiveButton("DELETE") { _, _ ->
-                viewModel.updateNote(note, position)
+                viewModel.updateNote(note)
+                NoteAdapter.isSelectedMode = false
             }
             .show()
     }
 
-    override fun onClick(view: View, note: Note, position: Int) {
-        when (view.id) {
-            R.id.noteItem -> {
-                this.findNavController().navigate(
-                    ListNotesFragmentDirections.actionListNotesFragmentToReadNotesFragment(
-                        position,
-                        note.noteCategory,
-                        note.noteTitle,
-                        note.noteDate,
-                        note.noteText,
-                    )
-                )
-
-            }
-            R.id.delete_note -> {
-                confirmNoteAlert(note, position)
+    private fun filterCategories(newText: String?) {
+       setAdapterData {noteCategories ->
+           val filteredCategories = viewModel.noteCategoryFilter(noteCategories,newText)
+            if (filteredCategories.isEmpty()) {
+                Toast.makeText(requireContext(), "No match found", Toast.LENGTH_SHORT).show()
+                adapter.submitList(null)
+            } else {
+                adapter.submitList(null)
+                adapter.submitList(filteredCategories)
             }
         }
+
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
-    override fun onLongClick(
-        view: View,
-        note: Note,
-        position: Int,
-        deleteNote: ImageButton
-    ): Boolean {
-        if (deleteNote.visibility != View.VISIBLE) {
-            view.background =
-                ContextCompat.getDrawable(requireContext(), R.drawable.rounded_corners_bg_gray)
-            deleteNote.visibility = View.VISIBLE
-        } else {
-            view.background =
-                ContextCompat.getDrawable(requireContext(), R.drawable.rounded_corners)
-            deleteNote.visibility = View.GONE
-        }
-        return true
-    }
-
-    override fun onCategoryLongClick(
-        view: View,
-        noteCategory: NoteCategory,
-        position: Int,
-        deleteNote: ImageButton
-    ): Boolean {
-        if (deleteNote.visibility != View.VISIBLE) {
-            view.background =
-                ContextCompat.getDrawable(requireContext(), R.drawable.rounded_corners_bg_gray)
-            deleteNote.visibility = View.VISIBLE
-        } else {
-            view.background =
-                ContextCompat.getDrawable(requireContext(), R.drawable.rounded_corners)
-            deleteNote.visibility = View.GONE
-        }
-        return super.onCategoryLongClick(view, noteCategory, position, deleteNote)
-    }
-
-    override fun onClickCategory(view: View, noteCategory: NoteCategory) {
-        viewModel.clearCategories(noteCategory)
-        Toast.makeText(view.context, "Category deleted Successfully", Toast.LENGTH_SHORT).show()
-    }
-
-    @SuppressLint("SimpleDateFormat")
     private fun listRecentNotes() {
-
-        viewModel.categoriesList.observe(viewLifecycleOwner, {
-            val recentCategoryNotes: MutableList<NoteCategory> = mutableListOf()
-            for (category in it) {
-                val parser = SimpleDateFormat("yyyy/MM/dd, HH:mm a")
-                val noteList = category.notes?.sortedWith(compareBy { note->
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        LocalDateTime.parse( note.noteDate, DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
-                    } else {
-                        parser.format(SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(note.noteDate)!!)
-                    }
-
-                })?.reversed()
-
-                val noteCategory = NoteCategory(categoryName = category.categoryName,notes = noteList as MutableList<Note>?)
-                recentCategoryNotes.add(noteCategory)
-                adapter.submitList(recentCategoryNotes)
-                binding.recentNotes.visibility = View.GONE
-                binding.oldNotes.visibility = View.VISIBLE
-            }
-        })
-
+        setAdapterData {
+            val recent = viewModel.sortNotes(it)
+            adapter.submitList(recent)
+            binding.recentNotes.visibility = GONE
+            binding.oldNotes.visibility = View.VISIBLE
+        }
     }
-    @SuppressLint("SimpleDateFormat")
+
     private fun listOldNotes() {
-        viewModel.categoriesList.observe(viewLifecycleOwner, {
-            val recentCategoryNotes: MutableList<NoteCategory> = mutableListOf()
-            for (category in it) {
-                val parser = SimpleDateFormat("yyyy/MM/dd, HH:mm a")
-                val noteList = category.notes?.sortedWith(compareBy { note->
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        LocalDateTime.parse( note.noteDate, DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
-                    } else {
-                        parser.format(SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(note.noteDate)!!)
-                    }
-                })
-                val noteCategory = NoteCategory(categoryName = category.categoryName,notes = noteList as MutableList<Note>?)
-                recentCategoryNotes.add(noteCategory)
-                adapter.submitList(recentCategoryNotes)
-                binding.recentNotes.visibility = View.VISIBLE
-                binding.oldNotes.visibility = View.GONE
-            }
-        })
+        setAdapterData {
+            val recent = viewModel.sortOldNotes(it)
+            adapter.submitList(recent)
+            binding.recentNotes.visibility = View.VISIBLE
+            binding.oldNotes.visibility = GONE
+        }
 
     }
-
 
 }

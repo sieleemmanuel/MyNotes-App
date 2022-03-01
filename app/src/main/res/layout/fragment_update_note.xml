@@ -99,7 +99,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/hnt_type_note_txt"
-                        android:lines="12"
+                        android:lines="13"
                         android:gravity="start"
                         android:configChanges="orientation"/>
             </com.google.android.material.textfield.TextInputLayout>

@@ -26,8 +26,8 @@
                     android:layout_height="wrap_content"
                     android:padding="5dp"
                     tools:itemCount="29"
-                    tools:listitem="@layout/list_categories"
-                    android:orientation="vertical"
+                    tools:listitem="@layout/list_categories_folder"
+                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                     />
         </androidx.core.widget.NestedScrollView>
 

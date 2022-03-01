@@ -17,7 +17,6 @@ import com.developerkim.mytodo.R
 import com.developerkim.mytodo.data.database.NoteDatabase
 import com.developerkim.mytodo.databinding.FragmentUpdateNoteBinding
 import com.developerkim.mytodo.data.model.Note
-import kotlinx.android.synthetic.main.fragment_new_note.*
 
 
 
@@ -34,7 +33,6 @@ class UpdateNoteFragment : Fragment(),
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_update_note,
@@ -44,31 +42,33 @@ class UpdateNoteFragment : Fragment(),
         val database = NoteDatabase.getInstance(requireContext()).notesCategoriesDao
         val viewModelFactory = UpdateViewModelFactory(database, requireActivity().application)
         viewModel = ViewModelProvider(this, viewModelFactory).get(UpdateViewModel::class.java)
-
-
         adapter = ArrayAdapter(requireContext(), R.layout.categories_menu_item, viewModel.categoryItems)
-        binding.updateNoteCategory.setAdapter(adapter)
-        binding.updateNoteCategory.apply {
-            onItemSelectedListener = this@UpdateNoteFragment
-        }
 
-        binding.btnUpdate.setOnClickListener {
-            val notePosition = requireArguments().getInt("note_position")
-            val uNote = Note(
-                binding.updateNoteCategory.text.toString(),
-                binding.updateTitleEditText.text.toString(),
-                binding.updateTextEditText.text.toString(),
-                viewModel.updatedNoteDate
-            )
-            Toast.makeText(requireContext(),notePosition.toString(),Toast.LENGTH_SHORT).show()
-            viewModel.updateNote(uNote,notePosition)
-            this.findNavController().navigate(UpdateNoteFragmentDirections.actionUpdateNoteFragmentToListNotesFragment())
+        binding.apply {
+            updateNoteCategory.setAdapter(adapter)
+            updateNoteCategory.apply {
+                onItemSelectedListener = this@UpdateNoteFragment
+            }
 
+            btnUpdate.setOnClickListener {
+                val notePosition = requireArguments().getInt("note_position")
+                val uNote = Note(
+                    updateNoteCategory.text.toString(),
+                    updateTitleEditText.text.toString(),
+                    updateTextEditText.text.toString(),
+                    viewModel.updatedNoteDate
+                )
+                Toast.makeText(requireContext(), notePosition.toString(), Toast.LENGTH_SHORT).show()
+                viewModel.updateNote(uNote, notePosition)
+                findNavController()
+                    .navigate(UpdateNoteFragmentDirections.actionUpdateNoteFragmentToListNotesFragment())
 
-        }
-        binding.btnClose.setOnClickListener {
-            this.findNavController().navigate(
-                UpdateNoteFragmentDirections.actionUpdateNoteFragmentToListNotesFragment())
+            }
+            btnClose.setOnClickListener {
+                findNavController().navigate(
+                    UpdateNoteFragmentDirections.actionUpdateNoteFragmentToListNotesFragment()
+                )
+            }
         }
         return binding.root
     }
@@ -78,13 +78,13 @@ class UpdateNoteFragment : Fragment(),
         setValuesToUpdate()
 
     }
-
-    //method call to set fields with values to be updated
     private fun setValuesToUpdate() {
         val argument = requireArguments()
-        binding.updateTitleEditText.setText(argument.getString("update_title"))
-        binding.updateTextEditText.setText(argument.getString("update_text"))
-        binding.updateNoteCategory.setText(argument.getString("update_category"),false)
+        binding.apply {
+            updateTitleEditText.setText(argument.getString("update_title"))
+            updateTextEditText.setText(argument.getString("update_text"))
+            updateNoteCategory.setText(argument.getString("update_category"), false)
+        }
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
