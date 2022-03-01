@@ -9,18 +9,16 @@ import com.developerkim.mytodo.R
 import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.databinding.ListItemsBinding
 import com.developerkim.mytodo.util.ClickListener
-import com.developerkim.mytodo.util.LongClickListener
 
 class NoteAdapter(
     notes: MutableList<Note>,
-    private val listener: ClickListener, private val longClickListener: LongClickListener) :
+    private val listener: ClickListener) :
     RecyclerView.Adapter<NoteAdapter.ViewHolder>() {
     private val notesList = notes
-
-    /*companion object{
-        private var noteTracker:SelectionTracker<Note>?=null
-    }*/
-
+    companion object {
+        var isSelectedMode = false
+        val selectedNotes = mutableListOf<Note>()
+    }
     init {
         setHasStableIds(true)
     }
@@ -39,7 +37,7 @@ class NoteAdapter(
 
         @RequiresApi(Build.VERSION_CODES.M)
         fun bind(
-            note: Note, listener: ClickListener, position: Int, longClickListener: LongClickListener
+            note: Note, listener: ClickListener,position: Int
         ) {
             binding.apply {
                 val context = root.context
@@ -49,7 +47,7 @@ class NoteAdapter(
                 txtDate.text = note.noteDate
 
                 tvNoteTitle.setTextColor(
-                    when (binding.txtCategory.text) {
+                    when (txtCategory.text) {
                         "Study" -> context.getColor(R.color.colorStudy)
                         "Daily Tasks" -> context.getColor(R.color.colorDailTasks)
                         "Private" -> context.getColor(R.color.colorPrivate)
@@ -58,39 +56,21 @@ class NoteAdapter(
                     }
                 )
                 deleteNote.setOnClickListener {
-                    listener.onClick(it, note, position)
+                    listener.onClick(it,note, position,deleteNote)
                 }
 
-                root.setOnClickListener {
-                    listener.onClick(it, note, position)
-                }
                 root.setOnLongClickListener {
                     it.parent.requestDisallowInterceptTouchEvent(true)
-                    longClickListener.onLongClick(it, note, deleteNote)
+                   listener.onLongClick(it, note, deleteNote)
                 }
-                /*if (noteTracker!!.isSelected(note)) {
-                    itemView.background =
-                        AppCompatResources.getDrawable(context, R.drawable.rounded_corners_bg_gray)
-                } else {
-                    itemView.background =
-                        AppCompatResources.getDrawable(context, R.drawable.rounded_corners)
-                }*/
+                root.setOnClickListener {
+                    listener.onClick(it, note,position,deleteNote)
+                }
             }
-
         }
-       /* fun getItemDetails():ItemDetailsLookup.ItemDetails<Note> = object:ItemDetailsLookup.ItemDetails<Note>(){
-            override fun getPosition(): Int  = bindingAdapterPosition
-
-            override fun getSelectionKey(): Note = (bindingAdapter as NoteAdapter).notesList[position]
-
-        }*/
     }
 
     override fun getItemId(position: Int): Long = position.toLong()
-
-    /*fun getItemAtPosition(position: Int) = notesList[position]
-
-    fun getPosition(title:String) = notesList.indexOfFirst { it.noteTitle==title }*/
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder.from(parent)
@@ -100,19 +80,7 @@ class NoteAdapter(
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val note = notesList[position]
-        holder.bind(note,listener,position, longClickListener)
+        holder.bind(note,listener,position)
+
     }
-    /*fun setTracker(tracker: SelectionTracker<Note>){
-        noteTracker = tracker
-    }*/
 }
-/*
-class ItemLookUp(private val recyclerView: RecyclerView):ItemDetailsLookup<Note>(){
-    override fun getItemDetails(e: MotionEvent): ItemDetails<Note>? {
-        val view = recyclerView.findChildViewUnder(e.x, e.y)
-        if (view!=null){
-            return (recyclerView.getChildViewHolder(view) as NoteAdapter.ViewHolder).getItemDetails()
-        }
-        return null
-    }
-}*/

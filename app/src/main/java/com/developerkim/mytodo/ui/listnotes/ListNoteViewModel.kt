@@ -1,7 +1,10 @@
 package com.developerkim.mytodo.ui.listnotes
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Build
+import android.util.DisplayMetrics
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,12 +19,12 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
-
+private const val TAG = "ListNoteViewModel"
 class ListNoteViewModel(
     private val dataSource: NoteDatabase
 
 ) : ViewModel() {
-    private val TAG = "ListNoteViewModel"
+
     private val notesRepository = NotesRepository(dataSource)
 
     private val _categories = MutableLiveData<List<NoteCategory>>()
@@ -62,9 +65,13 @@ class ListNoteViewModel(
     fun updateNote(note: Note) {
         viewModelScope.launch {
             val toUpdateCategory = getCategoryToUpdate(note.noteCategory)
-            if (toUpdateCategory.notes!!.contains(note)) {
-                toUpdateCategory.notes?.remove(note)
-                update(toUpdateCategory)
+            val selected = toUpdateCategory.notes?.filter {
+                it.noteTitle==note.noteTitle }
+            Log.d(TAG, "updateNote: ${selected?.size}")
+            toUpdateCategory.notes?.removeAll(selected!!)
+            update(toUpdateCategory)
+            if (toUpdateCategory.notes!!.isEmpty()){
+                dataSource.notesCategoriesDao.deleteCategory(toUpdateCategory.categoryName)
             }
         }
     }
@@ -130,6 +137,11 @@ class ListNoteViewModel(
                             .contains(newText.lowercase(Locale.getDefault()))
                     } == true
         }
+    }
+    fun isPrivateNotesHidden(categories: List<NoteCategory>): Boolean {
+       return categories.none {
+           it.categoryName.contains("Private")
+       }
     }
 }
 
