@@ -2,21 +2,20 @@
 <layout xmlns:tools="http://schemas.android.com/tools"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto">
-    <data>
-        <!--<variable
-                name="newNoteViewModel"
-                type="com.developerkim.mytodo.screens.newnote.NewNoteViewModel"/>
-    --></data>
     <ScrollView
+            android:id="@+id/svNewNote"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fillViewport="true">
+            android:fillViewport="true"
+            tools:context=".ui.newnote.NewNoteFragment">
     <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/new_note_fragment"
+            android:id="@+id/clNewNote"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context=".ui.newnote.NewNoteFragment"
-        android:padding="15dp" >
+        android:padding="15dp"
+            android:clickable="true"
+            android:focusableInTouchMode="true"
+            android:focusable="true">
 
     <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -32,7 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text=""
-                android:hint="Enter title"/>
+                android:hint="@string/ti_enter_title_hnt"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout

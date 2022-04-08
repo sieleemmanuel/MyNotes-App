@@ -1,4 +1,4 @@
-package com.developerkim.mytodo
+package com.developerkim.mytodo.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -6,6 +6,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
+import com.developerkim.mytodo.R
 
 class MainActivity : AppCompatActivity(){
 

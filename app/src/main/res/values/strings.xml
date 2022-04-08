@@ -42,4 +42,10 @@
     <string name="hint_enter_title">Enter title</string>
     <string name="tv_placeholder_daily_tasks">Daily Tasks</string>
     <string name="delete_label">Delete</string>
+    <string name="actionSearch">Search</string>
+    <string name="ti_enter_title_hnt">Enter title</string>
+    <string name="category_study">Study</string>
+    <string name="category_daily_task">Daily Tasks</string>
+    <string name="category_private">Private</string>
+    <string name="categry_shopping">Shopping</string>
 </resources>

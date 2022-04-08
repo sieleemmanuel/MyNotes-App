@@ -15,9 +15,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.developerkim.mytodo.R
 import com.developerkim.mytodo.data.database.NoteDatabase
-import com.developerkim.mytodo.databinding.FragmentNewNoteBinding
 import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.data.model.NoteCategory
+import com.developerkim.mytodo.databinding.FragmentNewNoteBinding
+import com.developerkim.mytodo.util.HideKeyboard.hideKeyboard
 
 class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
 
@@ -39,34 +40,56 @@ class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
         val database = NoteDatabase.getInstance(application).notesCategoriesDao
         val viewModelFactory = NewNoteViewModelFactory(application, database)
         val viewModel = ViewModelProvider(this, viewModelFactory).get(NewNoteViewModel::class.java)
-        val adapter =ArrayAdapter(requireContext(), R.layout.categories_menu_item, viewModel.categoryItems)
+        val adapter =
+            ArrayAdapter(requireContext(), R.layout.categories_menu_item, viewModel.categoryItems)
 
         binding.apply {
-        val noteTitle = noteTitleEditText.text
-        val noteText = noteTextEditText.text
-        btnClose.setOnClickListener {
-            findNavController().navigate(
-                NewNoteFragmentDirections.actionNewNoteFragmentToListNotesFragment()
-            )
-        }
+            val noteTitle = noteTitleEditText.text
+            val noteText = noteTextEditText.text
+            btnClose.setOnClickListener {
+                hideKeyboard(it,requireActivity())
+                findNavController().navigate(
+                    NewNoteFragmentDirections.actionNewNoteFragmentToListNotesFragment()
+                )
+            }
 
-        selectedCategory.apply {
-            setAdapter(adapter)
-            onItemClickListener = this@NewNoteFragment
-        }
+            selectedCategory.apply {
+                setAdapter(adapter)
+                onItemClickListener = this@NewNoteFragment
+            }
 
-        btnSave.setOnClickListener {
-            val newNote = Note(selCategory, noteTitle.toString(), noteText.toString(), viewModel.noteDate)
-            val noteList = viewModel.createNoteList(newNote)
-            val categories = NoteCategory(newNote.noteCategory, noteList)
+            btnSave.setOnClickListener {
+                hideKeyboard(it,requireActivity())
+                selCategory = selectedCategory.text.toString()
+                val newNote = Note(
+                        selCategory,
+                        noteTitle.toString(),
+                        noteText.toString(),
+                        viewModel.noteDate
+                    )
+                val noteList = viewModel.createNoteList(newNote)
+                val categories = NoteCategory(
+                    newNote.noteCategory,
+                    noteList
+                )
 
-            //Saving notes to database
-            viewModel.updateIfExist(newNote,categories)
-            findNavController().navigate(
-                NewNoteFragmentDirections.actionNewNoteFragmentToListNotesFragment()
-            )
+                //Saving notes to database
+                viewModel.updateIfExist(newNote, categories)
+                findNavController().navigate(
+                    NewNoteFragmentDirections.actionNewNoteFragmentToListNotesFragment()
+                )
+            }
+            clNewNote.setOnFocusChangeListener { view, hasFocus ->
+                if (hasFocus) {
+                    hideKeyboard(view, requireActivity())
+                }
+            }
+            selectedCategory.setOnFocusChangeListener { view, hasFocus ->
+                if (hasFocus) {
+                    hideKeyboard(view, requireActivity())
+                }
+            }
         }
-    }
         return binding.root
     }
 

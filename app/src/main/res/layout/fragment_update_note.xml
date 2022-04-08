@@ -8,15 +8,24 @@
                 type="com.developerkim.mytodo.ui.update.UpdateViewModel"/>
     </data>
     <ScrollView
+            android:id="@+id/svUpdateNote"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fillViewport="true">
+            android:fillViewport="true"
+            android:clickable="true"
+            android:focusableInTouchMode="true"
+            android:focusable="true"
+            tools:context=".ui.update.UpdateNoteFragment"
+            >
         <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/new_note_fragment"
+                android:id="@+id/clUpdateNote"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:context=".ui.update.UpdateNoteFragment"
-                android:padding="15dp" >
+                android:padding="15dp"
+                android:clickable="true"
+                android:focusableInTouchMode="true"
+                android:focusable="true"
+                >
 
             <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"

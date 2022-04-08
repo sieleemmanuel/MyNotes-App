@@ -8,13 +8,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.developerkim.mytodo.R
 import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.databinding.ListItemsBinding
-import com.developerkim.mytodo.util.ClickListener
+import com.developerkim.mytodo.interfaces.ClickListener
 
 class NoteAdapter(
     notes: MutableList<Note>,
-    private val listener: ClickListener) :
+    private val listener: ClickListener
+) :
     RecyclerView.Adapter<NoteAdapter.ViewHolder>() {
     private val notesList = notes
+
     companion object {
         var isSelectedMode = false
         val selectedNotes = mutableListOf<Note>()
@@ -37,7 +39,7 @@ class NoteAdapter(
 
         @RequiresApi(Build.VERSION_CODES.M)
         fun bind(
-            note: Note, listener: ClickListener,position: Int
+            note: Note, listener: ClickListener, position: Int
         ) {
             binding.apply {
                 val context = root.context
@@ -48,10 +50,10 @@ class NoteAdapter(
 
                 tvNoteTitle.setTextColor(
                     when (txtCategory.text) {
-                        "Study" -> context.getColor(R.color.colorStudy)
-                        "Daily Tasks" -> context.getColor(R.color.colorDailTasks)
-                        "Private" -> context.getColor(R.color.colorPrivate)
-                        "Shopping" -> context.getColor(R.color.colorShopping)
+                        context.getString(R.string.category_study) -> context.getColor(R.color.colorStudy)
+                        context.getString(R.string.category_daily_task) -> context.getColor(R.color.colorDailTasks)
+                        context.getString(R.string.category_private) -> context.getColor(R.color.colorPrivate)
+                        context.getString(R.string.categry_shopping) -> context.getColor(R.color.colorShopping)
                         else -> context.getColor(R.color.colorUncategorized)
                     }
                 )
