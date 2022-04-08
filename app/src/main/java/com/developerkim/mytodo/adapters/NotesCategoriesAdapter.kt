@@ -7,7 +7,6 @@ import android.os.Build
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -20,7 +19,7 @@ import com.developerkim.mytodo.R
 import com.developerkim.mytodo.data.model.NoteCategory
 import com.developerkim.mytodo.databinding.ListCategoriesBinding
 import com.developerkim.mytodo.databinding.ListCategoriesFolderBinding
-import com.developerkim.mytodo.util.ClickListener
+import com.developerkim.mytodo.interfaces.ClickListener
 
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)

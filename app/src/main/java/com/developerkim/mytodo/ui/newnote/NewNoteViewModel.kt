@@ -21,14 +21,14 @@ class NewNoteViewModel(private val categoryDatabase: NoteCategoriesDao, applicat
     AndroidViewModel(application) {
 
 
-    val categoryItems = application.resources.getStringArray(R.array.notes_categories)
+    val categoryItems: Array<String> = application.resources.getStringArray(R.array.notes_categories)
 
-    val category = MutableLiveData<NoteCategory>()
+    private val category = MutableLiveData<NoteCategory>()
 
     private val currentDateTime: LocalDateTime = LocalDateTime.now()
-    val noteDate = currentDateTime.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
+    val noteDate: String = currentDateTime.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
 
-    val _noteCategory = MutableLiveData<String>()
+    private val _noteCategory = MutableLiveData<String>()
     val noteCategory: LiveData<String>
         get() = _noteCategory
 

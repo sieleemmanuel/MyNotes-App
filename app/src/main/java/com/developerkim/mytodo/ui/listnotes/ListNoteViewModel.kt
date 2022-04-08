@@ -143,6 +143,7 @@ class ListNoteViewModel(
            it.categoryName.contains("Private")
        }
     }
+
 }
 
 

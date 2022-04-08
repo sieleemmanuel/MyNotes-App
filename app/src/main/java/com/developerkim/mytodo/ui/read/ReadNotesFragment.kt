@@ -12,7 +12,6 @@ import androidx.navigation.fragment.findNavController
 import com.developerkim.mytodo.R
 import com.developerkim.mytodo.databinding.FragmentReadNoteBinding
 
-
 class ReadNotesFragment : Fragment() {
     private lateinit var binding: FragmentReadNoteBinding
     override fun onCreateView(
