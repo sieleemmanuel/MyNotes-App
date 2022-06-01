@@ -1,145 +1,115 @@
 package com.developerkim.mytodo.ui.listnotes
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import android.view.View.GONE
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.isVisible
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.selection.SelectionPredicates
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.GridLayoutManager
 import com.developerkim.mytodo.R
-import com.developerkim.mytodo.adapters.CategoryItemLookUp
-import com.developerkim.mytodo.adapters.CategoryKeyProvider
-import com.developerkim.mytodo.adapters.NoteAdapter
-import com.developerkim.mytodo.adapters.NotesCategoriesAdapter
-import com.developerkim.mytodo.data.database.NoteDatabase
+import com.developerkim.mytodo.adapters.*
 import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.data.model.NoteCategory
 import com.developerkim.mytodo.databinding.FragmentListNotesBinding
-import com.developerkim.mytodo.interfaces.ClickListener
 import com.developerkim.mytodo.ui.MainActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import java.util.*
-
-
-const val IS_FOLDER_VIEW = "IS_FOLDER"
+import com.google.android.material.tabs.TabLayoutMediator
+import dagger.hilt.android.AndroidEntryPoint
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-class ListNotesFragment : Fragment(), ClickListener, ActionMode.Callback {
+@AndroidEntryPoint
+class ListNotesFragment : Fragment(), ActionMode.Callback {
 
-    private lateinit var viewModel: ListNoteViewModel
+    private val viewModel: ListNoteViewModel by activityViewModels()
     private lateinit var binding: FragmentListNotesBinding
-    private lateinit var adapter: NotesCategoriesAdapter
+    private lateinit var categoriesAdapter: NotesCategoriesAdapter
+    private lateinit var viewPagerAdapter: ViewPagerAdapter
     private lateinit var globalMenu: Menu
-    private var layoutManager: GridLayoutManager? = null
-    private var isFolder: Boolean? = null
     private var tracker: SelectionTracker<NoteCategory>? = null
     private var actionMode: ActionMode? = null
     private var selectedCategories: Int? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        adapter = NotesCategoriesAdapter(this, requireContext())
-        val application = requireActivity().application
-        val database = NoteDatabase.getInstance(application)
-        val viewModelFactory = ListNotesViewModelFactory(database)
-        viewModel = ViewModelProvider(this, viewModelFactory).get(ListNoteViewModel::class.java)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_list_notes, container, false)
+    ): View {
+        binding = FragmentListNotesBinding.inflate(inflater)
         setHasOptionsMenu(true)
+        /* isFolder = if (savedInstanceState != null) {
+             tracker?.onRestoreInstanceState(savedInstanceState)
+             savedInstanceState.getBoolean("IS_FOLDER", false)
 
-        isFolder = if (savedInstanceState != null) {
-            tracker?.onRestoreInstanceState(savedInstanceState)
-            savedInstanceState.getBoolean("IS_FOLDER", false)
+         } else {
+             false
+         }*/
+        categoriesAdapter = NotesCategoriesAdapter(NotesCategoriesAdapter.CategoryClickListener { _, category ->
+            findNavController().navigate(
+                ListNotesFragmentDirections.actionListNotesFragmentToCategoryNotes(
+                    category.notes!!.toTypedArray()))
+        }, requireContext())
+        viewPagerAdapter = ViewPagerAdapter(childFragmentManager, lifecycle)
 
-        } else {
-            false
-        }
-
+        val tabsTitles = arrayListOf("All Notes", "Reminders", "Favorites")
         binding.apply {
-            changeViewType()
-            layoutManager = GridLayoutManager(context, 1)
-            rv.layoutManager = layoutManager
-            rv.adapter = adapter
+            rv.adapter = categoriesAdapter
+            notesPager.adapter = viewPagerAdapter
+            TabLayoutMediator(tabLayout, notesPager) { tab, position ->
+                tab.text = tabsTitles[position]
+            }.attach()
 
             btnAddNote.setOnClickListener {
                 findNavController().navigate(
                     ListNotesFragmentDirections.actionListNotesFragmentToNewNoteFragment()
                 )
             }
-
-            notesCategories.setOnClickListener {
-                isFolder = !adapter.toggleItemViewType()
-                changeViewType()
-            }
-
-            recentNotes.setOnClickListener {
-                listRecentNotes()
-            }
-
-            oldNotes.setOnClickListener {
-                listOldNotes()
-            }
+            tracker = SelectionTracker.Builder(
+                "selection-1",
+                binding.rv,
+                CategoryKeyProvider(categoriesAdapter),
+                CategoryItemLookUp(binding.rv),
+                StorageStrategy.createParcelableStorage(NoteCategory::class.java)
+            )
+                .withSelectionPredicate(SelectionPredicates.createSelectAnything())
+                .build()
         }
-
-        tracker = SelectionTracker.Builder(
-            "selection-1",
-            binding.rv,
-            CategoryKeyProvider(adapter),
-            CategoryItemLookUp(binding.rv),
-            StorageStrategy.createParcelableStorage(NoteCategory::class.java)
-        )
-            .withSelectionPredicate(SelectionPredicates.createSelectAnything())
-            .build()
-
 
         tracker?.addObserver(object : SelectionTracker.SelectionObserver<NoteCategory>() {
             override fun onSelectionChanged() {
                 super.onSelectionChanged()
-                if (actionMode == null)
+                if (actionMode == null) {
                     actionMode =
                         (activity as MainActivity).startSupportActionMode(this@ListNotesFragment)
-
+                }
                 selectedCategories = tracker?.selection?.size()
-                if (selectedCategories!! > 0)
-                    actionMode?.title = "$selectedCategories/${adapter.currentList.size}"
-                else
+                if (selectedCategories!! > 0) {
+                    actionMode?.title = "$selectedCategories/${categoriesAdapter.currentList.size}"
+                } else {
                     actionMode?.finish()
+                }
             }
         })
-        adapter.setTracker(tracker!!)
-
+        categoriesAdapter.setTracker(tracker!!)
         setAdapterData {
-            Log.d("ListNotes", "onCreateView: called??? ")
-            adapter.submitList(it)
+            if(it!=null) {
+                categoriesAdapter.submitList(it)
+                binding.rv.visibility = View.VISIBLE
+                binding.tvEmptyCategories.visibility = View.GONE
+            }else{
+                binding.rv.visibility = View.GONE
+                binding.tvEmptyCategories.visibility = View.VISIBLE
+            }
         }
 
         return binding.root
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean(IS_FOLDER_VIEW, isFolder!!)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -150,7 +120,6 @@ class ListNotesFragment : Fragment(), ClickListener, ActionMode.Callback {
         val searchView = searchItem.actionView as SearchView
 
         performSearch(searchView)
-        toggleMenuItemsVisibility()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -158,32 +127,27 @@ class ListNotesFragment : Fragment(), ClickListener, ActionMode.Callback {
             R.id.delete_all -> {
                 confirmDeleteAll()
             }
-
-            R.id.hide_private -> {
-                viewModel.hidePrivateCategories()
-
-            }
-            R.id.show_all -> {
-                viewModel.showAllCategories()
-            }
         }
         return true
     }
 
-    override fun onClick(view: View, note: Note, position: Int, deleteNote: ImageButton) {
+    /*override fun onClick(view: View, note: Note, position: Int, deleteNote: ImageButton) {
         when (view.id) {
             R.id.noteItem -> {
                 if (NoteAdapter.isSelectedMode) {
                     view.background = if (NoteAdapter.selectedNotes.contains(note)) {
                         NoteAdapter.selectedNotes.remove(note)
                         deleteNote.isVisible = false
-                        AppCompatResources.getDrawable(requireContext(), R.drawable.rounded_corners)
+                        AppCompatResources.getDrawable(
+                            requireContext(),
+                            R.drawable.rounded_corners_bcg
+                        )
                     } else {
                         NoteAdapter.selectedNotes.add(note)
                         deleteNote.visibility = View.VISIBLE
                         AppCompatResources.getDrawable(
                             requireContext(),
-                            R.drawable.rounded_corners_bg_gray
+                            R.drawable.grey_rounded_corners_bg
                         )
                     }
                     if (NoteAdapter.selectedNotes.size == 0) {
@@ -207,19 +171,19 @@ class ListNotesFragment : Fragment(), ClickListener, ActionMode.Callback {
             }
         }
     }
-
+*/
     @SuppressLint("ClickableViewAccessibility")
-    override fun onLongClick(view: View, note: Note, deleteNote: ImageButton): Boolean {
+   /* override fun onLongClick(view: View, note: Note, deleteNote: ImageButton): Boolean {
         NoteAdapter.isSelectedMode = true
         view.background = if (NoteAdapter.selectedNotes.contains(note)) {
             NoteAdapter.selectedNotes.remove(note)
             deleteNote.isVisible = false
-            AppCompatResources.getDrawable(requireContext(), R.drawable.rounded_corners)
+            AppCompatResources.getDrawable(requireContext(), R.drawable.rounded_corners_bcg)
 
         } else {
             NoteAdapter.selectedNotes.add(note)
             deleteNote.visibility = View.VISIBLE
-            AppCompatResources.getDrawable(requireContext(), R.drawable.rounded_corners_bg_gray)
+            AppCompatResources.getDrawable(requireContext(), R.drawable.grey_rounded_corners_bg)
 
         }
         if (NoteAdapter.selectedNotes.size == 0) {
@@ -227,9 +191,10 @@ class ListNotesFragment : Fragment(), ClickListener, ActionMode.Callback {
         }
         return true
     }
+*/
 
     override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
-        mode?.menuInflater?.inflate(R.menu.menu_action_mode, menu)
+        mode?.menuInflater?.inflate(R.menu.action_mode_menu, menu)
         return true
     }
 
@@ -260,24 +225,24 @@ class ListNotesFragment : Fragment(), ClickListener, ActionMode.Callback {
 
     private fun toggleMenuItemsVisibility() {
         setAdapterData {
-            if (viewModel.isPrivateNotesHidden(it)) {
+            /*if (viewModel.isPrivateNotesHidden(it)) {
                 globalMenu.findItem(R.id.hide_private).isVisible = false
                 globalMenu.findItem(R.id.show_all).isVisible = true
             } else {
                 globalMenu.findItem(R.id.show_all).isVisible = false
                 globalMenu.findItem(R.id.hide_private).isVisible = true
-            }
+            }*/
         }
     }
 
-    private fun setAdapterData(listHandler: (noteCategory: List<NoteCategory>) -> Unit) {
-        viewModel.categoriesList.observe(viewLifecycleOwner, {
-            listHandler.invoke(it!!)
-        })
+    private fun setAdapterData(listHandler: (noteCategory: List<NoteCategory>?) -> Unit) {
+        viewModel.categoriesList.observe(viewLifecycleOwner) {
+            listHandler.invoke(it)
+        }
     }
 
     private fun changeViewType() {
-        if (isFolder!!) {
+        /*if (isFolder!!) {
             layoutManager?.spanCount = when (resources.configuration.orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {
                     4
@@ -286,17 +251,17 @@ class ListNotesFragment : Fragment(), ClickListener, ActionMode.Callback {
                     2
                 }
             }
-            binding.apply {
+            *//*binding.apply {
                 notesCategories.text = getString(R.string.item_list_notes)
                 recentNotes.isVisible = false
-            }
+            }*//*
         } else {
             layoutManager?.spanCount = 1
-            binding.apply {
+            *//*binding.apply {
                 notesCategories.text = getString(R.string.item_list_show_categories)
                 recentNotes.isVisible = true
-            }
-        }
+            }*//*
+        }*/
     }
 
     private fun performSearch(searchView: SearchView) {
@@ -354,13 +319,13 @@ class ListNotesFragment : Fragment(), ClickListener, ActionMode.Callback {
 
     private fun filterCategories(newText: String?) {
         setAdapterData { noteCategories ->
-            val filteredCategories = viewModel.noteCategoryFilter(noteCategories, newText)
+            val filteredCategories = viewModel.noteCategoryFilter(noteCategories!!, newText)
             if (filteredCategories.isEmpty()) {
                 Toast.makeText(requireContext(), "No match found", Toast.LENGTH_SHORT).show()
-                adapter.submitList(null)
+                categoriesAdapter.submitList(null)
             } else {
-                adapter.submitList(null)
-                adapter.submitList(filteredCategories)
+                categoriesAdapter.submitList(null)
+                categoriesAdapter.submitList(filteredCategories)
             }
         }
 
@@ -368,19 +333,19 @@ class ListNotesFragment : Fragment(), ClickListener, ActionMode.Callback {
 
     private fun listRecentNotes() {
         setAdapterData {
-            val recent = viewModel.sortNotes(it)
-            adapter.submitList(recent)
-            binding.recentNotes.visibility = GONE
-            binding.oldNotes.visibility = View.VISIBLE
+            val recent = viewModel.sortNotes(it!!)
+            categoriesAdapter.submitList(recent)
+            /*binding.recentNotes.visibility = GONE
+            binding.oldNotes.visibility = View.VISIBLE*/
         }
     }
 
     private fun listOldNotes() {
         setAdapterData {
-            val recent = viewModel.sortOldNotes(it)
-            adapter.submitList(recent)
-            binding.recentNotes.visibility = View.VISIBLE
-            binding.oldNotes.visibility = GONE
+            val recent = viewModel.sortOldNotes(it!!)
+            categoriesAdapter.submitList(recent)
+            /*binding.recentNotes.visibility = View.VISIBLE
+            binding.oldNotes.visibility = GONE*/
         }
 
     }

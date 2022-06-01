@@ -17,6 +17,13 @@
         <item name="shopping">Shopping</item>
     </string-array>
 
+    <string-array name="note_priorities">
+        <item name="select_priority">none</item>
+        <item name="high_priority">High priority</item>
+        <item name="normal_priority">Normal priority</item>
+        <item name="low_priority">Low priority</item>
+    </string-array>
+
     <string name="text_add_note">Add Note</string>
     <string name="recent_item_txt">Recent</string>
     <string name="old_item_txt">Old</string>
@@ -48,4 +55,16 @@
     <string name="category_daily_task">Daily Tasks</string>
     <string name="category_private">Private</string>
     <string name="categry_shopping">Shopping</string>
+    <string name="tv_categories_label">Categories</string>
+    <string name="view_color_cdesc">Note category color</string>
+    <string name="tab_favorite_label">Favorite</string>
+    <string name="tab_reminders_label">Reminders</string>
+    <string name="tab_all_notes_label">All Notes</string>
+    <string name="favorite_label">Favorite</string>
+    <string name="select_priority">Priority</string>
+    <string name="add_reminder_label">Add Reminder</string>
+    <string name="new_note_label">New Note</string>
+    <string name="note_category_label">Note Category</string>
+    <string name="update_note_label">Update Note</string>
+    <string name="add_reminder_title_label">Add Reminder</string>
 </resources>

@@ -40,6 +40,9 @@
                 app:exitAnim="@anim/nav_default_exit_anim"
                 app:popEnterAnim="@anim/nav_default_pop_enter_anim"
                 app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+                android:id="@+id/action_listNotesFragment_to_categoryNotes"
+                app:destination="@id/categoryNotes" />
 
     </fragment>
     <fragment
@@ -86,6 +89,9 @@
                     app:argType="string" />
 
         </action>
+        <argument
+                android:name="note"
+                app:argType="com.developerkim.mytodo.data.model.Note" />
     </fragment>
     <fragment
             android:id="@+id/updateNoteFragment"
@@ -95,5 +101,26 @@
         <action
                 android:id="@+id/action_updateNoteFragment_to_listNotesFragment"
                 app:destination="@id/listNotesFragment" />
+    </fragment>
+    <fragment
+            android:id="@+id/categoryNotes"
+            android:name="com.developerkim.mytodo.ui.listnotes.CategoryNotes"
+            android:label="fragment_category_notes"
+            tools:layout="@layout/fragment_category_notes" >
+        <argument
+                android:name="noteList"
+                app:argType="com.developerkim.mytodo.data.model.Note[]" />
+        <action
+                android:id="@+id/action_categoryNotes_to_readNotesFragment"
+                app:destination="@id/readNotesFragment" />
+    </fragment>
+    <fragment
+            android:id="@+id/allNotesFragment"
+            android:name="com.developerkim.mytodo.ui.listnotes.AllNotesFragment"
+            android:label="fragment_all_notes"
+            tools:layout="@layout/fragment_all_notes" >
+        <action
+                android:id="@+id/action_allNotesFragment_to_readNotesFragment"
+                app:destination="@id/readNotesFragment" />
     </fragment>
 </navigation>

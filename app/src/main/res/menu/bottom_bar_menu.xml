@@ -1,15 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+<menu xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-            android:id="@+id/recent_notes"
+            android:id="@+id/placeholder1"
+            android:title=""
+            app:showAsAction="always"
+            tools:ignore="AlwaysShowAction" />
+    <item
+            android:id="@+id/actionRecent"
             android:title="@string/recent_item_txt"
             app:showAsAction="always"
             android:icon="@drawable/ic_recent" />
-
     <item
-            android:id="@+id/notes_categories"
+            android:id="@+id/placeholder4"
+            android:title=""
+            app:showAsAction="always" />
+    <item
+            android:id="@+id/actionCategories"
             android:title="@string/category_item_txt"
             app:showAsAction="always"
-            android:icon="@drawable/ic_category" />
+            android:icon="@drawable/ic_grids" />
+    <item
+            android:id="@+id/placeholder"
+            android:title=""
+            app:showAsAction="always" />
+
+    <item
+            android:id="@+id/placeholder2"
+            android:title=""
+            app:showAsAction="always" />
+
+
+    <item
+            android:id="@+id/placeholder3"
+            android:title=""
+            app:showAsAction="always" />
+    <!--<item
+            android:id="@+id/action_setting"
+            android:title="@string/category_item_txt"
+            app:showAsAction="always"
+            android:icon="@drawable/ic_settings" />-->
+
 </menu>

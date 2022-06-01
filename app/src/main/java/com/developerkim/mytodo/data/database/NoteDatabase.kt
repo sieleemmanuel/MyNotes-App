@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 import com.developerkim.mytodo.data.model.Converter
 import com.developerkim.mytodo.data.model.NoteCategory
 
-@Database(entities = [NoteCategory::class], version = 1, exportSchema = false)
+@Database(entities = [NoteCategory::class], version = 2)
 @TypeConverters(Converter::class)
 abstract class NoteDatabase : RoomDatabase() {
     abstract val notesCategoriesDao:NoteCategoriesDao
@@ -16,7 +16,6 @@ abstract class NoteDatabase : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: NoteDatabase? = null
-
 
         fun getInstance(context: Context): NoteDatabase {
             synchronized(this) {

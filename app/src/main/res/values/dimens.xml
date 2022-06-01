@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--dp margins, width, height-->
+    <dimen name="dp_16">16dp</dimen>
+    <dimen name="dp_8">8dp</dimen>
+    <dimen name="dp_0">0dp</dimen>
+    <dimen name="dp_5">5dp</dimen>
+    <dimen name="dp_10">10dp</dimen>
+
+    <!--sp text-->
+    <dimen name="sp_20">20sp</dimen>
+    <dimen name="sp_16">16sp</dimen>
+
+</resources>

@@ -1,53 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:tools="http://schemas.android.com/tools"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
-    <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/read_note_fragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            >
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/read_note_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <TextView
-                android:text="@string/note_tittle_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/openNoteTittle"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+    <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/readToolbar"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@color/colorPrimary"
+            app:title="@string/note_category_label"
+            app:titleCentered="false"
+            android:theme="@style/ToolbarStyle"
+            app:menu="@menu/read_note_menu" />
 
-        <TextView
-                android:text="@string/note_hint_text"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:id="@+id/openNoteNotes"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_margin="10dp"
-                android:textSize="17sp"
-                android:scrollbars="vertical"
-                android:focusable="true"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/noteDate"
-                android:layout_marginTop="24dp" />
+    <TextView
+            android:text="@string/note_tittle_text"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:id="@+id/openNoteTittle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/readToolbar"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
 
-        <TextView
-                android:text=""
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/noteDate"
-                app:layout_constraintEnd_toEndOf="@+id/openNoteTittle"
-                app:layout_constraintStart_toStartOf="@+id/openNoteTittle"
-                app:layout_constraintTop_toBottomOf="@+id/openNoteTittle"
-                tools:text="02 April, 2021"
-                android:textStyle="italic"
-                android:textSize="12sp"
-                android:layout_marginTop="8dp" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+            android:text="@string/note_hint_text"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="@dimen/dp_0"
+            android:id="@+id/openNoteNotes"
+            app:layout_constraintEnd_toEndOf="@+id/openNoteTittle"
+            app:layout_constraintStart_toStartOf="@+id/openNoteTittle"
+            app:layout_goneMarginTop="20dp"
+            android:textSize="17sp"
+            android:scrollbars="vertical"
+            android:focusable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/noteDate"
+            android:layout_marginTop="24dp" />
 
-</layout>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/noteDate"
+            app:layout_constraintStart_toStartOf="@+id/openNoteTittle"
+            app:layout_constraintTop_toBottomOf="@+id/openNoteTittle"
+            tools:text="02 April, 2021"
+            android:textStyle="italic"
+            android:textSize="12sp"
+            android:layout_marginTop="@dimen/dp_5" />
+
+    <TextView
+            android:id="@+id/tvPriority"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_5"
+            android:layout_marginStart="20dp"
+            android:text="High Priority"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@+id/noteDate"
+            app:layout_constraintTop_toBottomOf="@+id/openNoteTittle" />
+</androidx.constraintlayout.widget.ConstraintLayout>
