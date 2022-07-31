@@ -1,116 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:tools="http://schemas.android.com/tools"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.newnote.NewNoteFragment">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/newNoteToolbar"
+        android:layout_width="@dimen/dp_0"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        android:theme="@style/ToolbarStyle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/new_note_menu"
+        app:title="@string/new_note_label"
+        app:titleCentered="false" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="@dimen/dp_0"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_10"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="@dimen/dp_10"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:boxStrokeColor="@android:color/transparent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/menuCategory">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/noteTitleEditText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="@string/ti_enter_title_hnt"
+            android:inputType="textCapWords"
+            tools:text="Note Title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/menuCategory" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilReminder"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="@dimen/dp_0"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_16"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:boxStrokeColor="@android:color/transparent"
+        app:startIconDrawable="@drawable/ic_reminder"
+        app:layout_constraintEnd_toEndOf="@+id/textInputLayout"
+        app:layout_constraintStart_toStartOf="@+id/textInputLayout"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/edtReminder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.newnote.NewNoteFragment">
-    <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/newNoteToolbar"
-            android:layout_width="@dimen/dp_0"
-            android:layout_height="?attr/actionBarSize"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:background="@color/colorPrimary"
-            app:title="@string/new_note_label"
-            app:titleCentered="false"
-            app:menu="@menu/new_note_menu"
-            android:theme="@style/ToolbarStyle"/>
+        android:hint="Reminder"
+        android:inputType="none"
+        tools:text="07/31/2022 11:50:00"
+        />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/clNewNote"
-            android:layout_width="@dimen/dp_0"
-            android:layout_height="@dimen/dp_0"
-            android:layout_margin="@dimen/dp_10"
-            android:clickable="true"
-            android:focusableInTouchMode="true"
-            android:focusable="true"
-            app:layout_constraintTop_toBottomOf="@+id/newNoteToolbar"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/menuCategory"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_10"
+        android:layout_marginEnd="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_8"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/newNoteToolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="@string/note_category">
 
-        <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInputLayout"
-                android:layout_width="@dimen/dp_0"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/menuCategory"
-                app:boxBackgroundColor="@android:color/transparent"
-                app:boxStrokeColor="@android:color/transparent"
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <AutoCompleteTextView
+            android:id="@+id/selectCategory"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:configChanges="orientation"
+            android:ellipsize="end"
+            android:inputType="none"
+            android:hint="@string/note_category"
+            android:labelFor="@id/selectCategory"
+            android:singleLine="true" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-            <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/noteTitleEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/menuCategory"
-                    android:hint="@string/ti_enter_title_hnt" />
-        </com.google.android.material.textfield.TextInputLayout>
+    <!--<com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilPriorities"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+        android:layout_width="@dimen/dp_0"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_10"
+        android:layout_marginEnd="@dimen/dp_10"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:boxStrokeColor="@android:color/transparent"
+        app:hintEnabled="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/menuCategory"
+        app:layout_constraintTop_toBottomOf="@+id/newNoteToolbar">
 
-        <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/menuCategory"
-                android:layout_width="170dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-                app:layout_constraintStart_toStartOf="parent"
-                android:hint="@string/note_category"
-                tools:text="@string/note_category"
-                app:boxBackgroundColor="@android:color/transparent">
+        <AutoCompleteTextView
+            android:id="@+id/selectPriority"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:configChanges="orientation"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:hint="@string/select_priority"
+            android:inputType="none"
+            android:labelFor="@id/selectPriority" />
+    </com.google.android.material.textfield.TextInputLayout>-->
+   <!-- <TextView
+        android:id="@+id/selectColorLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_8"
+        android:text="@string/select_color_label"
+        app:layout_constraintStart_toStartOf="@id/textInputLayout"
+        app:layout_constraintEnd_toEndOf="@id/textInputLayout"
+        app:layout_constraintTop_toBottomOf="@id/menuCategory"/>
+    <com.github.naz013.colorslider.ColorSlider
+        android:id="@+id/colorSlider"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="@dimen/dp_8"
+        app:cs_hex_colors="@array/hex_colors"
+        app:layout_constraintEnd_toEndOf="@+id/selectColorLabel"
+        app:layout_constraintStart_toStartOf="@+id/selectColorLabel"
+        app:layout_constraintTop_toBottomOf="@id/selectColorLabel" />-->
 
-            <AutoCompleteTextView
-                    android:id="@+id/selectCategory"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:inputType="none"
-                    android:background="@android:color/transparent"
-                    android:labelFor="@id/selectCategory"
-                    android:configChanges="orientation" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilPriorities"
-                android:layout_width="@dimen/dp_0"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:boxBackgroundColor="@android:color/transparent"
-                app:boxStrokeColor="@android:color/transparent"
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-                app:layout_constraintStart_toEndOf="@+id/menuCategory"
-                android:hint="@string/select_priority"
-                app:layout_constraintTop_toTopOf="@+id/menuCategory">
-
-            <AutoCompleteTextView
-                    android:id="@+id/selectPriority"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:inputType="none"
-                    android:background="@android:color/transparent"
-                    android:labelFor="@id/selectPriority"
-                    android:configChanges="orientation" />
-        </com.google.android.material.textfield.TextInputLayout>
-        <EditText
-                android:id="@+id/noteTextEditText"
-                android:layout_width="@dimen/dp_0"
-                android:layout_height="@dimen/dp_0"
-                android:padding="@dimen/dp_5"
-                android:hint="@string/hnt_type_note_txt"
-                android:inputType="textMultiLine"
-                android:layout_marginTop="@dimen/dp_16"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
-                android:background="@android:color/transparent"
-                android:gravity="start"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:autofillHints="" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <EditText
+        android:id="@+id/noteTextEditText"
+        android:layout_width="@dimen/dp_0"
+        android:layout_height="@dimen/dp_0"
+        android:layout_marginTop="@dimen/dp_16"
+        android:layout_marginBottom="@dimen/dp_16"
+        android:autofillHints=""
+        android:background="@android:color/transparent"
+        android:gravity="start"
+        android:hint="@string/hnt_type_note_txt"
+        android:inputType="textMultiLine|textCapSentences"
+        android:padding="@dimen/dp_5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tilReminder"
+        app:layout_constraintStart_toStartOf="@+id/tilReminder"
+        app:layout_constraintTop_toBottomOf="@+id/tilReminder" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val navHostFragment =
+        /*     val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
         navController = navHostFragment.navController
         appBarConfiguration = AppBarConfiguration(navController.graph)
@@ -25,9 +25,9 @@ class MainActivity : AppCompatActivity() {
     }
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
-    }
+    }*/
 
-    /*override fun onBackPressed() {
+        /*override fun onBackPressed() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == R.id.listNotesFragment) {
                 finish()
@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }*/
+    }
 }
 
 

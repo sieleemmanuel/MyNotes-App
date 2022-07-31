@@ -3,23 +3,24 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         tools:context=".ui.listnotes.AllNotesFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/tabsRecyclerview"
-            android:layout_width="@dimen/dp_0"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:listitem="@layout/note_item"
-            android:layout_marginStart="@dimen/dp_8"
-            android:layout_marginTop="@dimen/dp_8"
-            android:layout_marginEnd="@dimen/dp_8" />
+        android:id="@+id/tabsRecyclerview"
+        android:layout_width="@dimen/dp_0"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/dp_8"
+        android:layout_marginTop="@dimen/dp_8"
+        android:layout_marginEnd="@dimen/dp_8"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/note_item" />
 
     <TextView
-            android:text="No notes yet!"
+            android:text="@string/tv_notes_empty_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/tvEmptyNotes"
@@ -28,5 +29,15 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:textAlignment="center"
-            android:visibility="gone" />
+            android:visibility="invisible" />
+
+    <ProgressBar
+        android:id="@+id/pbLoadingNotes"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tabsRecyclerview"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tabsRecyclerview" />
 </androidx.constraintlayout.widget.ConstraintLayout>

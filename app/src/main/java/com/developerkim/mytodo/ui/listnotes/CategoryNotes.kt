@@ -4,23 +4,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.developerkim.mytodo.R
 import com.developerkim.mytodo.adapters.NoteAdapter
 import com.developerkim.mytodo.data.model.Note
+import com.developerkim.mytodo.data.model.NoteCategory
 import com.developerkim.mytodo.databinding.FragmentCategoryNotesBinding
-import com.developerkim.mytodo.interfaces.ClickListener
-import com.developerkim.mytodo.ui.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class CategoryNotes : Fragment() {
     private lateinit var binding: FragmentCategoryNotesBinding
-    private val viewModel: ListNoteViewModel by activityViewModels()
+    private val viewModel: MainViewModel by activityViewModels()
     private val args: CategoryNotesArgs by navArgs()
     private lateinit var notesAdapter: NoteAdapter
 
@@ -28,45 +29,61 @@ class CategoryNotes : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        ( activity as MainActivity).onBackPressed()
         binding = FragmentCategoryNotesBinding.inflate(inflater)
+        val categoryNotes = args.category
 
-        val categoryNotes = args.noteList
-
-        notesAdapter = NoteAdapter(categoryNotes.toMutableList(),
-            noteClickListener(),viewClickListener(), requireContext())
-
+        notesAdapter = NoteAdapter(
+            categoryNotes.notes!!,
+            noteClickListener(), viewClickListener(), requireContext()
+        )
         binding.apply {
-            rvCategoryNotes.layoutManager = LinearLayoutManager(context!!)
-            rvCategoryNotes.adapter = notesAdapter
+            setUpRecyclerView()
+            setUpToolbar(categoryNotes)
         }
-
         return binding.root
     }
 
-    private fun noteClickListener() = NoteAdapter.NoteClickListener { note ->
+    private fun FragmentCategoryNotesBinding.setUpRecyclerView() {
+        rvCategoryNotes.apply {
+            layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+            adapter = notesAdapter
+        }
+    }
+
+    private fun FragmentCategoryNotesBinding.setUpToolbar(
+        categoryNotes: NoteCategory
+    ) {
+        categoryNotesToolbar.apply {
+            title = categoryNotes.categoryName
+            setupWithNavController(findNavController())
+            setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.actionDeleteAll -> {
+                        Toast.makeText(
+                            requireContext(),
+                            "ToDo confirm delete",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                false
+            }
+        }
+    }
+
+    private fun noteClickListener() = NoteAdapter.NoteClickListener { note, position ->
         findNavController().navigate(
             CategoryNotesDirections.actionCategoryNotesToReadNotesFragment(
-                note
+                note,position
             )
         )
     }
 
-    private fun viewClickListener() = NoteAdapter.ViewClickListener { note, _, binding ->
-        when(view){
-            binding.btnFavorite ->{
-                if (note.isFavorite){
-                    val updatedNote = Note(
-                        note.noteCategory,
-                        note.noteTitle,
-                        note.noteText,
-                        note.noteDate,
-                        isFavorite = false,
-                        note.priority
-                    )
-                    viewModel.updateNote(updatedNote)
-                }
-            }
+    private fun viewClickListener() = NoteAdapter.ViewClickListener { note, _, view, binding ->
+        when (view) {
+            binding.btnFavorite -> viewModel.setNoteFavorite(note)
+
         }
     }
 }

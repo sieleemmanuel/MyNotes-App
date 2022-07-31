@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.developerkim.mytodo.R
 import com.developerkim.mytodo.data.model.Note
-import com.developerkim.mytodo.data.model.NoteCategory
 import com.developerkim.mytodo.data.repository.NotesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -48,7 +47,7 @@ class UpdateViewModel @Inject constructor(
             Log.d("toUpdateCategory", "toUpdateCategory:::$toUpdateCategory ")
             Log.d("NoteToUpdate", "Note:::$note")
             toUpdateCategory.notes!![notePosition] = note
-            notesRepository.update(toUpdateCategory)
+            notesRepository.updateCategory(toUpdateCategory)
         }
 
     }

@@ -1,85 +1,109 @@
 package com.developerkim.mytodo.ui.listnotes
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.developerkim.mytodo.R
 import com.developerkim.mytodo.adapters.NoteAdapter
 import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.databinding.FragmentAllNotesBinding
-import com.developerkim.mytodo.ui.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class AllNotesFragment : Fragment() {
     private lateinit var binding: FragmentAllNotesBinding
     private lateinit var noteAdapter: NoteAdapter
-    private val viewModel: ListNoteViewModel by activityViewModels()
+    private val viewModel: MainViewModel by activityViewModels()
     private val TAG = "AllNotes"
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        (activity as MainActivity).onBackPressed()
+    ): View {
         binding = FragmentAllNotesBinding.inflate(inflater)
+        val arg = arguments
+        val allNotes = arg?.getString(getString(R.string.all_note_args_key))
+        val reminders = arg?.getString(getString(R.string.reminders_args_key))
+        val favorites = arg?.getString(getString(R.string.favorites_args_key))
         binding.apply {
-            tabsRecyclerview.layoutManager = LinearLayoutManager(requireContext())
-        }
+            tabsRecyclerview.layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-        viewModel.categoriesList.observe(viewLifecycleOwner) {
-            if (it!=null) {
-                binding.tabsRecyclerview.visibility = View.VISIBLE
-                binding.tvEmptyNotes.visibility = View.GONE
-                val allNotes = mutableListOf<Note>()
-                it.forEach { noteCategory ->
-                    noteCategory.notes?.let { it1 -> allNotes.addAll(it1) }
+            viewModel.allNotes.observe(viewLifecycleOwner) {
+                noteAdapter = when {
+                   allNotes == getString(R.string.all_note_args_key)-> {
+                        NoteAdapter(
+                            it,
+                            noteClickListener(),
+                            viewClickListener(),
+                            requireContext()
+                        )
+                    }
+                    reminders == getString(R.string.reminders_args_key) ->{
+                        Log.d(TAG, "reminders:${viewModel.getReminderNotes(it)}")
+                        NoteAdapter(
+                            viewModel.getReminderNotes(it) as MutableList<Note>,
+                            noteClickListener(),
+                            viewClickListener(),
+                            requireContext()
+                        )
+                    }
+                    favorites == getString(R.string.favorites_args_key) ->{
+                        NoteAdapter(
+                            viewModel.getFavouriteNotes(it) as MutableList<Note>,
+                            noteClickListener(),
+                            viewClickListener(),
+                            requireContext()
+                        )
+                    }
+
+                    else-> {
+                        NoteAdapter(
+                            it,
+                            noteClickListener(),
+                            viewClickListener(),
+                            requireContext()
+                        )
+                    }
                 }
-                noteAdapter = NoteAdapter(
-                    allNotes,
-                    noteClickListener(),
-                    viewClickListener(),
-                    requireContext()
-                )
-                binding.tabsRecyclerview.adapter = noteAdapter
-            }else{
-                binding.tabsRecyclerview.visibility = View.GONE
-                binding.tvEmptyNotes.visibility = View.VISIBLE
+                tabsRecyclerview.adapter = noteAdapter
+                if (noteAdapter.itemCount==0){
+                    pbLoadingNotes.visibility = View.VISIBLE
+                }else{
+                    pbLoadingNotes.visibility = View.INVISIBLE
+                }
+                if (it!!.isNotEmpty()) {
+                    tabsRecyclerview.visibility = View.VISIBLE
+                    tvEmptyNotes.visibility = View.INVISIBLE
+                } else {
+                    tabsRecyclerview.visibility = View.INVISIBLE
+                    tvEmptyNotes.visibility = View.VISIBLE
+                }
             }
         }
         return binding.root
     }
 
-    private fun noteClickListener() = NoteAdapter.NoteClickListener { note ->
+    private fun noteClickListener() = NoteAdapter.NoteClickListener { note, position ->
         findNavController().navigate(
-            AllNotesFragmentDirections.actionAllNotesFragmentToReadNotesFragment(
-                note
+            ListNotesFragmentDirections.actionListNotesFragmentToReadNotesFragment(
+                note, position
             )
         )
     }
 
-    private fun viewClickListener() = NoteAdapter.ViewClickListener { note, _, binding ->
-        when(view){
-            binding.btnFavorite ->{
-                if (note.isFavorite){
-                    val updatedNote = Note(
-                        note.noteCategory,
-                        note.noteTitle,
-                        note.noteText,
-                        note.noteDate,
-                        isFavorite = false,
-                        note.priority
-                    )
-                    viewModel.updateNote(updatedNote)
-                }
+    private fun viewClickListener() = NoteAdapter.ViewClickListener { note, _, view, binding ->
+        when (view) {
+            binding.btnFavorite -> {
+                viewModel.setNoteFavorite(note)
             }
         }
     }
 
-    /*override fun onClick(view: View, note: Note, position: Int, deleteNote: ImageButton) {
-        findNavController().navigate(AllNotesFragmentDirections.actionAllNotesFragmentToReadNotesFragment(note))
-    }*/
 }

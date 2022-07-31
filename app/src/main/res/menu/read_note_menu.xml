@@ -3,14 +3,14 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-            android:title="@string/item_share_text"
+            android:title="@string/update_note_label"
             android:id="@+id/updateNote"
             android:icon="@drawable/ic_edit"
             app:showAsAction="always" />
     <item
             android:title="@string/favorite_label"
-            android:id="@+id/actionAddFavorite"
-            android:icon="@drawable/ic_favorite"
+            android:id="@+id/actionAddToFavorite"
+            android:icon="@drawable/check_favourite"
             app:showAsAction="always"
             tools:ignore="AlwaysShowAction" />
     <item

@@ -1,153 +1,190 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:tools="http://schemas.android.com/tools"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/list_notes_fragment"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/list_notes_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.listnotes.ListNotesFragment">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/mainToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/ToolbarStyle"
+            app:elevation="@dimen/dp_0"
+            app:layout_collapseMode="pin"
+            app:layout_scrollFlags="enterAlways"
+            app:menu="@menu/main_menu"
+            app:title="@string/app_name"
+            app:titleTextColor="@color/colorOnPrimary" />
+
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/searchView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_16"
+            android:layout_marginTop="@dimen/dp_10"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:background="@drawable/search_view_bcg"
+            app:defaultQueryHint="search notes"
+            app:iconifiedByDefault="false"
+            app:queryBackground="@null" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:context=".ui.listnotes.ListNotesFragment">
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:id="@+id/cdnLayout"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:layout_height="match_parent">
 
-        <com.google.android.material.appbar.AppBarLayout
-                android:id="@+id/appBarLayout"
-                android:layout_width="match_parent"
-                android:layout_height="128dp"
+            <TextView
+                android:id="@+id/tvCategories"
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_16"
+                android:layout_marginTop="@dimen/dp_8"
+                android:layout_marginEnd="@dimen/dp_16"
+                android:text="@string/tv_categories_label"
+                android:textSize="@dimen/sp_16"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                    android:id="@+id/mainToolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:menu="@menu/top_bar_menu"
-                    app:titleTextColor="@color/colorOnPrimary"
-                    app:title="@string/app_name"
-                    android:theme="@style/ToolbarStyle"
-                    app:elevation="@dimen/dp_0"
-                    app:layout_scrollFlags="scroll|enterAlways"
-                    app:layout_collapseMode="pin" />
-
-            <androidx.appcompat.widget.SearchView
-                    android:id="@+id/searchView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/dp_16"
-                    android:layout_marginEnd="@dimen/dp_16"
-                    android:layout_marginTop="@dimen/dp_10"
-                    app:iconifiedByDefault="false"
-                    app:defaultQueryHint="search notes"
-                    app:queryBackground="@null"
-                    android:background="@drawable/search_view_bcg" />
-        </com.google.android.material.appbar.AppBarLayout>
-        <androidx.core.widget.NestedScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-                app:layout_constraintTop_toBottomOf="@+id/cdnLayout"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvCategories"
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_5"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintBottom_toBottomOf="@id/tvEmptyCategories"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:fillViewport="true">
-            <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                <TextView
-                        android:id="@+id/tvCategories"
-                        android:text="@string/tv_categories_label"
-                        android:layout_width="@dimen/dp_0"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/dp_8"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        android:textStyle="bold"
-                        android:textSize="@dimen/sp_16"
-                        android:layout_marginStart="@dimen/dp_16"
-                        android:layout_marginEnd="@dimen/dp_16" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvCategories"
+                tools:listitem="@layout/category_item" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rv"
-                        android:layout_width="@dimen/dp_0"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/dp_5"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tvCategories"
-                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                        tools:listitem="@layout/category_item"
-                        android:orientation="horizontal" />
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_8"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/rvCategories"
+                app:tabBackground="@drawable/tab_selector"
+                app:tabContentStart="30dp"
+                app:tabIndicatorHeight="@dimen/dp_0"
+                app:tabMode="scrollable"
+                app:tabSelectedTextColor="@color/colorOnSecondary"
+                app:tabTextAppearance="@style/TabTextStyle">
 
-                <com.google.android.material.tabs.TabLayout
-                        android:id="@+id/tabLayout"
-                        android:layout_width="@dimen/dp_0"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/rv"
-                        app:tabGravity="fill"
-                        app:tabMode="scrollable"
-                        app:tabSelectedTextColor="@color/colorOnSecondary"
-                        app:tabBackground="@drawable/tab_selector"
-                        app:tabContentStart="30dp"
-                        app:tabIndicatorHeight="@dimen/dp_0"
-                        android:layout_marginTop="@dimen/dp_8">
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tab_all_notes_label" />
 
-                    <com.google.android.material.tabs.TabItem
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/tab_all_notes_label" />
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tab_reminders_label" />
 
-                    <com.google.android.material.tabs.TabItem
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/tab_reminders_label" />
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tab_favorite_label" />
+            </com.google.android.material.tabs.TabLayout>
 
-                    <com.google.android.material.tabs.TabItem
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/tab_favorite_label" />
-                </com.google.android.material.tabs.TabLayout>
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/notesPager"
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tabLayout" />
 
-                <androidx.viewpager2.widget.ViewPager2
-                        android:id="@+id/notesPager"
-                        android:layout_width="@dimen/dp_0"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintTop_toBottomOf="@+id/tabLayout"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent" />
+            <TextView
+                android:id="@+id/tvEmptyCategories"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:gravity="center"
+                android:text="@string/categories_empty_label"
+                android:textAlignment="center"
+                app:layout_constraintBottom_toBottomOf="@id/rvCategories"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/rvCategories"
+                app:layout_constraintTop_toBottomOf="@+id/tvCategories" />
 
-                <TextView
-                        android:text="No categories yet.Create new"
-                        android:layout_width="wrap_content"
-                        android:layout_height="125dp"
-                        android:id="@+id/tvEmptyCategories"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="@+id/rv"
-                        app:layout_constraintTop_toBottomOf="@+id/tvCategories"
-                        android:textAlignment="center"
-                        android:gravity="center"
-                        app:layout_constraintBottom_toTopOf="@+id/tabLayout" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.core.widget.NestedScrollView>
+            <ProgressBar
+                android:id="@+id/pbLoadingCategories"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@+id/rvCategories"
+                app:layout_constraintEnd_toEndOf="@+id/rvCategories"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvCategories" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/btnAddNote"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="20dp"
-            android:src="@drawable/ic_add"
-                android:layout_gravity="bottom|end"
-            android:contentDescription="@string/text_add_note"
-            />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-     <!--app:layout_anchor="@id/bottomAppBar"-->
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabNewNote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="130dp"
+        android:visibility="invisible"
+        android:contentDescription="@string/text_add_note"
+        app:backgroundTint="@color/colorPrimary"
+        android:src="@drawable/ic_add_note"
+        app:fabSize="mini" />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabNewCategory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="75dp"
+        android:visibility="invisible"
+        android:contentDescription="@string/text_add_note"
+        android:src="@drawable/ic_add_folder"
+        app:backgroundTint="@color/colorPrimary"
+        app:fabSize="mini" />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddNew"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="10dp"
+        android:contentDescription="@string/text_add_note"
+        android:src="@drawable/ic_add"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"/>
+    <!--<io.github.yavski.fabspeeddial.FabSpeedDial
+        android:id="@+id/fabAddNew"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:contentDescription="@string/text_add_note"
+        app:fabGravity="bottom_end"
+        app:fabMenu="@menu/fab_menu"
+        app:miniFabBackgroundTint="?attr/colorPrimary"
+        app:miniFabDrawableTint="?attr/colorOnPrimary"
+        app:miniFabTitleTextColor="?attr/colorOnPrimary"/>-->
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -13,8 +13,8 @@
             app:showAsAction="always"
             android:title="@string/close_text"
             android:icon="@drawable/ic_close"/>
-    <item
+    <!--<item
             android:title="@string/add_reminder_label"
             android:id="@+id/actionAddReminder"
-            android:icon="@drawable/ic_add_reminder"/>
+            android:icon="@drawable/ic_add_reminder"/>-->
 </menu>

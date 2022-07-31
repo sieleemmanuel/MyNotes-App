@@ -1,13 +1,11 @@
+/*
 package com.developerkim.mytodo.ui.newnote
 
-import android.app.Application
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.*
-import com.developerkim.mytodo.NotesApp
 import com.developerkim.mytodo.R
-import com.developerkim.mytodo.data.database.NoteCategoriesDao
 import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.data.model.NoteCategory
 import com.developerkim.mytodo.data.repository.NotesRepository
@@ -25,18 +23,19 @@ class NewNoteViewModel @Inject constructor(
     private val notesRepository: NotesRepository,
     @ApplicationContext context: Context
 ) : ViewModel() {
-    val noteCategories: Array<String> = context.resources.getStringArray(R.array.notes_categories)
-    val notePriorities: Array<String> = context.resources.getStringArray(R.array.note_priorities)
 
+    val noteCategories: Array<String> = context.resources.getStringArray(R.array.notes_categories)
 
     private val category = MutableLiveData<NoteCategory>()
-
     private val currentDateTime: LocalDateTime = LocalDateTime.now()
     val noteDate: String = currentDateTime.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
 
     private val _noteCategory = MutableLiveData<String>()
     val noteCategory: LiveData<String>
         get() = _noteCategory
+
+    private val _pickedColor = MutableLiveData<Int>()
+    val pickedColor: LiveData<Int> = _pickedColor
 
     fun updateIfExist(note: Note, noteCategory: NoteCategory) {
         viewModelScope.launch {
@@ -63,7 +62,7 @@ class NewNoteViewModel @Inject constructor(
             categoryNotes?.addAll(listOf(note))
             categoryToUpdate?.notes = categoryNotes
             categoryToUpdate?.categoryName = note.noteCategory
-            categoryToUpdate?.let { notesRepository.update(it) }
+            categoryToUpdate?.let { notesRepository.updateCategory(it) }
         }
     }
     fun createNoteList(note: Note): ArrayList<Note> {
@@ -71,4 +70,9 @@ class NewNoteViewModel @Inject constructor(
         noteList.add(note)
         return noteList
     }
+
+    fun getPickedColor(color:Int){
+        _pickedColor.value = color
+    }
 }
+*/
