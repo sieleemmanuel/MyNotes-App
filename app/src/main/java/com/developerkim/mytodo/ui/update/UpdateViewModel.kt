@@ -1,28 +1,31 @@
 package com.developerkim.mytodo.ui.update
 
 import android.annotation.SuppressLint
-import android.app.Application
+import android.content.Context
 import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.developerkim.mytodo.R
-import com.developerkim.mytodo.data.database.NoteCategoriesDao
 import com.developerkim.mytodo.data.model.Note
-import com.developerkim.mytodo.data.model.NoteCategory
+import com.developerkim.mytodo.data.repository.NotesRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
+import javax.inject.Inject
 
 
-class UpdateViewModel(private val datasource:NoteCategoriesDao, application: Application):
-    AndroidViewModel(application) {
-
-    private val categoryItems: Array<String> = application.resources.getStringArray(R.array.notes_categories)
+@HiltViewModel
+class UpdateViewModel @Inject constructor(
+    private val notesRepository: NotesRepository,
+    @ApplicationContext context: Context
+): ViewModel() {
+    private val categoryItems: Array<String> = context.resources.getStringArray(R.array.notes_categories)
 
     @SuppressLint("SimpleDateFormat")
     private val currentDateTime:LocalDateTime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -38,20 +41,13 @@ class UpdateViewModel(private val datasource:NoteCategoriesDao, application: App
         SimpleDateFormat("dd/MM/yy, hh:mm a").format(Date())
     }
 
-    private suspend fun update(noteCategory: NoteCategory) {
-        datasource.update(noteCategory)
-    }
-    private suspend fun getCategoryToUpdate(categoryName: String): NoteCategory {
-        return datasource.getCategory(categoryName)
-    }
-
     fun updateNote(note: Note,notePosition:Int) {
         viewModelScope.launch {
-            val toUpdateCategory = getCategoryToUpdate(note.noteCategory)
+            val toUpdateCategory = notesRepository.getCategoryToUpdate(note.noteCategory)
             Log.d("toUpdateCategory", "toUpdateCategory:::$toUpdateCategory ")
             Log.d("NoteToUpdate", "Note:::$note")
             toUpdateCategory.notes!![notePosition] = note
-            update(toUpdateCategory)
+            notesRepository.updateCategory(toUpdateCategory)
         }
 
     }
@@ -59,7 +55,6 @@ class UpdateViewModel(private val datasource:NoteCategoriesDao, application: App
         return categoryItems.filter {
             it.contentEquals(selectedCategory)
         }.toTypedArray()
-
     }
 
 

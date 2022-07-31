@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+            android:title="@string/save_text"
+            android:id="@+id/actionDone"
+            android:icon="@drawable/ic_done"
+            app:showAsAction="always"
+            tools:ignore="AlwaysShowAction" />
+    <item
+            android:id="@+id/actionClose"
+            app:showAsAction="always"
+            android:title="@string/close_text"
+            android:icon="@drawable/ic_close"/>
+    <!--<item
+            android:title="@string/add_reminder_label"
+            android:id="@+id/actionAddReminder"
+            android:icon="@drawable/ic_add_reminder"/>-->
+</menu>

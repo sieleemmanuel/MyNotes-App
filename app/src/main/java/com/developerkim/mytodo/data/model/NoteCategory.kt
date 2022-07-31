@@ -12,10 +12,11 @@ import java.util.*
 
 @Entity(tableName = "notes_categories_table")
 @Parcelize
-data class NoteCategory (
+data class NoteCategory(
     @PrimaryKey(autoGenerate = false)
-    @ColumnInfo(name = "category_name")var categoryName: String = "",
-    @ColumnInfo(name = "category_notes")var notes:MutableList<Note>? = null
+    @ColumnInfo(name = "category_name") var categoryName: String = "",
+    @ColumnInfo(name = "category_notes") var notes:MutableList<Note>? = mutableListOf(),
+    @ColumnInfo(name = "category_color") var categoryColor: Int? = null
 ):Parcelable
 class Converter{
     @TypeConverter

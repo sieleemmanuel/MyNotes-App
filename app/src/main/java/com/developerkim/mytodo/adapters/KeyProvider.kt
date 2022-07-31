@@ -1,3 +1,4 @@
+/*
 package com.developerkim.mytodo.adapters
 
 import android.os.Build
@@ -12,3 +13,4 @@ class CategoryKeyProvider(private val notesCategoriesAdapter: NotesCategoriesAda
 
     override fun getPosition(key: NoteCategory): Int = notesCategoriesAdapter.getPosition(key.categoryName)
 }
+*/

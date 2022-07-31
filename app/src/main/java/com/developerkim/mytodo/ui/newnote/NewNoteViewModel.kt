@@ -1,30 +1,32 @@
+/*
 package com.developerkim.mytodo.ui.newnote
 
-import android.app.Application
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.developerkim.mytodo.R
-import com.developerkim.mytodo.data.database.NoteCategoriesDao
 import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.data.model.NoteCategory
+import com.developerkim.mytodo.data.repository.NotesRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.O)
-class NewNoteViewModel(private val categoryDatabase: NoteCategoriesDao, application: Application) :
-    AndroidViewModel(application) {
+@HiltViewModel
+class NewNoteViewModel @Inject constructor(
+    private val notesRepository: NotesRepository,
+    @ApplicationContext context: Context
+) : ViewModel() {
 
-
-    val categoryItems: Array<String> = application.resources.getStringArray(R.array.notes_categories)
+    val noteCategories: Array<String> = context.resources.getStringArray(R.array.notes_categories)
 
     private val category = MutableLiveData<NoteCategory>()
-
     private val currentDateTime: LocalDateTime = LocalDateTime.now()
     val noteDate: String = currentDateTime.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
 
@@ -32,25 +34,12 @@ class NewNoteViewModel(private val categoryDatabase: NoteCategoriesDao, applicat
     val noteCategory: LiveData<String>
         get() = _noteCategory
 
-    private suspend fun insert(noteCategory: NoteCategory) {
-        categoryDatabase.insert(noteCategory)
-    }
-
-    private suspend fun getCategory(categoryName: String): NoteCategory {
-        return categoryDatabase.getCategory(categoryName)
-    }
-
-    private suspend fun categoryExists(categoryName: String): Boolean {
-        return categoryDatabase.isCategoryExists(categoryName)
-    }
-
-    private suspend fun update(noteCategory: NoteCategory) {
-        categoryDatabase.update(noteCategory)
-    }
+    private val _pickedColor = MutableLiveData<Int>()
+    val pickedColor: LiveData<Int> = _pickedColor
 
     fun updateIfExist(note: Note, noteCategory: NoteCategory) {
         viewModelScope.launch {
-            if (categoryExists(noteCategory.categoryName)) {
+            if (notesRepository.categoryExists(noteCategory.categoryName)) {
                 updateCategoryNotes(note, noteCategory)
             } else {
                 insertCategoriesWithNotes(noteCategory)
@@ -61,19 +50,19 @@ class NewNoteViewModel(private val categoryDatabase: NoteCategoriesDao, applicat
 
     private fun insertCategoriesWithNotes(newCategory: NoteCategory) {
         viewModelScope.launch {
-            insert(newCategory)
+            notesRepository.insert(newCategory)
         }
     }
 
     private fun updateCategoryNotes(note: Note, newCategory: NoteCategory) {
         viewModelScope.launch {
-            category.value = getCategory(newCategory.categoryName)
+            category.value = notesRepository.getCategory(newCategory.categoryName)
             val categoryToUpdate = category.value
             val categoryNotes = categoryToUpdate?.notes
             categoryNotes?.addAll(listOf(note))
             categoryToUpdate?.notes = categoryNotes
             categoryToUpdate?.categoryName = note.noteCategory
-            categoryToUpdate?.let { update(it) }
+            categoryToUpdate?.let { notesRepository.updateCategory(it) }
         }
     }
     fun createNoteList(note: Note): ArrayList<Note> {
@@ -81,4 +70,9 @@ class NewNoteViewModel(private val categoryDatabase: NoteCategoriesDao, applicat
         noteList.add(note)
         return noteList
     }
+
+    fun getPickedColor(color:Int){
+        _pickedColor.value = color
+    }
 }
+*/

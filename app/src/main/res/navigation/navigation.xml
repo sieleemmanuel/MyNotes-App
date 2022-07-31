@@ -1,99 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/navigation"
-        app:startDestination="@id/listNotesFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/listNotesFragment">
 
     <fragment
-            android:id="@+id/listNotesFragment"
-            android:name="com.developerkim.mytodo.ui.listnotes.ListNotesFragment"
-            android:label="NoteIT"
-            tools:layout="@layout/fragment_list_notes">
+        android:id="@+id/listNotesFragment"
+        android:name="com.developerkim.mytodo.ui.listnotes.ListNotesFragment"
+        android:label="NoteIT"
+        tools:layout="@layout/fragment_list_notes">
         <action
-                android:id="@+id/action_listNotesFragment_to_readNotesFragment"
-                app:destination="@id/readNotesFragment"
-                app:enterAnim="@anim/nav_default_enter_anim"
-                app:exitAnim="@anim/nav_default_exit_anim"
-                app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-                app:popExitAnim="@anim/nav_default_pop_exit_anim">
-            <argument
-                    android:name="note_position"
-                    app:argType="integer" />
-            <argument
-                    android:name="note_category"
-                    app:argType="string" />
-            <argument
-                    android:name="note_title"
-                    app:argType="string" />
-            <argument
-                    android:name="note_date"
-                    app:argType="string" />
-            <argument
-                    android:name="note_texts"
-                    app:argType="string" />
-        </action>
+            android:id="@+id/action_listNotesFragment_to_readNotesFragment"
+            app:destination="@id/readNotesFragment" />
         <action
-                android:id="@+id/action_listNotesFragment_to_newNoteFragment"
-                app:destination="@id/newNoteFragment"
-                app:enterAnim="@anim/nav_default_enter_anim"
-                app:exitAnim="@anim/nav_default_exit_anim"
-                app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-                app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            android:id="@+id/action_listNotesFragment_to_newNoteFragment"
+            app:destination="@id/newNoteFragment" />
+        <action
+            android:id="@+id/action_listNotesFragment_to_categoryNotes"
+            app:destination="@id/categoryNotes" />
 
     </fragment>
     <fragment
-            android:id="@+id/newNoteFragment"
-            android:name="com.developerkim.mytodo.ui.newnote.NewNoteFragment"
-            android:label="New Note"
-            tools:layout="@layout/fragment_new_note">
+        android:id="@+id/newNoteFragment"
+        android:name="com.developerkim.mytodo.ui.newnote.NewNoteFragment"
+        android:label="New Note"
+        tools:layout="@layout/fragment_new_note">
         <action
-                android:id="@+id/action_newNoteFragment_to_listNotesFragment"
-                app:destination="@id/listNotesFragment"
-                app:enterAnim="@anim/nav_default_enter_anim"
-                app:exitAnim="@anim/nav_default_exit_anim"
-                app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-                app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-
-
+            android:id="@+id/action_newNoteFragment_to_listNotesFragment"
+            app:destination="@id/listNotesFragment" />
     </fragment>
     <fragment
-            android:id="@+id/readNotesFragment"
-            android:name="com.developerkim.mytodo.ui.read.ReadNotesFragment"
-            android:label="Read Note"
-            tools:layout="@layout/fragment_read_note">
+        android:id="@+id/readNotesFragment"
+        android:name="com.developerkim.mytodo.ui.read.ReadNotesFragment"
+        android:label="Read Note"
+        tools:layout="@layout/fragment_read_note">
         <action
-                android:id="@+id/action_readNotesFragment_to_updateNoteFragment"
-                app:destination="@id/updateNoteFragment"
-                app:enterAnim="@anim/nav_default_enter_anim"
-                app:exitAnim="@anim/nav_default_exit_anim"
-                app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-                app:popExitAnim="@anim/nav_default_pop_exit_anim" >
-            <argument
-                    android:name="note_position"
-                    app:argType="integer" />
-            <argument
-                    android:name="update_category"
-                    app:argType="string" />
-            <argument
-                    android:name="update_title"
-                    app:argType="string" />
-            <argument
-                    android:name="update_text"
-                    app:argType="string" />
-            <argument
-                    android:name="update_date"
-                    app:argType="string" />
-
-        </action>
+            android:id="@+id/action_readNotesFragment_to_updateNoteFragment"
+            app:destination="@id/updateNoteFragment" />
+        <argument
+            android:name="note"
+            app:argType="com.developerkim.mytodo.data.model.Note" />
+        <argument
+            android:name="note_position"
+            app:argType="integer" />
     </fragment>
     <fragment
-            android:id="@+id/updateNoteFragment"
-            android:name="com.developerkim.mytodo.ui.update.UpdateNoteFragment"
-            android:label="Update Note"
-            tools:layout="@layout/fragment_update_note" >
+        android:id="@+id/updateNoteFragment"
+        android:name="com.developerkim.mytodo.ui.update.UpdateNoteFragment"
+        android:label="Update Note"
+        tools:layout="@layout/fragment_update_note">
         <action
-                android:id="@+id/action_updateNoteFragment_to_listNotesFragment"
-                app:destination="@id/listNotesFragment" />
+            android:id="@+id/action_updateNoteFragment_to_listNotesFragment"
+            app:destination="@id/listNotesFragment" />
+        <argument
+            android:name="note"
+            app:argType="com.developerkim.mytodo.data.model.Note" />
+        <argument
+            android:name="position"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/categoryNotes"
+        android:name="com.developerkim.mytodo.ui.listnotes.CategoryNotes"
+        tools:layout="@layout/fragment_category_notes">
+        <action
+            android:id="@+id/action_categoryNotes_to_readNotesFragment"
+            app:destination="@id/readNotesFragment" />
+        <argument
+            android:name="category"
+            app:argType="com.developerkim.mytodo.data.model.NoteCategory" />
+    </fragment>
+    <fragment
+        android:id="@+id/allNotesFragment"
+        android:name="com.developerkim.mytodo.ui.listnotes.AllNotesFragment"
+        tools:layout="@layout/fragment_all_notes">
+        <!--<action
+            android:id="@+id/action_allNotesFragment_to_readNotesFragment"
+            app:destination="@id/readNotesFragment" />-->
     </fragment>
 </navigation>

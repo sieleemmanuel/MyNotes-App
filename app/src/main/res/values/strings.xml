@@ -17,6 +17,13 @@
         <item name="shopping">Shopping</item>
     </string-array>
 
+    <string-array name="note_priorities">
+        <item name="select_priority">none</item>
+        <item name="high_priority">High priority</item>
+        <item name="normal_priority">Normal priority</item>
+        <item name="low_priority">Low priority</item>
+    </string-array>
+
     <string name="text_add_note">Add Note</string>
     <string name="recent_item_txt">Recent</string>
     <string name="old_item_txt">Old</string>
@@ -48,4 +55,44 @@
     <string name="category_daily_task">Daily Tasks</string>
     <string name="category_private">Private</string>
     <string name="categry_shopping">Shopping</string>
+    <string name="tv_categories_label">Categories</string>
+    <string name="view_color_cdesc">Note category color</string>
+    <string name="tab_favorite_label">Favorite</string>
+    <string name="tab_reminders_label">Reminders</string>
+    <string name="tab_all_notes_label">All Notes</string>
+    <string name="favorite_label">Favorite</string>
+    <string name="select_priority">Priority</string>
+    <string name="add_reminder_label">Add Reminder</string>
+    <string name="new_note_label">New Note</string>
+    <string name="note_category_label">Note Category</string>
+    <string name="update_note_label">Update Note</string>
+    <string name="add_reminder_title_label">Add Reminder</string>
+    <string name="tv_notes_empty_label">No notes yet!</string>
+    <string name="favorite_content_description">Add or remove from favorite</string>
+    <string name="select_color_label">Select Category Color</string>
+    <string name="categories_empty_label">No categories yet.Create new</string>
+    <string name="all_note_args_key">all_notes</string>
+    <string name="reminders_args_key">reminders</string>
+    <string name="favorites_args_key">favorites</string>
+    <string name="reminder_time_label">Reminder:</string>
+    <string name="note_title_arg_key">noteTitle</string>
+    <string name="editor_label">Editor</string>
+    <string name="reminder_label">Reminder</string>
+    <string name="title_label">Title</string>
+
+    <string-array name="notes_tabs">
+        <item>All Notes</item>
+        <item>Reminders</item>
+        <item>Favorites</item>
+    </string-array>
+
+    <string-array name="hex_colors">
+        <item>#FFFFFF</item>
+        <item>#03A9F4</item>
+        <item>#5DF872</item>
+        <item>#5870F4</item>
+        <item>#FA574B</item>
+        <item>#FA9E5E</item>
+        <item>#F39813</item>
+    </string-array>
 </resources>
