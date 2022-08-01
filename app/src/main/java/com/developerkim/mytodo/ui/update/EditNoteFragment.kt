@@ -1,5 +1,6 @@
 package com.developerkim.mytodo.ui.update
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,22 +16,29 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import androidx.work.WorkManager
 import com.developerkim.mytodo.R
 import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.databinding.FragmentUpdateNoteBinding
+import com.developerkim.mytodo.ui.MainActivity
 import com.developerkim.mytodo.ui.listnotes.MainViewModel
+import com.developerkim.mytodo.ui.newnote.NewNoteFragment
 import com.developerkim.mytodo.util.HideKeyboard.hideKeyboard
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.LocalTime
 
 @AndroidEntryPoint
-class UpdateNoteFragment : Fragment(),
+class EditNoteFragment : Fragment(),
     AdapterView.OnItemSelectedListener {
     private lateinit var binding: FragmentUpdateNoteBinding
     private val viewModel: UpdateViewModel by activityViewModels()
     private val mainViewModel: MainViewModel by activityViewModels()
-    private val args: UpdateNoteFragmentArgs by navArgs()
-    private lateinit var noteToUpdate:Note
+    private val args: EditNoteFragmentArgs by navArgs()
+    private lateinit var noteToEdit: Note
     private lateinit var updateSelectedCategory: String
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var adapter: ArrayAdapter<String>
@@ -42,7 +50,7 @@ class UpdateNoteFragment : Fragment(),
     ): View {
         binding = FragmentUpdateNoteBinding.inflate(inflater)
         appBarConfiguration = AppBarConfiguration(findNavController().graph)
-        noteToUpdate = args.note
+        noteToEdit = args.note
         val notePosition = requireArguments().getInt("note_position")
 
         binding.apply {
@@ -53,12 +61,12 @@ class UpdateNoteFragment : Fragment(),
                     hideKeyboard(view, requireActivity())
                 }
             }
+            tilReminderTime.editText?.setOnClickListener {
+                showReminderDatePicker()
+            }
         }
-
         return binding.root
     }
-
-
 
     override fun onItemSelected(parent: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
         updateSelectedCategory = parent?.getItemAtPosition(position).toString()
@@ -68,57 +76,62 @@ class UpdateNoteFragment : Fragment(),
         Toast.makeText(requireContext(), "no category selected", Toast.LENGTH_SHORT).show()
     }
 
-    private fun  FragmentUpdateNoteBinding.setUpNoteValuesToUpdate() {
-        updateTitleEditText.setText(noteToUpdate.noteTitle)
-        updateTextEditText.setText(noteToUpdate.noteText)
-        edReminderTime.setText(noteToUpdate.reminderTime)
+    private fun FragmentUpdateNoteBinding.setUpNoteValuesToUpdate() {
+        updateTitleEditText.setText(noteToEdit.noteTitle)
+        updateTextEditText.setText(noteToEdit.noteText)
+        edReminderTime.setText(noteToEdit.reminderTime)
         adapter = ArrayAdapter(
             requireContext(),
             R.layout.category_item,
-            viewModel.filterCategories(noteToUpdate.noteCategory)
+            viewModel.filterCategories(noteToEdit.noteCategory)
         )
     }
 
     private fun FragmentUpdateNoteBinding.setUpToolbar(notePosition: Int) {
         updateNoteToolbar.apply {
             setupWithNavController(findNavController(), appBarConfiguration)
-            title = "Edit ${noteToUpdate.noteCategory} note"
+            title = "Edit ${noteToEdit.noteCategory} note"
             setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.actionDone -> {
                         val uNote = Note(
-                            updateTitleEditText.text.toString(),
-                            updateTextEditText.text.toString(),
-                            viewModel.updatedNoteDate,
-                            reminderTime = "None"
+                            noteTitle = updateTitleEditText.text.toString(),
+                            noteText = updateTextEditText.text.toString(),
+                            reminderTime = edReminderTime.text.toString()
                         )
-                        if (noteToUpdate.noteText != uNote.noteText || noteToUpdate.noteTitle != uNote.noteTitle) {
-                            mainViewModel.editNote(uNote)
+                        if (noteToEdit!= uNote) {
+                            mainViewModel.editNote(noteToEdit, uNote)
+                            if (noteToEdit.reminderTime != uNote.reminderTime) {
+                               WorkManager.getInstance(requireContext())
+                                    .getWorkInfosByTag(noteToEdit.noteTitle).cancel(true)
+                                NewNoteFragment.setNoteReminder(
+                                    uNote.reminderTime,
+                                    uNote.noteTitle,
+                                    requireContext()
+                                )
+                            }
                             findNavController()
-                                .navigate(UpdateNoteFragmentDirections.actionUpdateNoteFragmentToListNotesFragment())
+                                .navigate(EditNoteFragmentDirections.actionUpdateNoteFragmentToListNotesFragment())
                         } else {
                             Toast.makeText(
                                 requireContext(),
                                 "Nothing to Update",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            findNavController().navigate(
-                                UpdateNoteFragmentDirections.actionUpdateNoteFragmentToListNotesFragment()
-                            )
+                            findNavController().popBackStack()
                         }
                     }
                     R.id.actionClose -> {
                         val uNote = Note(
-                            updateTitleEditText.text.toString(),
-                            updateTextEditText.text.toString(),
-                            viewModel.updatedNoteDate,
-                            reminderTime = "None"
+                            noteTitle = updateTitleEditText.text.toString(),
+                            noteText = updateTextEditText.text.toString(),
+                            reminderTime = edReminderTime.text.toString()
                         )
-                        if (noteToUpdate.noteText == updateTextEditText.text.toString() &&
-                            noteToUpdate.noteTitle == updateTitleEditText.text.toString()
+                        if (noteToEdit.noteText == updateTextEditText.text.toString() &&
+                            noteToEdit.noteTitle == updateTitleEditText.text.toString()
                         ) {
                             findNavController().navigate(
-                                UpdateNoteFragmentDirections.actionUpdateNoteFragmentToListNotesFragment()
+                                EditNoteFragmentDirections.actionUpdateNoteFragmentToListNotesFragment()
                             )
                         } else {
                             MaterialAlertDialogBuilder(requireContext())
@@ -138,6 +151,46 @@ class UpdateNoteFragment : Fragment(),
                 }
                 false
             }
+        }
+    }
+
+    private fun showReminderDatePicker() {
+        val datePicker = MaterialDatePicker.Builder.datePicker()
+            .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+            .build()
+        datePicker.addOnPositiveButtonClickListener { selection ->
+            val formattedDate = NewNoteFragment.getSelectedDate(selection)
+            showTimePicker(formattedDate)
+        }
+        datePicker.isCancelable = false
+        datePicker.show(
+            (requireActivity() as MainActivity).supportFragmentManager,
+            "DATE_PICKER_TAG"
+        )
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun showTimePicker(formattedDate: String?) {
+        val timePicker = MaterialTimePicker.Builder()
+            .setTitleText("Select Reminder Time")
+            .setTimeFormat(TimeFormat.CLOCK_24H)
+            .setHour(LocalTime.now().hour)
+            .setMinute(LocalTime.now().minute)
+            .build()
+        timePicker.show(
+            (requireActivity() as MainActivity).supportFragmentManager,
+            "TIME_PICKER_TAG"
+        )
+        timePicker.addOnPositiveButtonClickListener {
+            val selectedHour = if (timePicker.hour < 10) {
+                "0${timePicker.hour}"
+            } else timePicker.hour
+            val minutes = if (timePicker.minute < 10) {
+                "0${timePicker.minute}"
+            } else timePicker.minute
+            val reminder = "$formattedDate ${selectedHour}:${minutes}:00"
+            binding.edReminderTime.setText(reminder)
+            // mainViewModel.reminderTime(reminder)
         }
     }
 

@@ -28,7 +28,7 @@
         <entry key="app/src/main/res/layout/category_list_layout.xml" value="0.19947916666666668" />
         <entry key="app/src/main/res/layout/fragment_all_notes.xml" value="0.21145833333333333" />
         <entry key="app/src/main/res/layout/fragment_category_notes.xml" value="0.21145833333333333" />
-        <entry key="app/src/main/res/layout/fragment_list_notes.xml" value="0.22" />
+        <entry key="app/src/main/res/layout/fragment_list_notes.xml" value="0.2" />
         <entry key="app/src/main/res/layout/fragment_new_note.xml" value="0.21" />
         <entry key="app/src/main/res/layout/fragment_read_note.xml" value="0.2" />
         <entry key="app/src/main/res/layout/fragment_update_note.xml" value="0.25" />

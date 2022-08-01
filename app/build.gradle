@@ -78,8 +78,6 @@ dependencies {
     //workManager
     implementation "androidx.work:work-runtime-ktx:$work_version"
     //fabSpeedDial
-    implementation 'io.github.yavski:fab-speed-dial:1.0.6'
-
-    implementation 'com.getbase:floatingactionbutton:1.10.1'
+    implementation "com.leinardi.android:speed-dial:3.3.0"
     
 }

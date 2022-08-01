@@ -9,7 +9,7 @@
         android:clickable="true"
         android:focusableInTouchMode="true"
         android:focusable="true"
-        tools:context=".ui.update.UpdateNoteFragment">
+        tools:context=".ui.update.EditNoteFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/updateNoteToolbar"
@@ -66,6 +66,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:hint="@string/title_label"
+                    android:inputType="textCapWords"
                     android:textColorHint="?attr/colorPrimary"
                     android:textStyle="bold"
                     style="@style/TextAppearance.MaterialComponents.Headline6"
@@ -120,11 +121,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:configChanges="orientation"
-                    android:inputType="textMultiLine"
+                    android:inputType="textMultiLine|textCapSentences"
                     android:gravity="start"
                     android:lines="20"
                     android:textColorHint="?attr/colorPrimary"
-                    android:hint="Description"
+                    android:hint="@string/hint_description_label"
                     android:text="@string/note_hint_text"
                     />
             </com.google.android.material.textfield.TextInputLayout>

@@ -79,6 +79,9 @@
     <string name="editor_label">Editor</string>
     <string name="reminder_label">Reminder</string>
     <string name="title_label">Title</string>
+    <string name="set_reminder_label">Set Reminder</string>
+    <string name="error_category_empty">Category is empty</string>
+    <string name="hint_description_label">Description</string>
 
     <string-array name="notes_tabs">
         <item>All Notes</item>
