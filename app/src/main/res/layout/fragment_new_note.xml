@@ -62,8 +62,10 @@
         android:id="@+id/edtReminder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:hint="Reminder"
+        android:hint="@string/reminder_label"
+        android:focusable="false"
         android:inputType="none"
+        android:text="@string/set_reminder_label"
         tools:text="07/31/2022 11:50:00"
         />
     </com.google.android.material.textfield.TextInputLayout>
@@ -94,51 +96,6 @@
             android:labelFor="@id/selectCategory"
             android:singleLine="true" />
     </com.google.android.material.textfield.TextInputLayout>
-
-    <!--<com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tilPriorities"
-        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-        android:layout_width="@dimen/dp_0"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dp_10"
-        android:layout_marginEnd="@dimen/dp_10"
-        app:boxBackgroundColor="@android:color/transparent"
-        app:boxStrokeColor="@android:color/transparent"
-        app:hintEnabled="false"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/menuCategory"
-        app:layout_constraintTop_toBottomOf="@+id/newNoteToolbar">
-
-        <AutoCompleteTextView
-            android:id="@+id/selectPriority"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:configChanges="orientation"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:hint="@string/select_priority"
-            android:inputType="none"
-            android:labelFor="@id/selectPriority" />
-    </com.google.android.material.textfield.TextInputLayout>-->
-   <!-- <TextView
-        android:id="@+id/selectColorLabel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_8"
-        android:text="@string/select_color_label"
-        app:layout_constraintStart_toStartOf="@id/textInputLayout"
-        app:layout_constraintEnd_toEndOf="@id/textInputLayout"
-        app:layout_constraintTop_toBottomOf="@id/menuCategory"/>
-    <com.github.naz013.colorslider.ColorSlider
-        android:id="@+id/colorSlider"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="@dimen/dp_8"
-        app:cs_hex_colors="@array/hex_colors"
-        app:layout_constraintEnd_toEndOf="@+id/selectColorLabel"
-        app:layout_constraintStart_toStartOf="@+id/selectColorLabel"
-        app:layout_constraintTop_toBottomOf="@id/selectColorLabel" />-->
 
     <EditText
         android:id="@+id/noteTextEditText"

@@ -63,8 +63,8 @@ class MainViewModel @Inject constructor(
 
     fun insertCategoryAndNotes(note: Note, noteCategory: NoteCategory) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (notesRepository.categoryExists(noteCategory.categoryName)) {
-                insertNewNotes(note, noteCategory)
+            if (notesRepository.categoryExists(note.noteCategory)) {
+                insertNewNotes(note)
             } else {
                 insertNewCategory(noteCategory)
             }
@@ -78,15 +78,13 @@ class MainViewModel @Inject constructor(
         }
         getCategories()
         getAllNotes()
+        getCategoryNames()
     }
 
-    private fun insertNewNotes(note: Note, newCategory: NoteCategory) {
+    fun insertNewNotes(note: Note) {
         viewModelScope.launch(Dispatchers.IO) {
-            val categoryToUpdate = notesRepository.getCategory(newCategory.categoryName)
-            val categoryNotes = categoryToUpdate.notes
-            categoryNotes?.addAll(listOf(note))
-            categoryToUpdate.notes = categoryNotes
-            categoryToUpdate.categoryName = note.noteCategory
+            val categoryToUpdate = notesRepository.getCategory(note.noteCategory)
+            categoryToUpdate.notes?.add(note)
             categoryToUpdate.let { notesRepository.updateCategory(it) }
             getCategories()
             getAllNotes()
@@ -112,15 +110,13 @@ class MainViewModel @Inject constructor(
     fun deleteNote(note: Note) {
         viewModelScope.launch(Dispatchers.IO) {
             val toUpdateCategory = notesRepository.getCategoryToUpdate(note.noteCategory)
-            val selected = toUpdateCategory.notes?.find {
+            Log.d(TAG, "deleteNote: ${toUpdateCategory.notes}")
+            val noteToDelete = toUpdateCategory.notes?.find {
                 it.noteTitle == note.noteTitle
             }
-            Log.d(TAG, "updateNote: $selected")
-            toUpdateCategory.notes?.remove(selected!!)
+            Log.d(TAG, "updateNote: $noteToDelete")
+            toUpdateCategory.notes?.remove(noteToDelete!!)
             notesRepository.updateCategory(toUpdateCategory)
-            if (toUpdateCategory.notes!!.isEmpty()) {
-                notesRepository.deleteCategory(toUpdateCategory)
-            }
             getCategories()
             getAllNotes()
         }
@@ -148,18 +144,19 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun editNote(note: Note) {
+    fun editNote(noteToEdit:Note, editedNote: Note) {
         viewModelScope.launch(Dispatchers.IO) {
-            val categoryWithNote = notesRepository.getCategory(note.noteCategory)
-            val notePosition = categoryWithNote.notes?.indexOfFirst {
-                it.noteTitle==note.noteTitle
+            val categoryWithNote = notesRepository.getCategory(noteToEdit.noteCategory)
+            categoryWithNote.notes?.find { it.noteTitle == noteToEdit.noteTitle }
+            ?.apply {
+                noteTitle = editedNote.noteTitle
+                noteText = editedNote.noteText
+                reminderTime = editedNote.reminderTime
             }
-            categoryWithNote.notes!![notePosition!!] = note
             notesRepository.updateCategory(categoryWithNote)
             getCategories()
             getAllNotes()
         }
-
 
     }
     fun createNoteList(note: Note): ArrayList<Note> {
@@ -183,10 +180,13 @@ class MainViewModel @Inject constructor(
     }
     fun getCategoryNames() {
         viewModelScope.launch(Dispatchers.IO) {
+            val categories = mutableListOf<String>()
+            categories.add(0, "Add New Category")
             val categoryNames = notesRepository.getAllNotes().map {
                 it.categoryName
-            }
-            _categoryNames.postValue(categoryNames) }
+            }.toMutableList()
+            categories.addAll(categoryNames)
+            _categoryNames.postValue(categories) }
     }
 
     private fun getAllNotes() {

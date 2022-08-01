@@ -47,7 +47,7 @@
     </fragment>
     <fragment
         android:id="@+id/updateNoteFragment"
-        android:name="com.developerkim.mytodo.ui.update.UpdateNoteFragment"
+        android:name="com.developerkim.mytodo.ui.update.EditNoteFragment"
         android:label="Update Note"
         tools:layout="@layout/fragment_update_note">
         <action
