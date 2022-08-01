@@ -28,39 +28,11 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 @AndroidEntryPoint
-class ListNotesFragment : Fragment()/*, ActionMode.Callback*/ {
+class ListNotesFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var binding: FragmentListNotesBinding
     private lateinit var categoriesAdapter: NotesCategoriesAdapter
     private lateinit var viewPagerAdapter: ViewPagerAdapter
-
-    private val rotateOpen: Animation by lazy {
-        AnimationUtils.loadAnimation(
-            requireContext(),
-            R.anim.rotate_open_anim
-        )
-    }
-    private val rotateClose: Animation by lazy {
-        AnimationUtils.loadAnimation(
-            requireContext(),
-            R.anim.rotate_close_anim
-        )
-    }
-    private val animFromBottom: Animation by lazy {
-        AnimationUtils.loadAnimation(
-            requireContext(),
-            R.anim.from_bottom_anim
-        )
-    }
-    private val animToBottom: Animation by lazy {
-        AnimationUtils.loadAnimation(
-            requireContext(),
-            R.anim.to_bottom_anim
-        )
-    }
-
-    private var isActionMenuClosed = false
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -76,91 +48,9 @@ class ListNotesFragment : Fragment()/*, ActionMode.Callback*/ {
             TabLayoutMediator(tabLayout, notesPager) { tab, position ->
                 tab.text = tabsTitles[position]
             }.attach()
-            /*btnAddNote.setOnClickListener {
-                findNavController().navigate(
-                    ListNotesFragmentDirections.actionListNotesFragmentToNewNoteFragment()
-                )
-            }*/
-            /* fabAddNew.setMenuListener(object :FabSpeedDial.MenuListener{
-                 override fun onPrepareMenu(p0: NavigationMenu?): Boolean {
-                     return false
-                 }
 
-                 override fun onMenuItemSelected(menuItem: MenuItem?): Boolean {
-                    return when(menuItem?.itemId){
-                         R.id.actionNewCategeory ->{
-                             Toast.makeText(
-                                 requireContext(),
-                                 "Todo New Category Dialog",
-                                 Toast.LENGTH_SHORT
-                             ).show()
-                             true
-                         }
-                        R.id.actionNewNote ->{
-                            findNavController().navigate(
-                                ListNotesFragmentDirections.actionListNotesFragmentToNewNoteFragment()
-                            )
-                            true
-                        }
-                        else -> false
-                    }
-                 }
-
-                 override fun onMenuClosed() {
-                     fabAddNew.closeMenu()
-                 }
-             })*/
             performSearch(searchView)
-
-            fabAddNew.setOnClickListener {
-                openActionMenu()
-            }
-            fabNewCategory.setOnClickListener {
-                val addCategoryDialogBinding = AddCategoryDialogBinding.inflate(
-                    LayoutInflater.from(requireContext()),
-                    null,
-                    false
-                )
-
-              val categoryDialog =  MaterialAlertDialogBuilder(requireContext())
-                  .setView(addCategoryDialogBinding.root)
-                  .setMessage("Create Note Category")
-                  .setCancelable(false)
-                  .setNegativeButton("CANCEL") { dialog, _ ->
-                        dialog.cancel()
-                        }
-                  .setPositiveButton("ADD") { _, _ ->
-                    }
-                  .show()
-                categoryDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                    val categoryName = addCategoryDialogBinding.tiNewCategoryName.text
-                    if (categoryName!!.isNotEmpty()) {
-                        addCategoryDialogBinding.csCategoryColor.setListener { _, color ->
-                            viewModel.getPickedColor(color)
-                            Toast.makeText(
-                                requireContext(),
-                                "Name:$categoryName, Color:$color",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        viewModel.pickedColor.observe(viewLifecycleOwner){ color ->
-                            val newCategory = NoteCategory(
-                                categoryName = categoryName.toString(),
-                                categoryColor = color
-                            )
-                            viewModel.insertNewCategory(newCategory)
-                            categoryDialog.dismiss()
-                        }
-                    }
-                }
-
-            }
-            fabNewNote.setOnClickListener {
-                findNavController().navigate(
-                    ListNotesFragmentDirections.actionListNotesFragmentToNewNoteFragment()
-                )
-            }
-
+            setUpFabSpeedDial()
             setAdapterData {
                 if (!it.isNullOrEmpty()) {
                     categoriesAdapter.submitList(it)
@@ -186,31 +76,24 @@ class ListNotesFragment : Fragment()/*, ActionMode.Callback*/ {
         return binding.root
     }
 
-    private fun FragmentListNotesBinding.openActionMenu() {
-        setVisibility(isActionMenuClosed)
-        setAnimation(isActionMenuClosed)
-        isActionMenuClosed = !isActionMenuClosed
-    }
-
-    private fun FragmentListNotesBinding.setAnimation(isActionMenuClosed: Boolean) {
-        if (!isActionMenuClosed) {
-            fabAddNew.startAnimation(animFromBottom)
-            fabNewCategory.startAnimation(animFromBottom)
-            fabAddNew.startAnimation(rotateOpen)
-        } else {
-            fabNewNote.startAnimation(animToBottom)
-            fabNewCategory.startAnimation(animToBottom)
-            fabAddNew.startAnimation(rotateClose)
-        }
-    }
-
-    private fun FragmentListNotesBinding.setVisibility(isActionMenuClosed: Boolean) {
-        if (!isActionMenuClosed) {
-            fabNewNote.visibility = View.VISIBLE
-            fabNewCategory.visibility = View.VISIBLE
-        } else {
-            fabNewNote.visibility = View.INVISIBLE
-            fabNewCategory.visibility = View.INVISIBLE
+    private fun FragmentListNotesBinding.setUpFabSpeedDial() {
+        fabSpeedDial.apply {
+            inflate(R.menu.fab_menu)
+            setOnActionSelectedListener { actionItem ->
+                when (actionItem.id) {
+                    R.id.actionNewCategeory -> {
+                        showNewCategoryDialog()
+                        return@setOnActionSelectedListener true
+                    }
+                    R.id.actionNewNote -> {
+                        findNavController().navigate(
+                            ListNotesFragmentDirections.actionListNotesFragmentToNewNoteFragment()
+                        )
+                        return@setOnActionSelectedListener true
+                    }
+                }
+                false
+            }
         }
     }
 
@@ -231,6 +114,50 @@ class ListNotesFragment : Fragment()/*, ActionMode.Callback*/ {
                     true
                 }
                 else -> false
+            }
+        }
+    }
+
+    private fun showNewCategoryDialog() {
+        val addCategoryDialogBinding = AddCategoryDialogBinding.inflate(
+            LayoutInflater.from(requireContext()),
+            null,
+            false
+        )
+        val categoryName = addCategoryDialogBinding.tiNewCategoryName.text
+        addCategoryDialogBinding.csCategoryColor.setListener { _, color ->
+            viewModel.getPickedColor(color)
+            Toast.makeText(
+                requireContext(),
+                "Name:$categoryName, Color:$color",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        val categoryDialog = MaterialAlertDialogBuilder(requireContext())
+            .setView(addCategoryDialogBinding.root)
+            .setMessage("Create Note Category")
+            .setCancelable(false)
+            .setNegativeButton("CANCEL") { dialog, _ ->
+                dialog.cancel()
+            }
+            .setPositiveButton("ADD") { _, _ ->
+            }
+            .show()
+        categoryDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            if (categoryName!!.isNotEmpty() && addCategoryDialogBinding.csCategoryColor.selectedColor != 1) {
+                viewModel.pickedColor.observe(viewLifecycleOwner) { color ->
+                    val newCategory = NoteCategory(
+                        categoryName = categoryName.toString(),
+                        categoryColor = color,
+                        notes = mutableListOf()
+                    )
+                    viewModel.insertNewCategory(newCategory)
+                    categoryDialog.dismiss()
+                }
+            } else {
+                addCategoryDialogBinding.tiNewCategoryName.error =
+                    getString(R.string.error_category_empty)
             }
         }
     }
