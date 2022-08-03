@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:focusable="true"
     tools:context=".ui.listnotes.ListNotesFragment">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -22,12 +23,10 @@
             android:layout_height="wrap_content"
             android:theme="@style/ToolbarStyle"
             app:elevation="@dimen/dp_0"
-            app:layout_collapseMode="pin"
             app:layout_scrollFlags="enterAlways"
             app:menu="@menu/main_menu"
             app:title="@string/app_name"
             app:titleTextColor="@color/colorOnPrimary" />
-
         <androidx.appcompat.widget.SearchView
             android:id="@+id/searchView"
             android:layout_width="match_parent"

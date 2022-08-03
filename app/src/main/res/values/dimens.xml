@@ -10,5 +10,6 @@
     <!--sp text-->
     <dimen name="sp_20">20sp</dimen>
     <dimen name="sp_16">16sp</dimen>
+    <dimen name="dp_24">24dp</dimen>
 
 </resources>

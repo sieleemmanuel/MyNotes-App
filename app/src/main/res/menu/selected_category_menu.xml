@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--<item
-            android:id="@+id/recycler_search"
-            android:icon="@drawable/ic_search"
-            android:title="@string/actionSearch"
-            app:actionViewClass="androidx.appcompat.widget.SearchView"
-            app:showAsAction="always"/>-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-            android:id="@+id/actionDeleteAll"
-            android:title="@string/delete_all_item"/>
+        android:id="@+id/actionDeleteAllNotes"
+        android:title="@string/delete_all_item" />
 </menu>

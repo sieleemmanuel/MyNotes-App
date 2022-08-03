@@ -1,116 +1,170 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.newnote.NewNoteFragment">
-
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayoutNewNote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/newNoteToolbar"
-        android:layout_width="@dimen/dp_0"
+        android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/colorPrimary"
         android:theme="@style/ToolbarStyle"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:menu="@menu/new_note_menu"
         app:title="@string/new_note_label"
         app:titleCentered="false" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="@dimen/dp_0"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dp_10"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="@dimen/dp_10"
-        app:boxBackgroundColor="@android:color/transparent"
-        app:boxStrokeColor="@android:color/transparent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/menuCategory">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/noteTitleEditText"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:hint="@string/ti_enter_title_hnt"
-            android:inputType="textCapWords"
-            tools:text="Note Title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/menuCategory" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tilReminder"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="@dimen/dp_0"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_16"
-        app:boxBackgroundColor="@android:color/transparent"
-        app:boxStrokeColor="@android:color/transparent"
-        app:startIconDrawable="@drawable/ic_reminder"
-        app:layout_constraintEnd_toEndOf="@+id/textInputLayout"
-        app:layout_constraintStart_toStartOf="@+id/textInputLayout"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout">
-
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/edtReminder"
+</com.google.android.material.appbar.AppBarLayout>
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:hint="@string/reminder_label"
-        android:focusable="false"
-        android:inputType="none"
-        android:text="@string/set_reminder_label"
-        tools:text="07/31/2022 11:50:00"
-        />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/menuCategory"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dp_10"
-        android:layout_marginEnd="@dimen/dp_10"
-        android:layout_marginTop="@dimen/dp_8"
-        app:boxBackgroundColor="@android:color/transparent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/newNoteToolbar"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:text="@string/note_category">
-
-        <AutoCompleteTextView
-            android:id="@+id/selectCategory"
+        android:fillViewport="true"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:configChanges="orientation"
-            android:ellipsize="end"
-            android:inputType="none"
-            android:hint="@string/note_category"
-            android:labelFor="@id/selectCategory"
-            android:singleLine="true" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/noteTextEditText"
-        android:layout_width="@dimen/dp_0"
-        android:layout_height="@dimen/dp_0"
-        android:layout_marginTop="@dimen/dp_16"
-        android:layout_marginBottom="@dimen/dp_16"
-        android:autofillHints=""
-        android:background="@android:color/transparent"
-        android:gravity="start"
-        android:hint="@string/hnt_type_note_txt"
-        android:inputType="textMultiLine|textCapSentences"
-        android:padding="@dimen/dp_5"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/tilReminder"
-        app:layout_constraintStart_toStartOf="@+id/tilReminder"
-        app:layout_constraintTop_toBottomOf="@+id/tilReminder" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_10"
+                android:layout_marginTop="@dimen/dp_16"
+                android:layout_marginEnd="@dimen/dp_10"
+                app:boxBackgroundColor="@android:color/transparent"
+                app:boxStrokeColor="@android:color/transparent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/menuCategory">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/noteTitleEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/ti_enter_title_hnt"
+                    android:inputType="textCapWords"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/menuCategory"
+                    tools:text="Note Title" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilReminder"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                app:boxBackgroundColor="@android:color/transparent"
+                app:boxStrokeColor="@android:color/transparent"
+                app:startIconDrawable="@drawable/ic_reminder"
+                app:layout_constraintEnd_toEndOf="@+id/textInputLayout"
+                app:layout_constraintStart_toStartOf="@+id/textInputLayout"
+                app:layout_constraintTop_toBottomOf="@+id/textInputLayout">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtReminder"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/reminder_label"
+                    android:focusable="false"
+                    android:inputType="none"
+                    android:text="@string/set_reminder_label"
+                    tools:text="07/31/2022 11:50:00"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/menuCategory"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_10"
+                android:layout_marginEnd="@dimen/dp_10"
+                android:layout_marginTop="@dimen/dp_8"
+                app:boxBackgroundColor="@android:color/transparent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:text="@string/note_category">
+
+                <AutoCompleteTextView
+                    android:id="@+id/selectCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"
+                    android:configChanges="orientation"
+                    android:ellipsize="end"
+                    android:inputType="none"
+                    android:hint="@string/note_category"
+                    android:labelFor="@id/selectCategory"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+
+            <!--<EditText
+                android:id="@+id/noteTextEditText"
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="@dimen/dp_0"
+                android:layout_marginTop="@dimen/dp_16"
+                android:layout_marginBottom="@dimen/dp_16"
+                android:autofillHints=""
+                android:background="@android:color/transparent"
+                android:gravity="start"
+                android:hint="@string/hnt_type_note_txt"
+                android:inputType="textMultiLine|textCapSentences"
+                android:padding="@dimen/dp_5"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/tilReminder"
+                app:layout_constraintStart_toStartOf="@+id/tilReminder"
+                 />-->
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilNoteDesc"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/dp_16"
+                android:layout_marginBottom="@dimen/dp_24"
+                app:layout_constraintEnd_toEndOf="@+id/tilReminder"
+                app:layout_constraintStart_toStartOf="@+id/tilReminder"
+                app:layout_constraintTop_toBottomOf="@+id/tilReminder"
+                app:layout_constraintBottom_toTopOf="@+id/btnAddNewNote"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/noteTextEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="start"
+                    android:hint="@string/hint_description_label"
+                    tools:text="@string/note_hint_text"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAddNewNote"
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="?actionBarSize"
+                android:layout_marginStart="@dimen/dp_24"
+                android:layout_marginEnd="@dimen/dp_24"
+                android:text="@string/add_note"
+                app:cornerRadius="@dimen/dp_24"
+                app:layout_constraintStart_toStartOf="@id/tilNoteDesc"
+                app:layout_constraintEnd_toEndOf="@id/tilNoteDesc"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="@dimen/dp_24"
+                />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

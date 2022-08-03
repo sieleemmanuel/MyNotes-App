@@ -8,7 +8,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.developerkim.mytodo.R
 import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.data.model.NoteCategory
 import com.developerkim.mytodo.data.repository.NotesRepository
@@ -16,7 +15,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.text.FieldPosition
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -41,18 +39,18 @@ class MainViewModel @Inject constructor(
     val categoriesNames: LiveData<List<String>?> = _categoryNames
 
     private val _allNotes = MutableLiveData<MutableList<Note>>(mutableListOf())
-    val allNotes:LiveData<MutableList<Note>> = _allNotes
+    val allNotes: LiveData<MutableList<Note>> = _allNotes
 
-    val noteCategories: Array<String> = context.resources.getStringArray(R.array.notes_categories)
-
+    private val _note = MutableLiveData<Note>()
+    val note: LiveData<Note> = _note
 
     private val currentDateTime: LocalDateTime = LocalDateTime.now()
     val noteDate: String =
         currentDateTime.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
 
-    private val _noteCategory = MutableLiveData<String>()
-    val noteCategory: LiveData<String>
-        get() = _noteCategory
+    private val _noteCategory = MutableLiveData<NoteCategory>()
+    val noteCategory: LiveData<NoteCategory> = _noteCategory
+
 
     private val _pickedColor = MutableLiveData<Int>()
     val pickedColor: LiveData<Int> = _pickedColor
@@ -125,40 +123,44 @@ class MainViewModel @Inject constructor(
     fun setNoteFavorite(note: Note) {
         viewModelScope.launch(Dispatchers.IO) {
             val categoryWithNote = notesRepository.getCategory(note.noteCategory)
+            Log.d(TAG, "setNoteFavorite: $categoryWithNote")
             val noteToUpdate = categoryWithNote.notes?.find {
-                it.noteTitle==note.noteTitle
+                it.noteTitle == note.noteTitle
             }
             if (noteToUpdate!!.isFavorite) {
                 categoryWithNote.notes?.find {
-                    it.noteTitle==note.noteTitle
-                }!!.isFavorite=false
+                    it.noteTitle == note.noteTitle
+                }!!.isFavorite = false
                 notesRepository.updateCategory(categoryWithNote)
             } else {
                 categoryWithNote.notes?.find {
-                    it.noteTitle==note.noteTitle
+                    it.noteTitle == note.noteTitle
                 }!!.isFavorite = true
                 notesRepository.updateCategory(categoryWithNote)
             }
+            getNote(note.noteCategory, note.noteTitle)
+            getCategory(note.noteCategory)
             getCategories()
             getAllNotes()
         }
     }
 
-    fun editNote(noteToEdit:Note, editedNote: Note) {
+    fun editNote(noteToEdit: Note, editedNote: Note) {
         viewModelScope.launch(Dispatchers.IO) {
             val categoryWithNote = notesRepository.getCategory(noteToEdit.noteCategory)
             categoryWithNote.notes?.find { it.noteTitle == noteToEdit.noteTitle }
-            ?.apply {
-                noteTitle = editedNote.noteTitle
-                noteText = editedNote.noteText
-                reminderTime = editedNote.reminderTime
-            }
+                ?.apply {
+                    noteTitle = editedNote.noteTitle
+                    noteText = editedNote.noteText
+                    reminderTime = editedNote.reminderTime
+                }
             notesRepository.updateCategory(categoryWithNote)
             getCategories()
             getAllNotes()
         }
 
     }
+
     fun createNoteList(note: Note): ArrayList<Note> {
         val noteList = ArrayList<Note>()
         noteList.add(note)
@@ -176,9 +178,18 @@ class MainViewModel @Inject constructor(
     }
 
     fun getCategories() {
-        viewModelScope.launch(Dispatchers.IO) { _categories.postValue( notesRepository.getAllNotes())}
+        viewModelScope.launch(Dispatchers.IO) {
+            _categories.postValue(notesRepository.getAllNotes())
+        }
     }
-    fun getCategoryNames() {
+
+    fun getCategory(categoryName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _noteCategory.postValue(notesRepository.getCategory(categoryName))
+        }
+    }
+
+    private fun getCategoryNames() {
         viewModelScope.launch(Dispatchers.IO) {
             val categories = mutableListOf<String>()
             categories.add(0, "Add New Category")
@@ -186,11 +197,12 @@ class MainViewModel @Inject constructor(
                 it.categoryName
             }.toMutableList()
             categories.addAll(categoryNames)
-            _categoryNames.postValue(categories) }
+            _categoryNames.postValue(categories)
+        }
     }
 
     private fun getAllNotes() {
-        viewModelScope.launch(Dispatchers.IO){
+        viewModelScope.launch(Dispatchers.IO) {
             val allNoteCategories = notesRepository.getAllNotes()
             val allNotes = mutableListOf<Note>()
             allNoteCategories.forEach { noteCategory ->
@@ -200,12 +212,23 @@ class MainViewModel @Inject constructor(
             getCategories()
         }
     }
+
+    fun getNote(categoryName: String, noteTitle: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val note = notesRepository.getCategory(categoryName).notes?.find {
+                it.noteTitle == noteTitle
+            }
+            _note.postValue(note!!)
+        }
+
+    }
+
     fun getFavouriteNotes(notes: List<Note>): List<Note> {
-        return notes.filter { it.isFavorite}
+        return notes.filter { it.isFavorite }
     }
 
     fun getReminderNotes(notes: List<Note>): List<Note> {
-       return notes.filter { it.reminderTime!="None" && it.reminderTime.isNotEmpty() }
+        return notes.filter { it.reminderTime != "None" && it.reminderTime.isNotEmpty() }
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -229,7 +252,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun noteCategoryFilter(
+    fun categoryAndNoteSearchFilter(
         noteCategories: List<NoteCategory>,
         newText: String?
     ): List<NoteCategory> {
@@ -243,7 +266,19 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun reminderTime(reminderTime: String ="None") {
+    fun noteSearchFilter(
+        notes: List<Note>,
+        newText: String?
+    ): List<Note> {
+        return notes.filter { note ->
+            note.noteTitle.lowercase(Locale.getDefault())
+                .contains(newText!!.lowercase(Locale.getDefault())) ||
+                    note.noteText.lowercase(Locale.getDefault())
+                        .contains(newText.lowercase(Locale.getDefault()))
+        }
+    }
+
+    fun reminderTime(reminderTime: String = "None") {
         _reminderTime.value = reminderTime
     }
 
