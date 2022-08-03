@@ -28,7 +28,7 @@
             app:titleCentered="true" />
 
         <androidx.appcompat.widget.SearchView
-            android:id="@+id/searchView"
+            android:id="@+id/searchViewNotes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/dp_16"
@@ -40,7 +40,15 @@
             app:queryBackground="@null" />
     </com.google.android.material.appbar.AppBarLayout>
 
-
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddCategoryNote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_16"
+        android:layout_marginBottom="@dimen/dp_16"
+        android:src="@drawable/ic_add_note"
+        android:layout_gravity="bottom|end"
+        android:contentDescription="@string/fab_new_note_cd" />
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

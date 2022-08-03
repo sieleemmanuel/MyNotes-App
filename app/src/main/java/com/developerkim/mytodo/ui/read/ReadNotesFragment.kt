@@ -5,7 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -28,8 +31,8 @@ class ReadNotesFragment : Fragment() {
     private val args: ReadNotesFragmentArgs by navArgs()
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var selectedNote: Note
-    private var isFavorite:Boolean=false
+    private var selectedNoteTitle: String? = null
+    private var selectedNoteCategory: String? = null
     private lateinit var globalMenu: Menu
     private val TAG = ReadNotesFragment::class.simpleName
     override fun onCreateView(
@@ -38,8 +41,9 @@ class ReadNotesFragment : Fragment() {
     ): View {
         binding = FragmentReadNoteBinding.inflate(inflater)
         appBarConfiguration = AppBarConfiguration(findNavController().graph)
-        selectedNote = args.note
-        isFavorite = selectedNote.isFavorite
+        selectedNoteTitle = arguments?.getString(getString(R.string.note_title_arg_key))
+        selectedNoteCategory = arguments?.getString(getString(R.string.note_category_arg_key))
+        viewModel.getNote(selectedNoteCategory!!, selectedNoteTitle!!)
         globalMenu = binding.readToolbar.menu
         binding.apply {
             setUpNoteValues()
@@ -49,71 +53,75 @@ class ReadNotesFragment : Fragment() {
     }
 
     private fun FragmentReadNoteBinding.setUpNoteValues() {
-        noteDate.text = selectedNote.noteDate
-        openNoteTittle.text = selectedNote.noteTitle
-        openNoteNotes.text = selectedNote.noteText
-        tvReminderTime.text = selectedNote.reminderTime
-        openNoteNotes.movementMethod = ScrollingMovementMethod()
+        viewModel.getNote(selectedNoteCategory!!, selectedNoteTitle!!)
+        viewModel.note.observe(viewLifecycleOwner) { note ->
+            noteDate.text = note.noteDate
+            openNoteTittle.text = note.noteTitle
+            openNoteNotes.text = note.noteText
+            tvReminderTime.text = note.reminderTime
+            openNoteNotes.movementMethod = ScrollingMovementMethod()
+        }
     }
 
     private fun FragmentReadNoteBinding.setUpToolbar() {
-        readToolbar.apply {
-            title = selectedNote.noteTitle
-            updateFavoriteIcon()
-            setOnMenuItemClickListener { menuItem ->
-                when (menuItem.itemId) {
-                    android.R.id.home -> {
-                        requireActivity().onBackPressed()
-                        Log.d(TAG, "onOptionsItemSelected: homeClicked")
-                        true
-                    }
-                    R.id.shareNote -> {
-                        Log.d(TAG, "onOptionsItemSelected: ShareClicked")
-                        shareNote()
-                        true
-                    }
-                    R.id.updateNote -> {
-                        Log.d(TAG, "onOptionsItemSelected: Update")
-                        Toast.makeText(requireContext(), "updateClicked", Toast.LENGTH_SHORT).show()
-                        val notePosition = args.notePosition
-                        this.findNavController().navigate(
-                            ReadNotesFragmentDirections.actionReadNotesFragmentToUpdateNoteFragment(
-                                selectedNote, notePosition
-                            )
-                        )
-                        true
-                    }
-                    R.id.actionAddToFavorite -> {
-                        invalidateMenu()
-                        if (isFavorite) {
-                            isFavorite = false
-                            viewModel.setNoteFavorite(selectedNote)
-                        } else {
-                            isFavorite = true
-                            viewModel.setNoteFavorite(selectedNote)
+        viewModel.note.observe(viewLifecycleOwner) { noteObserved ->
+            readToolbar.apply {
+                title = noteObserved.noteTitle
+                updateFavoriteIcon()
+                setOnMenuItemClickListener { menuItem ->
+                    when (menuItem.itemId) {
+                        android.R.id.home -> {
+                            requireActivity().onBackPressed()
+                            Log.d(TAG, "onOptionsItemSelected: homeClicked")
+                            true
                         }
-                        updateFavoriteIcon()
-                        true
-                    }
-                    R.id.actionDelete ->{
-                        viewModel.deleteNote(selectedNote)
-                        findNavController().popBackStack()
-                        true
-                    }
+                        R.id.shareNote -> {
+                            Log.d(TAG, "onOptionsItemSelected: ShareClicked")
+                            shareNote()
+                            true
+                        }
+                        R.id.updateNote -> {
+                            Log.d(TAG, "onOptionsItemSelected: Update")
+                            Toast.makeText(requireContext(), "updateClicked", Toast.LENGTH_SHORT)
+                                .show()
+                            this.findNavController().navigate(
+                                ReadNotesFragmentDirections.actionReadNotesFragmentToUpdateNoteFragment(
+                                    noteObserved)
+                            )
+                            true
+                        }
+                        R.id.actionAddToFavorite -> {
+                            invalidateMenu()
+                            if (noteObserved.isFavorite) {
+                                viewModel.setNoteFavorite(noteObserved)
+                            } else {
+                                viewModel.setNoteFavorite(noteObserved)
+                            }
+                            updateFavoriteIcon()
+                            true
+                        }
+                        R.id.actionDelete -> {
+                            viewModel.deleteNote(noteObserved)
+                            findNavController().popBackStack()
+                            true
+                        }
 
-                    else -> false
+                        else -> false
+                    }
                 }
+                setupWithNavController(NavHostFragment.findNavController(this@ReadNotesFragment))
             }
-            setupWithNavController(NavHostFragment.findNavController(this@ReadNotesFragment))
         }
     }
 
     private fun updateFavoriteIcon() {
-        val favoriteItem = globalMenu.findItem(R.id.actionAddToFavorite)
-        if (selectedNote.isFavorite) {
-            favoriteItem.setIcon(R.drawable.ic_is_favorite)
-        } else {
-            favoriteItem.setIcon(R.drawable.ic_favorite)
+        viewModel.note.observe(viewLifecycleOwner) { observedNote ->
+            val favoriteItem = globalMenu.findItem(R.id.actionAddToFavorite)
+            if (observedNote.isFavorite) {
+                favoriteItem.setIcon(R.drawable.ic_is_favorite)
+            } else {
+                favoriteItem.setIcon(R.drawable.ic_favorite)
+            }
         }
     }
 

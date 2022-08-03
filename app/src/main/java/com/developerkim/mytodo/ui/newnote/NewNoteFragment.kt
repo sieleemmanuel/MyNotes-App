@@ -16,6 +16,7 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.setupWithNavController
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -38,12 +39,15 @@ import java.text.SimpleDateFormat
 import java.time.LocalTime
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.coroutineContext
 
 @AndroidEntryPoint
 class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
     private lateinit var selCategory: String
     private lateinit var binding: FragmentNewNoteBinding
     private val mainViewModel: MainViewModel by activityViewModels()
+    private val args:NewNoteFragmentArgs by navArgs()
+    private var passedCategory:String? = null
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
@@ -51,6 +55,7 @@ class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentNewNoteBinding.inflate(inflater)
+        passedCategory = args.categoryName
         mainViewModel.categoriesNames.observe(viewLifecycleOwner) { categories ->
             val noteCategoriesAdapter = ArrayAdapter(
                 requireContext(),
@@ -67,6 +72,39 @@ class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
                         }
                     }
 
+                }
+                if (passedCategory!=null){
+                    selectCategory.setText(passedCategory, false)
+                }
+
+                btnAddNewNote.setOnClickListener {
+                    selCategory = selectCategory.text.toString()
+                    val newNote = Note(
+                        noteCategory = selCategory,
+                        noteTitle = noteTitleEditText.text.toString(),
+                        noteText = noteTextEditText.text.toString(),
+                        noteDate = mainViewModel.noteDate,
+                        reminderTime = edtReminder.text.toString()
+                    )
+
+                    mainViewModel.insertNewNotes(note = newNote)
+                    mainViewModel.getCategories()
+
+                    if (edtReminder.text.toString() != getString(R.string.set_reminder_label) ||
+                        edtReminder.text.toString() != "None"
+                    ) {
+                        Log.d(TAG, "reminderTime: ${edtReminder.text} ")
+                        Log.d(TAG, "NewNote: $newNote")
+                        setNoteReminder(
+                            newNote.reminderTime,
+                            newNote.noteTitle,
+                            newNote.noteCategory,
+                            requireContext()
+                        )
+                        findNavController().popBackStack()
+                    }
+
+                    mainViewModel.reminderTime()
                 }
                 root.setOnFocusChangeListener { view, hasFocus ->
                     if (hasFocus) {
@@ -94,34 +132,6 @@ class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
         newNoteToolbar.setupWithNavController(findNavController())
         newNoteToolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.actionDone -> {
-                    selCategory = selectCategory.text.toString()
-                    val newNote = Note(
-                        noteCategory = selCategory,
-                        noteTitle = noteTitleEditText.text.toString(),
-                        noteText = noteTextEditText.text.toString(),
-                        noteDate = mainViewModel.noteDate,
-                        reminderTime = edtReminder.text.toString()
-                    )
-
-                    mainViewModel.insertNewNotes(note = newNote)
-                    mainViewModel.getCategories()
-
-                    if (edtReminder.text.toString() != getString(R.string.set_reminder_label) &&
-                        edtReminder.text.toString() != "None"
-                    ) {
-                        setNoteReminder(
-                            newNote.reminderTime,
-                            newNote.noteTitle,
-                            requireContext()
-                        )
-                        findNavController().popBackStack()
-                    }
-
-                    mainViewModel.reminderTime()
-                    true
-
-                }
                 R.id.actionClose -> {
                     findNavController().popBackStack()
                 }
@@ -179,13 +189,7 @@ class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
         val categoryName = addCategoryDialogBinding.tiNewCategoryName.text
         addCategoryDialogBinding.csCategoryColor.setListener { _, color ->
             mainViewModel.getPickedColor(color)
-            Toast.makeText(
-                requireContext(),
-                "Name:$categoryName, Color:$color",
-                Toast.LENGTH_SHORT
-            ).show()
         }
-
         val categoryDialog = MaterialAlertDialogBuilder(requireContext())
             .setView(addCategoryDialogBinding.root)
             .setMessage("Create Note Category")
@@ -205,6 +209,7 @@ class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
                         notes = mutableListOf()
                     )
                     mainViewModel.insertNewCategory(newCategory)
+                    binding.selectCategory.setText(categoryName,false)
                     categoryDialog.dismiss()
                 }
             } else {
@@ -224,16 +229,23 @@ class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
             return formatter.format(selectedDate)
         }
 
-        private fun getMilliFromDate(reminderDate: String, reminderTime: String): Long {
-            val timeFormatter = LocalTime.parse(reminderTime)
-            val timeMilliSec = timeFormatter.toSecondOfDay() * 1000L
-            val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
-            return dateFormatter.parse(reminderDate).time.plus(timeMilliSec)
+        private fun getMilliFromDate(reminderDate: String, reminderTime: String, context: Context): Long? {
+            return   if (reminderDate!="None" || reminderDate!="Set Reminder") {
+                val timeFormatter = LocalTime.parse(reminderTime)
+                val timeMilliSec = timeFormatter.toSecondOfDay() * 1000L
+                val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+                dateFormatter.parse(reminderDate).time.plus(timeMilliSec)
+            }else{
+                Toast.makeText(context, "No reminder set!", Toast.LENGTH_SHORT).show()
+                null
+            }
+
         }
 
         private fun createWorkerRequest(
             message: String,
             noteTitle: String,
+            noteCategory: String,
             timeDelayInSec: Long,
             context: Context
         ) {
@@ -242,28 +254,32 @@ class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
                 .addTag(noteTitle)
                 .setInputData(
                     workDataOf(
-                        "title" to "Note Reminder",
-                        "message" to message,
-                        context.getString(R.string.note_title_arg_key) to noteTitle
+                        context.getString(R.string.title_key) to "Note Reminder",
+                        context.getString(R.string.message_key) to message,
+                        context.getString(R.string.note_title_arg_key) to noteTitle,
+                        context.getString(R.string.note_category_arg_key) to noteCategory
                     )
                 )
                 .build()
             WorkManager.getInstance(context).enqueue(reminderWorkRequest)
         }
 
-        fun setNoteReminder(reminderTime: String, noteTitle: String, context: Context) {
+        fun setNoteReminder(reminderTime: String, noteTitle: String, noteCategory: String, context: Context) {
             val selectedDate = reminderTime.substringBefore(" ")
             val selectedTime = reminderTime.substringAfter(" ")
             Log.d(TAG, "Date and : $selectedDate Time:$selectedTime")
-            val selectedTimeInSec = getMilliFromDate(selectedDate, selectedTime)
+            val selectedTimeInSec = getMilliFromDate(selectedDate, selectedTime, context)
             val todayTimeInSec = Calendar.getInstance().timeInMillis
-            val delayInSeconds = (selectedTimeInSec.minus(todayTimeInSec)).div(1000L)
+            val delayInSeconds = (selectedTimeInSec?.minus(todayTimeInSec))?.div(1000L)
+            Log.d(TAG, "DelaySeconds: $delayInSeconds")
             createWorkerRequest(
                 "Hi, it's time to check this $noteTitle note!!",
                 noteTitle,
-                delayInSeconds,
+                noteCategory,
+                delayInSeconds!!,
                 context
             )
+            Toast.makeText(context, "Setting reminder", Toast.LENGTH_SHORT).show()
         }
     }
 }

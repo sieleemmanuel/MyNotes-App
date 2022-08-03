@@ -76,12 +76,18 @@
     <string name="favorites_args_key">favorites</string>
     <string name="reminder_time_label">Reminder:</string>
     <string name="note_title_arg_key">noteTitle</string>
+    <string name="note_category_arg_key">noteCategory</string>
     <string name="editor_label">Editor</string>
     <string name="reminder_label">Reminder</string>
     <string name="title_label">Title</string>
     <string name="set_reminder_label">Set Reminder</string>
     <string name="error_category_empty">Category is empty</string>
     <string name="hint_description_label">Description</string>
+    <string name="fab_new_note_cd">Add new note to current category</string>
+    <string name="add_category_label">Add Category</string>
+    <string name="add_note_label">Add Note</string>
+    <string name="message_key">message</string>
+    <string name="title_key">title</string>
 
     <string-array name="notes_tabs">
         <item>All Notes</item>

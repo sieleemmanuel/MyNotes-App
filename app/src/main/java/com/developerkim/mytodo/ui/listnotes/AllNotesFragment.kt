@@ -5,14 +5,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.developerkim.mytodo.R
 import com.developerkim.mytodo.adapters.NoteAdapter
-import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.databinding.FragmentAllNotesBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -34,51 +32,28 @@ class AllNotesFragment : Fragment() {
         binding.apply {
             tabsRecyclerview.layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+            noteAdapter = NoteAdapter(
+                noteClickListener(),
+                viewClickListener(),
+                requireContext()
+            )
 
             viewModel.allNotes.observe(viewLifecycleOwner) {
-                noteAdapter = when {
+                 when {
                    allNotes == getString(R.string.all_note_args_key)-> {
-                        NoteAdapter(
-                            it,
-                            noteClickListener(),
-                            viewClickListener(),
-                            requireContext()
-                        )
+                        noteAdapter.submitList(it)
                     }
                     reminders == getString(R.string.reminders_args_key) ->{
                         Log.d(TAG, "reminders:${viewModel.getReminderNotes(it)}")
-                        NoteAdapter(
-                            viewModel.getReminderNotes(it) as MutableList<Note>,
-                            noteClickListener(),
-                            viewClickListener(),
-                            requireContext()
-                        )
+                        noteAdapter.submitList(viewModel.getReminderNotes(it).toMutableList())
                     }
                     favorites == getString(R.string.favorites_args_key) ->{
-                        NoteAdapter(
-                            viewModel.getFavouriteNotes(it) as MutableList<Note>,
-                            noteClickListener(),
-                            viewClickListener(),
-                            requireContext()
-                        )
-                    }
-
-                    else-> {
-                        NoteAdapter(
-                            it,
-                            noteClickListener(),
-                            viewClickListener(),
-                            requireContext()
-                        )
+                        noteAdapter.submitList(viewModel.getFavouriteNotes(it).toMutableList())
                     }
                 }
                 tabsRecyclerview.adapter = noteAdapter
-                if (noteAdapter.itemCount==0){
-                    pbLoadingNotes.visibility = View.VISIBLE
-                }else{
-                    pbLoadingNotes.visibility = View.INVISIBLE
-                }
                 if (it!!.isNotEmpty()) {
+                    pbLoadingNotes.visibility = View.INVISIBLE
                     tabsRecyclerview.visibility = View.VISIBLE
                     tvEmptyNotes.visibility = View.INVISIBLE
                 } else {
@@ -90,10 +65,10 @@ class AllNotesFragment : Fragment() {
         return binding.root
     }
 
-    private fun noteClickListener() = NoteAdapter.NoteClickListener { note, position ->
+    private fun noteClickListener() = NoteAdapter.NoteClickListener { note, _ ->
         findNavController().navigate(
             ListNotesFragmentDirections.actionListNotesFragmentToReadNotesFragment(
-                note, position
+                note.noteCategory, note.noteTitle
             )
         )
     }

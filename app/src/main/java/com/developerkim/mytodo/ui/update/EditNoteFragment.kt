@@ -35,13 +35,11 @@ import java.time.LocalTime
 class EditNoteFragment : Fragment(),
     AdapterView.OnItemSelectedListener {
     private lateinit var binding: FragmentUpdateNoteBinding
-    private val viewModel: UpdateViewModel by activityViewModels()
     private val mainViewModel: MainViewModel by activityViewModels()
     private val args: EditNoteFragmentArgs by navArgs()
     private lateinit var noteToEdit: Note
     private lateinit var updateSelectedCategory: String
     private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var adapter: ArrayAdapter<String>
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
@@ -51,11 +49,10 @@ class EditNoteFragment : Fragment(),
         binding = FragmentUpdateNoteBinding.inflate(inflater)
         appBarConfiguration = AppBarConfiguration(findNavController().graph)
         noteToEdit = args.note
-        val notePosition = requireArguments().getInt("note_position")
 
         binding.apply {
             setUpNoteValuesToUpdate()
-            setUpToolbar(notePosition)
+            setUpToolbar()
             clUpdateNote.setOnFocusChangeListener { view, hasFocus ->
                 if (hasFocus) {
                     hideKeyboard(view, requireActivity())
@@ -63,6 +60,35 @@ class EditNoteFragment : Fragment(),
             }
             tilReminderTime.editText?.setOnClickListener {
                 showReminderDatePicker()
+            }
+            btnDoneEditing.setOnClickListener {
+                val uNote = Note(
+                    noteTitle = updateTitleEditText.text.toString(),
+                    noteText = updateTextEditText.text.toString(),
+                    reminderTime = edReminderTime.text.toString()
+                )
+                if (noteToEdit!= uNote) {
+                    mainViewModel.editNote(noteToEdit, uNote)
+                    if (noteToEdit.reminderTime != uNote.reminderTime) {
+                        WorkManager.getInstance(requireContext())
+                            .getWorkInfosByTag(noteToEdit.noteTitle).cancel(true)
+                        NewNoteFragment.setNoteReminder(
+                            uNote.reminderTime,
+                            uNote.noteTitle,
+                            uNote.noteCategory,
+                            requireContext()
+                        )
+                    }
+                    findNavController()
+                        .navigate(EditNoteFragmentDirections.actionUpdateNoteFragmentToListNotesFragment())
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Nothing to Update",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    findNavController().popBackStack()
+                }
             }
         }
         return binding.root
@@ -80,53 +106,15 @@ class EditNoteFragment : Fragment(),
         updateTitleEditText.setText(noteToEdit.noteTitle)
         updateTextEditText.setText(noteToEdit.noteText)
         edReminderTime.setText(noteToEdit.reminderTime)
-        adapter = ArrayAdapter(
-            requireContext(),
-            R.layout.category_item,
-            viewModel.filterCategories(noteToEdit.noteCategory)
-        )
     }
 
-    private fun FragmentUpdateNoteBinding.setUpToolbar(notePosition: Int) {
+    private fun FragmentUpdateNoteBinding.setUpToolbar() {
         updateNoteToolbar.apply {
             setupWithNavController(findNavController(), appBarConfiguration)
             title = "Edit ${noteToEdit.noteCategory} note"
             setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
-                    R.id.actionDone -> {
-                        val uNote = Note(
-                            noteTitle = updateTitleEditText.text.toString(),
-                            noteText = updateTextEditText.text.toString(),
-                            reminderTime = edReminderTime.text.toString()
-                        )
-                        if (noteToEdit!= uNote) {
-                            mainViewModel.editNote(noteToEdit, uNote)
-                            if (noteToEdit.reminderTime != uNote.reminderTime) {
-                               WorkManager.getInstance(requireContext())
-                                    .getWorkInfosByTag(noteToEdit.noteTitle).cancel(true)
-                                NewNoteFragment.setNoteReminder(
-                                    uNote.reminderTime,
-                                    uNote.noteTitle,
-                                    requireContext()
-                                )
-                            }
-                            findNavController()
-                                .navigate(EditNoteFragmentDirections.actionUpdateNoteFragmentToListNotesFragment())
-                        } else {
-                            Toast.makeText(
-                                requireContext(),
-                                "Nothing to Update",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            findNavController().popBackStack()
-                        }
-                    }
                     R.id.actionClose -> {
-                        val uNote = Note(
-                            noteTitle = updateTitleEditText.text.toString(),
-                            noteText = updateTextEditText.text.toString(),
-                            reminderTime = edReminderTime.text.toString()
-                        )
                         if (noteToEdit.noteText == updateTextEditText.text.toString() &&
                             noteToEdit.noteTitle == updateTitleEditText.text.toString()
                         ) {
@@ -138,7 +126,6 @@ class EditNoteFragment : Fragment(),
                                 .setTitle("Want to cancel update?")
                                 .setCancelable(false)
                                 .setPositiveButton(" OK") { dialog, _ ->
-                                    viewModel.updateNote(uNote, notePosition)
                                     dialog.dismiss()
                                     findNavController().popBackStack(R.id.listNotesFragment, true)
                                 }
@@ -168,7 +155,6 @@ class EditNoteFragment : Fragment(),
             "DATE_PICKER_TAG"
         )
     }
-
     @SuppressLint("SetTextI18n")
     private fun showTimePicker(formattedDate: String?) {
         val timePicker = MaterialTimePicker.Builder()

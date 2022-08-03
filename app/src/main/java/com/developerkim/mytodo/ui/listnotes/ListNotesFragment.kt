@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
@@ -18,7 +16,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.developerkim.mytodo.R
 import com.developerkim.mytodo.adapters.NotesCategoriesAdapter
 import com.developerkim.mytodo.adapters.ViewPagerAdapter
-import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.data.model.NoteCategory
 import com.developerkim.mytodo.databinding.AddCategoryDialogBinding
 import com.developerkim.mytodo.databinding.FragmentListNotesBinding
@@ -41,17 +38,16 @@ class ListNotesFragment : Fragment() {
         categoriesAdapter = NotesCategoriesAdapter(categoryClickListener(), requireContext())
         viewPagerAdapter = ViewPagerAdapter(childFragmentManager, lifecycle, requireContext())
         binding.apply {
-            setUpMainToolbar()
-            setUpCategoriesRecycler()
             notesPager.adapter = viewPagerAdapter
             val tabsTitles = resources.getStringArray(R.array.notes_tabs)
             TabLayoutMediator(tabLayout, notesPager) { tab, position ->
                 tab.text = tabsTitles[position]
             }.attach()
-
-            performSearch(searchView)
+            setUpMainToolbar()
+            setUpCategoriesRecycler()
+            performSearch()
             setUpFabSpeedDial()
-            setAdapterData {
+            setUpCategoriesHandler {
                 if (!it.isNullOrEmpty()) {
                     categoriesAdapter.submitList(it)
                     rvCategories.visibility = View.VISIBLE
@@ -72,8 +68,18 @@ class ListNotesFragment : Fragment() {
                     pbLoadingCategories.visibility = View.INVISIBLE
                 }
             }
+
+            if (fabSpeedDial.isOpen && root.isFocused){
+                fabSpeedDial.close()
+            }
+
         }
         return binding.root
+    }
+    private fun setUpCategoriesHandler(listHandler: (noteCategory: List<NoteCategory>?) -> Unit) {
+        viewModel.categoriesList.observe(viewLifecycleOwner) {
+            listHandler.invoke(it)
+        }
     }
 
     private fun FragmentListNotesBinding.setUpFabSpeedDial() {
@@ -83,12 +89,14 @@ class ListNotesFragment : Fragment() {
                 when (actionItem.id) {
                     R.id.actionNewCategeory -> {
                         showNewCategoryDialog()
+                        fabSpeedDial.close()
                         return@setOnActionSelectedListener true
                     }
                     R.id.actionNewNote -> {
                         findNavController().navigate(
-                            ListNotesFragmentDirections.actionListNotesFragmentToNewNoteFragment()
+                            ListNotesFragmentDirections.actionListNotesFragmentToNewNoteFragment(null)
                         )
+                        fabSpeedDial.close()
                         return@setOnActionSelectedListener true
                     }
                 }
@@ -107,15 +115,32 @@ class ListNotesFragment : Fragment() {
 
     private fun FragmentListNotesBinding.setUpMainToolbar() {
         mainToolbar.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.actionDeleteAll -> {
-                    confirmDeleteAll()
+            return@setOnMenuItemClickListener when (menuItem.itemId) {
+                R.id.actionClearAll -> {
+                    confirmClearAll()
                     Toast.makeText(requireContext(), "delete all", Toast.LENGTH_SHORT).show()
                     true
                 }
                 else -> false
             }
         }
+    }
+
+    private fun FragmentListNotesBinding.performSearch() {
+        searchView.apply {
+            isIconfiedByDefault
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextSubmit(query: String?): Boolean {
+                        filterCategories(query)
+                        return true
+                    }
+
+                    override fun onQueryTextChange(newText: String?): Boolean {
+                        filterCategories(newText)
+                        return true
+                    }
+                })
+    }
     }
 
     private fun showNewCategoryDialog() {
@@ -169,28 +194,7 @@ class ListNotesFragment : Fragment() {
             )
         }
 
-    private fun setAdapterData(listHandler: (noteCategory: List<NoteCategory>?) -> Unit) {
-        viewModel.categoriesList.observe(viewLifecycleOwner) {
-            listHandler.invoke(it)
-        }
-    }
-
-    private fun performSearch(searchView: SearchView) {
-        searchView.isIconfiedByDefault
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                filterCategories(query)
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                filterCategories(newText)
-                return true
-            }
-        })
-    }
-
-    private fun confirmDeleteAll() {
+    private fun confirmClearAll() {
         MaterialAlertDialogBuilder(requireContext())
             .setMessage("Are you sure you want to delete all Notes?")
             .setNegativeButton("CANCEL") { dialog, _ ->
@@ -202,21 +206,9 @@ class ListNotesFragment : Fragment() {
             .show()
     }
 
-    private fun confirmDeleteNote(note: Note) {
-        MaterialAlertDialogBuilder(requireContext())
-            .setMessage("Are you sure you want to delete the note?")
-            .setNegativeButton("CANCEL") { dialog, _ ->
-                dialog.cancel()
-            }
-            .setPositiveButton("DELETE") { _, _ ->
-                viewModel.deleteNote(note)
-            }
-            .show()
-    }
-
     private fun filterCategories(newText: String?) {
-        setAdapterData { noteCategories ->
-            val filteredCategories = viewModel.noteCategoryFilter(noteCategories!!, newText)
+        setUpCategoriesHandler { noteCategories ->
+            val filteredCategories = viewModel.categoryAndNoteSearchFilter(noteCategories!!, newText)
             if (filteredCategories.isEmpty()) {
                 Toast.makeText(requireContext(), "No match found", Toast.LENGTH_SHORT).show()
                 categoriesAdapter.submitList(null)

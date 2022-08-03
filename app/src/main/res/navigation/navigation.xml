@@ -29,6 +29,10 @@
         <action
             android:id="@+id/action_newNoteFragment_to_listNotesFragment"
             app:destination="@id/listNotesFragment" />
+        <argument
+            android:name="categoryName"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
     <fragment
         android:id="@+id/readNotesFragment"
@@ -39,11 +43,13 @@
             android:id="@+id/action_readNotesFragment_to_updateNoteFragment"
             app:destination="@id/updateNoteFragment" />
         <argument
-            android:name="note"
-            app:argType="com.developerkim.mytodo.data.model.Note" />
+            android:name="noteCategory"
+            app:argType="string"
+            app:nullable="true" />
         <argument
-            android:name="note_position"
-            app:argType="integer" />
+            android:name="noteTitle"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
     <fragment
         android:id="@+id/updateNoteFragment"
@@ -56,9 +62,6 @@
         <argument
             android:name="note"
             app:argType="com.developerkim.mytodo.data.model.Note" />
-        <argument
-            android:name="position"
-            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/categoryNotes"
@@ -70,6 +73,9 @@
         <argument
             android:name="category"
             app:argType="com.developerkim.mytodo.data.model.NoteCategory" />
+        <action
+            android:id="@+id/action_categoryNotes_to_newNoteFragment"
+            app:destination="@id/newNoteFragment" />
     </fragment>
     <fragment
         android:id="@+id/allNotesFragment"

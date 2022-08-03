@@ -7,19 +7,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.developerkim.mytodo.R
 import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.databinding.NoteItemBinding
 
 class NoteAdapter(
-    notes: MutableList<Note>,
     private val noteClickListener: NoteClickListener,
     private val viewClickListener: ViewClickListener,
     private val context: Context
-) : RecyclerView.Adapter<NoteAdapter.ViewHolder>() {
-    private val notesList = notes
-
+) : ListAdapter<Note,NoteAdapter.ViewHolder>(DiffUtilItem) {
     init {
         setHasStableIds(true)
     }
@@ -78,12 +77,10 @@ class NoteAdapter(
         return ViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = notesList.size
-
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val note = notesList[position]
-        holder.bind(note, position)
+        val note =getItem(position)
+        holder.bind(note!!, position)
 
     }
 
@@ -94,5 +91,16 @@ class NoteAdapter(
     class ViewClickListener(val viewClick: (note: Note, position:Int,view: View, binding: NoteItemBinding) -> Unit) {
         fun onViewClicked(note: Note, position: Int,view: View, binding: NoteItemBinding) =
             viewClick(note, position,view, binding)
+    }
+
+    object DiffUtilItem:DiffUtil.ItemCallback<Note>() {
+        override fun areItemsTheSame(oldItem: Note, newItem: Note): Boolean {
+            return oldItem==newItem
+        }
+
+        override fun areContentsTheSame(oldItem: Note, newItem: Note): Boolean {
+            return oldItem.noteTitle == newItem.noteTitle
+        }
+
     }
 }
