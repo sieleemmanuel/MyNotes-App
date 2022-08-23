@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable-v24/favorite_selector.xml" value="0.1235" />
+        <entry key="app/src/main/res/drawable/btom_sheet_bcg.xml" value="0.1245" />
         <entry key="app/src/main/res/drawable/category_bcg.xml" value="0.152" />
         <entry key="app/src/main/res/drawable/check_favourite.xml" value="0.109" />
         <entry key="app/src/main/res/drawable/color_daily_tasks.xml" value="0.1235" />
@@ -15,6 +16,7 @@
         <entry key="app/src/main/res/drawable/ic_add_reminder.xml" value="0.1235" />
         <entry key="app/src/main/res/drawable/ic_added_favourite.xml" value="0.1235" />
         <entry key="app/src/main/res/drawable/ic_baseline_add_24.xml" value="0.1235" />
+        <entry key="app/src/main/res/drawable/ic_delete.xml" value="0.1345" />
         <entry key="app/src/main/res/drawable/ic_done.xml" value="0.1245" />
         <entry key="app/src/main/res/drawable/ic_edit.xml" value="0.1245" />
         <entry key="app/src/main/res/drawable/ic_priority_low.xml" value="0.1245" />
@@ -26,13 +28,17 @@
         <entry key="app/src/main/res/layout/category_item.xml" value="0.21145833333333333" />
         <entry key="app/src/main/res/layout/category_layout.xml" value="0.21145833333333333" />
         <entry key="app/src/main/res/layout/category_list_layout.xml" value="0.19947916666666668" />
+        <entry key="app/src/main/res/layout/delete_layout.xml" value="0.29921875" />
         <entry key="app/src/main/res/layout/fragment_all_notes.xml" value="0.21145833333333333" />
         <entry key="app/src/main/res/layout/fragment_category_notes.xml" value="0.21145833333333333" />
-        <entry key="app/src/main/res/layout/fragment_list_notes.xml" value="0.2" />
-        <entry key="app/src/main/res/layout/fragment_new_note.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/fragment_create_category.xml" value="0.19947916666666668" />
+        <entry key="app/src/main/res/layout/fragment_edit_note.xml" value="0.29921875" />
+        <entry key="app/src/main/res/layout/fragment_list_notes.xml" value="0.47708333333333336" />
+        <entry key="app/src/main/res/layout/fragment_new_note.xml" value="0.17647058823529413" />
         <entry key="app/src/main/res/layout/fragment_read_note.xml" value="0.2" />
         <entry key="app/src/main/res/layout/fragment_update_note.xml" value="0.2" />
         <entry key="app/src/main/res/layout/list_categories.xml" value="0.21145833333333333" />
+        <entry key="app/src/main/res/layout/new_category_item.xml" value="0.19947916666666668" />
         <entry key="app/src/main/res/layout/note_item.xml" value="0.25" />
         <entry key="app/src/main/res/menu/action_mode_menu.xml" value="0.19947916666666668" />
         <entry key="app/src/main/res/menu/bottom_bar_menu.xml" value="0.19947916666666668" />

@@ -39,7 +39,7 @@
     <string name="close_text">Close</string>
     <string name="save_text">Save</string>
     <string name="tv_category_name">Category Name</string>
-    <string name="delete_all_item">Delete All</string>
+    <string name="delete_all_item">Delete Notes </string>
     <string name="btn_update_note_text">Update</string>
     <string name="hide_private">Hide Private</string>
     <string name="show_all_item">Show All</string>
@@ -70,7 +70,7 @@
     <string name="tv_notes_empty_label">No notes yet!</string>
     <string name="favorite_content_description">Add or remove from favorite</string>
     <string name="select_color_label">Select Category Color</string>
-    <string name="categories_empty_label">No categories yet.Create new</string>
+    <string name="categories_empty_label">Nothing to show</string>
     <string name="all_note_args_key">all_notes</string>
     <string name="reminders_args_key">reminders</string>
     <string name="favorites_args_key">favorites</string>
@@ -81,27 +81,35 @@
     <string name="reminder_label">Reminder</string>
     <string name="title_label">Title</string>
     <string name="set_reminder_label">Set Reminder</string>
-    <string name="error_category_empty">Category is empty</string>
+    <string name="error_category_empty">Category cannot be blank</string>
     <string name="hint_description_label">Description</string>
     <string name="fab_new_note_cd">Add new note to current category</string>
     <string name="add_category_label">Add Category</string>
     <string name="add_note_label">Add Note</string>
     <string name="message_key">message</string>
     <string name="title_key">title</string>
+    <string name="img_new_category_cdesc">Add new category</string>
+    <string name="delete_category_dialog_label">Want to delete %1$s category?</string>
+    <string name="delete_note_dialog_label">Want to delete %1$s note?</string>
 
     <string-array name="notes_tabs">
         <item>All Notes</item>
         <item>Reminders</item>
         <item>Favorites</item>
     </string-array>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="enter_category_hint_label">Enter Category</string>
+    <string name="no_reminder_set_label">Nothing Set</string>
+    <string name="delete_all_notes_label">Do you want to delete all notes?</string>
+    <string name="delete_category_label">Delete Category</string>
+    <string name="search_query_hint">search in categories</string>
+    <string name="delete_category_cdsc">Delete image content description</string>
+    <string name="delete_all_notes_desc_label">Deleting this category will delete the notes within it!</string>
+    <string name="choose_color_label">Please choose a color to proceed</string>
+    <string name="remove_all_notes_label">This will removing all notes saved</string>
+    <string name="note_deleted_label">%1$s deleted successfully</string>
+    <string name="empty_reminder_label">No reminder note yet!</string>
+    <string name="empty_favorites_label">No favorite note yet!</string>
 
-    <string-array name="hex_colors">
-        <item>#FFFFFF</item>
-        <item>#03A9F4</item>
-        <item>#5DF872</item>
-        <item>#5870F4</item>
-        <item>#FA574B</item>
-        <item>#FA9E5E</item>
-        <item>#F39813</item>
-    </string-array>
 </resources>

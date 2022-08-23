@@ -1,40 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cdCategoryItem"
     android:layout_width="110dp"
     android:layout_height="100dp"
-    android:layout_marginStart="@dimen/dp_8"
     android:layout_marginTop="@dimen/dp_8"
+    android:layout_marginEnd="@dimen/dp_8"
     android:layout_marginBottom="@dimen/dp_8"
-    android:background="@drawable/category_bcg"
-    app:elevation="@dimen/dp_8"
-    >
-    <TextView
-        android:id="@+id/note_category_name"
-        android:layout_width="@dimen/dp_0"
-        android:layout_height="wrap_content"
-        android:text="@string/tv_placeholder_daily_tasks"
-        android:gravity="center"
-        android:layout_marginTop="@dimen/dp_16"
-        android:layout_marginStart="@dimen/dp_8"
-        android:layout_marginEnd="@dimen/dp_8"
-        android:textColor="@color/colorOnPrimary"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/notes_count"/>
+    app:cardBackgroundColor="?attr/colorPrimary"
+    app:cardCornerRadius="@dimen/dp_10"
+    app:elevation="@dimen/dp_8">
 
-    <TextView
-        android:id="@+id/notes_count"
-        android:layout_width="@dimen/dp_0"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/dp_16"
-        android:gravity="center"
-        android:textColor="@color/colorOnPrimary"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/note_category_name"
-        app:layout_constraintStart_toStartOf="@+id/note_category_name"
-        app:layout_constraintTop_toBottomOf="@+id/note_category_name"
-        tools:text="12 Notes" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/note_category_name"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_8"
+            android:layout_marginTop="@dimen/dp_16"
+            android:layout_marginEnd="@dimen/dp_8"
+            android:gravity="center"
+            android:text="@string/tv_placeholder_daily_tasks"
+            android:textColor="@color/colorOnPrimary"
+            app:layout_constraintBottom_toTopOf="@+id/notes_count"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/notes_count"
+            android:layout_width="@dimen/dp_0"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dp_16"
+            android:gravity="center"
+            android:textColor="@color/colorOnPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/note_category_name"
+            app:layout_constraintStart_toStartOf="@+id/note_category_name"
+            app:layout_constraintTop_toBottomOf="@+id/note_category_name"
+            tools:text="12 Notes" />
+
+        <ImageView
+            android:id="@+id/btnDeleteCategory"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="@dimen/dp_16"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_delete"
+            android:background="@drawable/grey_rounded_corners_bg"
+            android:visibility="gone"
+            android:contentDescription="@string/delete_category_cdsc" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

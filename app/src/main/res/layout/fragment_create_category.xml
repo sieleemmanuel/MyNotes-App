@@ -4,36 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-    <TextView
-        android:id="@+id/tvAddCategoryLabel"
-        android:layout_width="@dimen/dp_0"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_10"
-        android:layout_marginStart="@dimen/dp_16"
-        android:layout_marginEnd="@dimen/dp_16"
-        android:gravity="center"
-        android:text="@string/add_category_label"
-        style="@style/TextAppearance.MaterialComponents.Headline6"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilNewCategory"
         android:layout_width="@dimen/dp_0"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_16"
+        android:layout_marginStart="@dimen/dp_10"
+        android:layout_marginEnd="@dimen/dp_10"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        app:layout_constraintEnd_toEndOf="@+id/tvAddCategoryLabel"
-        app:layout_constraintStart_toStartOf="@+id/tvAddCategoryLabel"
-        app:layout_constraintTop_toBottomOf="@+id/tvAddCategoryLabel">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/tiNewCategoryName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/enter_category_hint_label"
-            android:inputType="textCapWords"
+            android:hint="Enter Category"
             tools:text="Category"/>
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -41,7 +29,7 @@
         android:id="@+id/tvColorLabel"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_16"
         android:text="Choose the color"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -50,27 +38,16 @@
         app:layout_constraintTop_toBottomOf="@+id/tilNewCategory" />
     <com.thebluealliance.spectrum.SpectrumPalette
         android:id="@+id/coloSelector"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_8"
-        app:layout_constraintEnd_toEndOf="@+id/tvColorLabel"
-        app:layout_constraintStart_toStartOf="@+id/tvColorLabel"
-        app:layout_constraintTop_toBottomOf="@id/tvColorLabel"
-        app:spectrum_autoPadding="true"
-        app:spectrum_colors="@array/hex_colors"
-        />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnAddCategory"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_8"
         android:layout_marginBottom="@dimen/dp_16"
-        android:text="@string/add_category_label"
-        android:textAllCaps="false"
-        app:cornerRadius="@dimen/dp_5"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="@+id/tvColorLabel"
         app:layout_constraintStart_toStartOf="@+id/tvColorLabel"
-        app:layout_constraintTop_toBottomOf="@id/coloSelector" />
+        app:layout_constraintTop_toBottomOf="@id/tvColorLabel"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:spectrum_autoPadding="true"
+        app:spectrum_colors="@array/hex_colors"
+        app:spectrum_columnCount="5" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -14,10 +14,10 @@
         android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/categoryColor"
+            android:id="@+id/ivNoteColor"
             android:layout_width="@dimen/dp_8"
             android:layout_height="@dimen/dp_0"
-            android:background="@drawable/color_uncategorized"
+            android:background="@drawable/note_color_bcg"
             android:contentDescription="@string/view_color_cdesc"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -55,23 +55,8 @@
             android:text="@string/note_title"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
             android:textSize="20sp"
-            app:layout_constraintStart_toEndOf="@+id/categoryColor"
+            app:layout_constraintStart_toEndOf="@+id/ivNoteColor"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <!--<ImageButton
-                android:id="@+id/delete_note"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toEndOf="@id/tvNoteTitle"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:src="@drawable/ic_delete"
-                android:padding="@dimen/dp_5"
-                android:layout_marginTop="@dimen/dp_5"
-                android:visibility="gone"
-                android:background="@android:color/transparent"
-                app:layout_constraintBottom_toBottomOf="@+id/tvNoteTitle" />
--->
         <TextView
             android:id="@+id/txtNotes"
             android:layout_width="@dimen/dp_0"
@@ -83,7 +68,7 @@
             android:maxLines="3"
             app:hintTextColor="#78909C"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/categoryColor"
+            app:layout_constraintStart_toEndOf="@+id/ivNoteColor"
             app:layout_constraintTop_toBottomOf="@+id/tvNoteTitle"
             tools:text="@string/note_hint_text" />
 
@@ -91,6 +76,8 @@
             android:id="@+id/btnFavorite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="@dimen/dp_48"
+            android:minHeight="@dimen/dp_48"
             android:layout_marginEnd="@dimen/dp_10"
             android:background="@android:color/transparent"
             android:contentDescription="@string/favorite_content_description"
@@ -100,6 +87,21 @@
             app:layout_constraintTop_toBottomOf="@+id/txtNotes"
             app:srcCompat="@drawable/favorite_selector"
             app:tint="#AD000000" />
+
+        <ImageView
+            android:id="@+id/btnDeleteNote"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="@dimen/dp_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_delete"
+            android:background="@drawable/grey_rounded_corners_bg"
+            android:visibility="gone"
+            android:contentDescription="@string/delete_category_cdsc" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

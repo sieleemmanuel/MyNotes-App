@@ -5,14 +5,16 @@
     android:id="@+id/list_notes_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true"
     android:focusable="true"
+    android:orientation="vertical"
     tools:context=".ui.listnotes.ListNotesFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="128dp"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -23,19 +25,21 @@
             android:layout_height="wrap_content"
             android:theme="@style/ToolbarStyle"
             app:elevation="@dimen/dp_0"
-            app:layout_scrollFlags="enterAlways"
             app:menu="@menu/main_menu"
             app:title="@string/app_name"
             app:titleTextColor="@color/colorOnPrimary" />
+
         <androidx.appcompat.widget.SearchView
             android:id="@+id/searchView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/dp_48"
             android:layout_marginStart="@dimen/dp_16"
             android:layout_marginTop="@dimen/dp_10"
             android:layout_marginEnd="@dimen/dp_16"
+            android:layout_marginBottom="@dimen/dp_16"
             android:background="@drawable/search_view_bcg"
-            app:defaultQueryHint="search notes"
+            android:minHeight="@dimen/dp_48"
+            app:defaultQueryHint="@string/search_query_hint"
             app:iconifiedByDefault="false"
             app:queryBackground="@null" />
     </com.google.android.material.appbar.AppBarLayout>
@@ -43,11 +47,14 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fillViewport="true"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true"
+            >
             <TextView
                 android:id="@+id/tvCategories"
                 android:layout_width="@dimen/dp_0"
@@ -74,6 +81,30 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvCategories"
                 tools:listitem="@layout/category_item" />
+
+            <TextView
+                android:id="@+id/tvEmptyCategories"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/dp_24"
+                android:gravity="center"
+                android:text="@string/categories_empty_label"
+                android:textAlignment="center"
+                app:layout_constraintBottom_toBottomOf="@id/rvCategories"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/rvCategories"
+                app:layout_constraintTop_toBottomOf="@+id/tvCategories" />
+
+            <ProgressBar
+                android:id="@+id/pbLoadingCategories"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_24"
+                app:layout_constraintBottom_toBottomOf="@+id/rvCategories"
+                app:layout_constraintEnd_toEndOf="@+id/rvCategories"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvCategories" />
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabLayout"
@@ -110,38 +141,46 @@
                 android:id="@+id/notesPager"
                 android:layout_width="@dimen/dp_0"
                 android:layout_height="wrap_content"
+                android:labelFor="@id/notesPager"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tabLayout" />
 
-            <TextView
-                android:id="@+id/tvEmptyCategories"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:gravity="center"
-                android:text="@string/categories_empty_label"
-                android:textAlignment="center"
-                app:layout_constraintBottom_toBottomOf="@id/rvCategories"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/rvCategories"
-                app:layout_constraintTop_toBottomOf="@+id/tvCategories" />
-
             <ProgressBar
-                android:id="@+id/pbLoadingCategories"
+                android:id="@+id/pbLoadingAllNotes"
                 style="?android:attr/progressBarStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="@+id/rvCategories"
-                app:layout_constraintEnd_toEndOf="@+id/rvCategories"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvCategories" />
+                android:layout_marginTop="@dimen/dp_48"
+                app:layout_constraintEnd_toEndOf="@id/notesPager"
+                app:layout_constraintStart_toStartOf="@id/notesPager"
+                app:layout_constraintTop_toTopOf="@+id/notesPager" />
+            <TextView
+                android:id="@+id/tvEmptyNotes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_50"
+                android:text="@string/tv_notes_empty_label"
+                android:textAlignment="center"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="@id/notesPager"
+                app:layout_constraintStart_toStartOf="@id/notesPager"
+                app:layout_constraintTop_toTopOf="@id/notesPager" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <com.leinardi.android.speeddial.SpeedDialOverlayLayout
+        android:id="@+id/sdOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <com.leinardi.android.speeddial.SpeedDialView
         android:id="@+id/fabSpeedDial"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:labelFor="@+id/fabSpeedDial"
+        app:layout_behavior="@string/speeddial_scrolling_view_snackbar_behavior"
         app:sdMainFabClosedSrc="@drawable/ic_add"
-        android:layout_gravity="bottom|end" />
+        app:sdOverlayLayout="@id/sdOverlay" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

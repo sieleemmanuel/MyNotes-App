@@ -4,15 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.newnote.NewNoteFragment">
+    android:fitsSystemWindows="true"
+    tools:context=".ui.addnew.NewNoteFragment">
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayoutNewNote"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        >
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/newNoteToolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        app:layout_scrollFlags="enterAlways"
         android:background="@color/colorPrimary"
         android:theme="@style/ToolbarStyle"
         app:menu="@menu/new_note_menu"
@@ -102,35 +105,18 @@
                     android:ellipsize="end"
                     android:inputType="none"
                     android:hint="@string/note_category"
-                    android:labelFor="@id/selectCategory"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    />
             </com.google.android.material.textfield.TextInputLayout>
-
-
-
-            <!--<EditText
-                android:id="@+id/noteTextEditText"
-                android:layout_width="@dimen/dp_0"
-                android:layout_height="@dimen/dp_0"
-                android:layout_marginTop="@dimen/dp_16"
-                android:layout_marginBottom="@dimen/dp_16"
-                android:autofillHints=""
-                android:background="@android:color/transparent"
-                android:gravity="start"
-                android:hint="@string/hnt_type_note_txt"
-                android:inputType="textMultiLine|textCapSentences"
-                android:padding="@dimen/dp_5"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/tilReminder"
-                app:layout_constraintStart_toStartOf="@+id/tilReminder"
-                 />-->
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilNoteDesc"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="@dimen/dp_0"
                 android:layout_marginTop="@dimen/dp_16"
-                android:layout_marginBottom="@dimen/dp_24"
+                android:layout_marginBottom="@dimen/dp_16"
+                android:minHeight="200dp"
+                android:scrollbars="vertical"
                 app:layout_constraintEnd_toEndOf="@+id/tilReminder"
                 app:layout_constraintStart_toStartOf="@+id/tilReminder"
                 app:layout_constraintTop_toBottomOf="@+id/tilReminder"
@@ -143,6 +129,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="start"
+                    android:minHeight="200dp"
+                    android:isScrollContainer="true"
+                    android:scrollbarStyle="insideInset"
+                    android:scrollbars="vertical"
+                    android:focusable="true"
+                    app:textInputLayoutFocusedRectEnabled="false"
+                    android:foregroundGravity="top"
+                    android:inputType="textCapSentences|textMultiLine"
                     android:hint="@string/hint_description_label"
                     tools:text="@string/note_hint_text"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -151,20 +145,15 @@
                 android:id="@+id/btnAddNewNote"
                 android:layout_width="@dimen/dp_0"
                 android:layout_height="?actionBarSize"
-                android:layout_marginStart="@dimen/dp_24"
-                android:layout_marginEnd="@dimen/dp_24"
                 android:text="@string/add_note"
-                app:cornerRadius="@dimen/dp_24"
-                app:layout_constraintStart_toStartOf="@id/tilNoteDesc"
-                app:layout_constraintEnd_toEndOf="@id/tilNoteDesc"
+                android:layout_marginBottom="@dimen/dp_16"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginBottom="@dimen/dp_24"
-                />
-
+                app:layout_constraintEnd_toEndOf="@id/tilNoteDesc"
+                app:layout_constraintStart_toStartOf="@id/tilNoteDesc"
+                app:layout_constraintTop_toBottomOf="@+id/tilNoteDesc" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -23,7 +23,7 @@
     </fragment>
     <fragment
         android:id="@+id/newNoteFragment"
-        android:name="com.developerkim.mytodo.ui.newnote.NewNoteFragment"
+        android:name="com.developerkim.mytodo.ui.addnew.NewNoteFragment"
         android:label="New Note"
         tools:layout="@layout/fragment_new_note">
         <action
@@ -53,9 +53,9 @@
     </fragment>
     <fragment
         android:id="@+id/updateNoteFragment"
-        android:name="com.developerkim.mytodo.ui.update.EditNoteFragment"
+        android:name="com.developerkim.mytodo.ui.edit.EditNoteFragment"
         android:label="Update Note"
-        tools:layout="@layout/fragment_update_note">
+        tools:layout="@layout/fragment_edit_note">
         <action
             android:id="@+id/action_updateNoteFragment_to_listNotesFragment"
             app:destination="@id/listNotesFragment" />

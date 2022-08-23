@@ -75,6 +75,8 @@ dependencies {
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
     //category color selector
     implementation 'com.github.naz013:ColorSlider:2.0.6'
+
+    implementation 'com.thebluealliance:spectrum:0.7.1'
     //workManager
     implementation "androidx.work:work-runtime-ktx:$work_version"
     //fabSpeedDial

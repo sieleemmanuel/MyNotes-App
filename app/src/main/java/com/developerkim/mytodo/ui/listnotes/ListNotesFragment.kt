@@ -1,42 +1,70 @@
 package com.developerkim.mytodo.ui.listnotes
 
-import android.app.AlertDialog
+import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AutoCompleteTextView
+import android.widget.ImageView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.developerkim.mytodo.R
+import com.developerkim.mytodo.adapters.CreateCategoryAdapter
 import com.developerkim.mytodo.adapters.NotesCategoriesAdapter
 import com.developerkim.mytodo.adapters.ViewPagerAdapter
 import com.developerkim.mytodo.data.model.NoteCategory
 import com.developerkim.mytodo.databinding.AddCategoryDialogBinding
+import com.developerkim.mytodo.databinding.DeleteLayoutBinding
 import com.developerkim.mytodo.databinding.FragmentListNotesBinding
+import com.developerkim.mytodo.interfaces.NoteSearchListener
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 @AndroidEntryPoint
 class ListNotesFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var binding: FragmentListNotesBinding
     private lateinit var categoriesAdapter: NotesCategoriesAdapter
+    private lateinit var createCategoriesAdapter: CreateCategoryAdapter
+    private lateinit var concatAdapter: ConcatAdapter
     private lateinit var viewPagerAdapter: ViewPagerAdapter
+    private lateinit var deleteDialogBinding: DeleteLayoutBinding
+    private lateinit var deleteDialogBuilder:MaterialAlertDialogBuilder
+    private lateinit var confirmDeleteDialog:AlertDialog
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentListNotesBinding.inflate(inflater)
-        categoriesAdapter = NotesCategoriesAdapter(categoryClickListener(), requireContext())
+
+        categoriesAdapter = NotesCategoriesAdapter(
+            categoryClickListener(),
+            categoryLongClickListener(),
+            requireContext()
+        )
+        createCategoriesAdapter = CreateCategoryAdapter(newCategoryListener())
+        concatAdapter = ConcatAdapter(createCategoriesAdapter, categoriesAdapter)
         viewPagerAdapter = ViewPagerAdapter(childFragmentManager, lifecycle, requireContext())
+        deleteDialogBinding = DeleteLayoutBinding.inflate(LayoutInflater.from(requireContext()))
+        deleteDialogBuilder = MaterialAlertDialogBuilder(requireContext())
+                .setBackground(ColorDrawable(Color.TRANSPARENT))
+
+
         binding.apply {
             notesPager.adapter = viewPagerAdapter
             val tabsTitles = resources.getStringArray(R.array.notes_tabs)
@@ -48,34 +76,32 @@ class ListNotesFragment : Fragment() {
             performSearch()
             setUpFabSpeedDial()
             setUpCategoriesHandler {
-                if (!it.isNullOrEmpty()) {
-                    categoriesAdapter.submitList(it)
-                    rvCategories.visibility = View.VISIBLE
-                    tvEmptyCategories.visibility = View.GONE
-                    tabLayout.visibility = View.VISIBLE
+                categoriesAdapter.submitList(it)
+                if (it!!.isNotEmpty()) {
                     notesPager.visibility = View.VISIBLE
-                    pbLoadingCategories.visibility = View.INVISIBLE
+                    pbLoadingCategories.visibility = View.GONE
+                    tvEmptyCategories.visibility = View.GONE
 
                 } else {
-                    rvCategories.visibility = View.INVISIBLE
+                    pbLoadingCategories.visibility = View.GONE
                     tvEmptyCategories.visibility = View.VISIBLE
-                    tabLayout.visibility = View.INVISIBLE
                     notesPager.visibility = View.INVISIBLE
                 }
-                if (categoriesAdapter.currentList.isEmpty()) {
-                    pbLoadingCategories.visibility = View.VISIBLE
-                } else {
-                    pbLoadingCategories.visibility = View.INVISIBLE
+            }
+            viewModel.allNotes.observe(viewLifecycleOwner){ noteList ->
+                if (noteList.isEmpty()){
+                    pbLoadingAllNotes.visibility = View.GONE
+                    tvEmptyNotes.visibility = View.VISIBLE
+                }else{
+                    pbLoadingAllNotes.visibility = View.GONE
+                    tvEmptyNotes.visibility = View.GONE
                 }
             }
-
-            if (fabSpeedDial.isOpen && root.isFocused){
-                fabSpeedDial.close()
-            }
-
         }
+
         return binding.root
     }
+
     private fun setUpCategoriesHandler(listHandler: (noteCategory: List<NoteCategory>?) -> Unit) {
         viewModel.categoriesList.observe(viewLifecycleOwner) {
             listHandler.invoke(it)
@@ -88,13 +114,21 @@ class ListNotesFragment : Fragment() {
             setOnActionSelectedListener { actionItem ->
                 when (actionItem.id) {
                     R.id.actionNewCategeory -> {
-                        showNewCategoryDialog()
+                        showNewCategoryDialog(
+                            viewModel,
+                            viewLifecycleOwner,
+                            null,
+                            requireContext()
+                        )
+
                         fabSpeedDial.close()
                         return@setOnActionSelectedListener true
                     }
                     R.id.actionNewNote -> {
                         findNavController().navigate(
-                            ListNotesFragmentDirections.actionListNotesFragmentToNewNoteFragment(null)
+                            ListNotesFragmentDirections.actionListNotesFragmentToNewNoteFragment(
+                                null
+                            )
                         )
                         fabSpeedDial.close()
                         return@setOnActionSelectedListener true
@@ -107,7 +141,7 @@ class ListNotesFragment : Fragment() {
 
     private fun FragmentListNotesBinding.setUpCategoriesRecycler() {
         rvCategories.apply {
-            adapter = categoriesAdapter
+            adapter = concatAdapter
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         }
@@ -118,7 +152,6 @@ class ListNotesFragment : Fragment() {
             return@setOnMenuItemClickListener when (menuItem.itemId) {
                 R.id.actionClearAll -> {
                     confirmClearAll()
-                    Toast.makeText(requireContext(), "delete all", Toast.LENGTH_SHORT).show()
                     true
                 }
                 else -> false
@@ -130,60 +163,16 @@ class ListNotesFragment : Fragment() {
         searchView.apply {
             isIconfiedByDefault
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                    override fun onQueryTextSubmit(query: String?): Boolean {
-                        filterCategories(query)
-                        return true
-                    }
-
-                    override fun onQueryTextChange(newText: String?): Boolean {
-                        filterCategories(newText)
-                        return true
-                    }
-                })
-    }
-    }
-
-    private fun showNewCategoryDialog() {
-        val addCategoryDialogBinding = AddCategoryDialogBinding.inflate(
-            LayoutInflater.from(requireContext()),
-            null,
-            false
-        )
-        val categoryName = addCategoryDialogBinding.tiNewCategoryName.text
-        addCategoryDialogBinding.csCategoryColor.setListener { _, color ->
-            viewModel.getPickedColor(color)
-            Toast.makeText(
-                requireContext(),
-                "Name:$categoryName, Color:$color",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
-        val categoryDialog = MaterialAlertDialogBuilder(requireContext())
-            .setView(addCategoryDialogBinding.root)
-            .setMessage("Create Note Category")
-            .setCancelable(false)
-            .setNegativeButton("CANCEL") { dialog, _ ->
-                dialog.cancel()
-            }
-            .setPositiveButton("ADD") { _, _ ->
-            }
-            .show()
-        categoryDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            if (categoryName!!.isNotEmpty() && addCategoryDialogBinding.csCategoryColor.selectedColor != 1) {
-                viewModel.pickedColor.observe(viewLifecycleOwner) { color ->
-                    val newCategory = NoteCategory(
-                        categoryName = categoryName.toString(),
-                        categoryColor = color,
-                        notes = mutableListOf()
-                    )
-                    viewModel.insertNewCategory(newCategory)
-                    categoryDialog.dismiss()
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    filterCategories(query)
+                    return true
                 }
-            } else {
-                addCategoryDialogBinding.tiNewCategoryName.error =
-                    getString(R.string.error_category_empty)
-            }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    filterCategories(newText)
+                    return true
+                }
+            })
         }
     }
 
@@ -194,28 +183,137 @@ class ListNotesFragment : Fragment() {
             )
         }
 
-    private fun confirmClearAll() {
-        MaterialAlertDialogBuilder(requireContext())
-            .setMessage("Are you sure you want to delete all Notes?")
-            .setNegativeButton("CANCEL") { dialog, _ ->
-                dialog.cancel()
+    private fun categoryLongClickListener() =
+        NotesCategoriesAdapter.CategoryLongClickListener { category , btnDeleteCategory->
+          if (!btnDeleteCategory.isVisible){
+              btnDeleteCategory.visibility = View.VISIBLE
+          }else{
+              btnDeleteCategory.visibility = View.GONE
+          }
+            btnDeleteCategory.setOnClickListener {
+                confirmDeleteCategory(category, btnDeleteCategory)
             }
-            .setPositiveButton("DELETE") { _, _ ->
-                viewModel.clearAllCategories()
-            }
+        }
+
+    private fun newCategoryListener() = CreateCategoryAdapter.NewCategoryListener {
+        showNewCategoryDialog(viewModel, viewLifecycleOwner, null, requireContext())
+    }
+
+    private fun confirmDeleteCategory(category: NoteCategory, btnDelete:ImageView) {
+        confirmDeleteDialog = deleteDialogBuilder
+            .setView(deleteDialogBinding.root)
             .show()
+        deleteDialogBinding.apply {
+            tvDeleteCategoryLabel.text = getString(R.string.delete_category_dialog_label, category.categoryName)
+            tvDeleteDescription.text = getString(R.string.delete_all_notes_desc_label)
+            btnConfirmDelete.setOnClickListener {
+                viewModel.removeCategory(categoryName = category.categoryName)
+                confirmDeleteDialog.dismiss()
+            }
+            btnCancelDelete.setOnClickListener {
+                confirmDeleteDialog.dismiss()
+                if (btnDelete.isVisible) {
+                    btnDelete.visibility = View.GONE
+                }
+            }
+        }
+
+    }
+
+    private fun confirmClearAll() {
+        confirmDeleteDialog = deleteDialogBuilder
+            .setView(deleteDialogBinding.root)
+            .show()
+        deleteDialogBinding.apply {
+            tvDeleteCategoryLabel.text = getString(R.string.delete_all_notes_label)
+            tvDeleteDescription.text = getString(R.string.remove_all_notes_label)
+            btnConfirmDelete.setOnClickListener {
+                viewModel.clearAllCategories()
+                confirmDeleteDialog.dismiss()
+            }
+            btnCancelDelete.setOnClickListener {
+                confirmDeleteDialog.dismiss()
+            }
+        }
     }
 
     private fun filterCategories(newText: String?) {
         setUpCategoriesHandler { noteCategories ->
-            val filteredCategories = viewModel.categoryAndNoteSearchFilter(noteCategories!!, newText)
+            val filteredCategories =
+                viewModel.categoryAndNoteSearchFilter(noteCategories!!, newText)
+
             if (filteredCategories.isEmpty()) {
                 Toast.makeText(requireContext(), "No match found", Toast.LENGTH_SHORT).show()
                 categoriesAdapter.submitList(null)
+
             } else {
                 categoriesAdapter.submitList(null)
                 categoriesAdapter.submitList(filteredCategories)
             }
+            if (newText.isNullOrEmpty()){
+                viewModel.getAllNotes()
+            }
+
+        }
+    }
+
+    companion object {
+        private val TAG = ListNotesFragment::class.simpleName
+        fun showNewCategoryDialog(
+            viewModel: MainViewModel,
+            viewLifecycleOwner: LifecycleOwner,
+            autoCompleteTextView: AutoCompleteTextView?,
+            context: Context
+        ) {
+            val addCategoryDialogBinding = AddCategoryDialogBinding.inflate(
+                LayoutInflater.from(context),
+                null,
+                false
+            )
+
+            val createCategoryDialog = BottomSheetDialog(context)
+            createCategoryDialog.apply {
+                setContentView(addCategoryDialogBinding.root)
+                setTitle(context.getString(R.string.add_category_label))
+            }
+            createCategoryDialog.show()
+
+            val categoryName = addCategoryDialogBinding.tiNewCategoryName.text
+            addCategoryDialogBinding.coloSelector.setOnColorSelectedListener { color ->
+                viewModel.getPickedColor(color)
+                addCategoryDialogBinding.coloSelector.isSelected = true
+            }
+            addCategoryDialogBinding.btnAddCategory.setOnClickListener {
+                if (categoryName!!.isNotEmpty()) {
+                    viewModel.pickedColor.observe(viewLifecycleOwner) { color ->
+                        if (color != null) {
+                            if (addCategoryDialogBinding.coloSelector.isSelected) {
+                                val newCategory = NoteCategory(
+                                    categoryName = categoryName.toString(),
+                                    categoryColor = color,
+                                    notes = mutableListOf()
+                                )
+                                viewModel.insertNewCategory(newCategory)
+                                autoCompleteTextView?.setText(categoryName, false)
+                                viewModel.getCategory(newCategory.categoryName)
+                                addCategoryDialogBinding.coloSelector.isSelected = false
+                                createCategoryDialog.dismiss()
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.choose_color_label),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                } else {
+                    addCategoryDialogBinding.tiNewCategoryName.error =
+                        context.getString(R.string.error_category_empty)
+                }
+
+            }
+
         }
     }
 

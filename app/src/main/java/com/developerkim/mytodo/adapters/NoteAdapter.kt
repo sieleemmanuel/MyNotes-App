@@ -1,24 +1,24 @@
 package com.developerkim.mytodo.adapters
 
-import android.content.Context
+import android.content.res.ColorStateList
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.widget.ImageView
 import androidx.annotation.RequiresApi
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.developerkim.mytodo.R
 import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.databinding.NoteItemBinding
 
 class NoteAdapter(
     private val noteClickListener: NoteClickListener,
-    private val viewClickListener: ViewClickListener,
-    private val context: Context
-) : ListAdapter<Note,NoteAdapter.ViewHolder>(DiffUtilItem) {
+    private val noteLongClickListener: NoteLongClickListener,
+    private val viewClickListener: ViewClickListener
+) : ListAdapter<Note, NoteAdapter.ViewHolder>(DiffUtilItem) {
     init {
         setHasStableIds(true)
     }
@@ -32,39 +32,30 @@ class NoteAdapter(
                 tvNoteTitle.text = note.noteTitle
                 txtNotes.text = note.noteText
                 txtDate.text = note.noteDate
-
-                when (note.noteCategory) {
-                    context.getString(R.string.category_study) -> {
-                        //tvNoteTitle.setTextColor(context.getColor(R.color.colorStudy))
-                        categoryColor.setBackgroundColor(context.getColor(R.color.colorStudy))
-                    }
-                    context.getString(R.string.category_daily_task) -> {
-                        //tvNoteTitle.setTextColor(context.getColor(R.color.colorDailTasks))
-                        categoryColor.setBackgroundColor(context.getColor(R.color.colorDailTasks))
-                    }
-                    context.getString(R.string.category_private) -> {
-                        //tvNoteTitle.setTextColor(context.getColor(R.color.colorPrivate))
-                        categoryColor.setBackgroundColor(context.getColor(R.color.colorPrivate))
-                    }
-                    context.getString(R.string.categry_shopping) -> {
-                        tvNoteTitle.setTextColor(context.getColor(R.color.colorShopping))
-                        categoryColor.setBackgroundColor(context.getColor(R.color.colorShopping))
-                    }
-                    else -> {
-                        //tvNoteTitle.setTextColor(context.getColor(R.color.colorUncategorized))
-                        categoryColor.setBackgroundColor(context.getColor(R.color.colorUncategorized))
-                    }
-                }
-
+                ivNoteColor.setBackgroundColor(note.noteColor!!)
                 btnFavorite.isSelected = note.isFavorite
+                btnFavorite.imageTintList = ColorStateList.valueOf(note.noteColor!!)
 
                 btnFavorite.setOnClickListener {
-                    viewClickListener.onViewClicked(note, position,it, binding)
-                    Toast.makeText(context, "Note at $position Favorite:${note.isFavorite}", Toast.LENGTH_SHORT).show()
+                    viewClickListener.onViewClicked(note, position, it, binding)
+                }
+                btnDeleteNote.apply {
+                    setOnLongClickListener {
+                        if (it.isVisible) {
+                            it.visibility = View.GONE
+                        }
+                        true
+                    }
                 }
 
-                root.setOnClickListener {
-                    noteClickListener.onNoteClicked(note, position)
+                root.apply {
+                    setOnClickListener {
+                        noteClickListener.onNoteClicked(note, position)
+                    }
+                    setOnLongClickListener {
+                        noteLongClickListener.onNoteLongClicked(note, btnDeleteNote)
+                        true
+                    }
                 }
             }
         }
@@ -79,7 +70,7 @@ class NoteAdapter(
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val note =getItem(position)
+        val note = getItem(position)
         holder.bind(note!!, position)
 
     }
@@ -88,14 +79,20 @@ class NoteAdapter(
         fun onNoteClicked(note: Note, position: Int) = noteClick(note, position)
     }
 
-    class ViewClickListener(val viewClick: (note: Note, position:Int,view: View, binding: NoteItemBinding) -> Unit) {
-        fun onViewClicked(note: Note, position: Int,view: View, binding: NoteItemBinding) =
-            viewClick(note, position,view, binding)
+    class ViewClickListener(val viewClick: (note: Note, position: Int, view: View, binding: NoteItemBinding) -> Unit) {
+        fun onViewClicked(note: Note, position: Int, view: View, binding: NoteItemBinding) =
+            viewClick(note, position, view, binding)
     }
 
-    object DiffUtilItem:DiffUtil.ItemCallback<Note>() {
+    class NoteLongClickListener(val noteLongClickListener: (note: Note, deleteBtn: ImageView) -> Unit) {
+        fun onNoteLongClicked(note: Note, deleteBtn: ImageView) =
+            noteLongClickListener(note, deleteBtn)
+    }
+
+
+    object DiffUtilItem : DiffUtil.ItemCallback<Note>() {
         override fun areItemsTheSame(oldItem: Note, newItem: Note): Boolean {
-            return oldItem==newItem
+            return oldItem == newItem
         }
 
         override fun areContentsTheSame(oldItem: Note, newItem: Note): Boolean {

@@ -1,6 +1,5 @@
 package com.developerkim.mytodo.ui.listnotes
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -51,32 +50,16 @@ class MainViewModel @Inject constructor(
     private val _noteCategory = MutableLiveData<NoteCategory>()
     val noteCategory: LiveData<NoteCategory> = _noteCategory
 
-
-    private val _pickedColor = MutableLiveData<Int>()
-    val pickedColor: LiveData<Int> = _pickedColor
-
-    private val _reminderTime = MutableLiveData("None")
-    val reminderTime: LiveData<String> = _reminderTime
-
-
-    fun insertCategoryAndNotes(note: Note, noteCategory: NoteCategory) {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (notesRepository.categoryExists(note.noteCategory)) {
-                insertNewNotes(note)
-            } else {
-                insertNewCategory(noteCategory)
-            }
-        }
-
-    }
+    private val _pickedColor = MutableLiveData<Int?>(null)
+    val pickedColor: LiveData<Int?> = _pickedColor
 
     fun insertNewCategory(newCategory: NoteCategory) {
         viewModelScope.launch {
             notesRepository.insert(newCategory)
+            getCategories()
+            getAllNotes()
+            getCategoryNames()
         }
-        getCategories()
-        getAllNotes()
-        getCategoryNames()
     }
 
     fun insertNewNotes(note: Note) {
@@ -86,21 +69,15 @@ class MainViewModel @Inject constructor(
             categoryToUpdate.let { notesRepository.updateCategory(it) }
             getCategories()
             getAllNotes()
+            getCategory(note.noteCategory)
         }
     }
 
-    fun deleteSelectedNotes(note: Note) {
+    fun deleteAllCategoryNotes(categoryName: String) {
         viewModelScope.launch {
-            val toUpdateCategory = notesRepository.getCategoryToUpdate(note.noteCategory)
-            val selected = toUpdateCategory.notes?.filter {
-                it.noteTitle == note.noteTitle
-            }
-            Log.d(TAG, "updateNote: $selected")
-            toUpdateCategory.notes?.removeAll(selected!!)
+            val toUpdateCategory = notesRepository.getCategoryToUpdate(categoryName = categoryName)
+            toUpdateCategory.notes?.removeAll(toUpdateCategory.notes!!)
             notesRepository.updateCategory(toUpdateCategory)
-            if (toUpdateCategory.notes!!.isEmpty()) {
-                notesRepository.deleteCategory(toUpdateCategory)
-            }
             getCategories()
         }
     }
@@ -158,22 +135,16 @@ class MainViewModel @Inject constructor(
             getCategories()
             getAllNotes()
         }
-
     }
 
-    fun createNoteList(note: Note): ArrayList<Note> {
-        val noteList = ArrayList<Note>()
-        noteList.add(note)
-        return noteList
-    }
-
-    fun getPickedColor(color: Int) {
+    fun getPickedColor(color: Int?) {
         _pickedColor.value = color
     }
 
     fun clearAllCategories() {
         viewModelScope.launch {
             notesRepository.deleteAllCategories()
+            getCategories()
         }
     }
 
@@ -201,15 +172,14 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun getAllNotes() {
+    fun getAllNotes() {
         viewModelScope.launch(Dispatchers.IO) {
             val allNoteCategories = notesRepository.getAllNotes()
             val allNotes = mutableListOf<Note>()
             allNoteCategories.forEach { noteCategory ->
-                noteCategory.notes?.let { it1 -> allNotes.addAll(it1) }
+                noteCategory.notes?.let { notes -> allNotes.addAll(notes) }
             }
-            _allNotes.postValue(allNotes)
-            getCategories()
+            _allNotes.postValue(sortNoteList(allNotes))
         }
     }
 
@@ -228,34 +198,29 @@ class MainViewModel @Inject constructor(
     }
 
     fun getReminderNotes(notes: List<Note>): List<Note> {
-        return notes.filter { it.reminderTime != "None" && it.reminderTime.isNotEmpty() }
+        return notes.filter {
+            it.reminderTime.contains("[0-9/:]".toRegex())
+        }
     }
 
-    @SuppressLint("SimpleDateFormat")
-    fun sortNotes(noteCategory: List<NoteCategory>): List<NoteCategory> {
-        val parser = SimpleDateFormat("yyyy/MM/dd, HH:mm a")
-        return noteCategory.map {
-            val noteList = it.notes?.sortedWith(compareBy { note ->
+    private fun sortNoteList(notes: List<Note>): MutableList<Note> {
+        val parser = SimpleDateFormat("yyyy/MM/dd, HH:mm a", Locale.getDefault())
+            val noteList = notes.sortedWith(compareBy { note ->
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     LocalDateTime.parse(
                         note.noteDate,
                         DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
                     )
                 } else {
-                    parser.format(SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(note.noteDate)!!)
+                    parser.format(SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.getDefault()).parse(note.noteDate)!!)
                 }
-            })
-            return@map NoteCategory(
-                categoryName = it.categoryName,
-                notes = noteList?.reversed() as MutableList<Note>?
-            )
-        }
+            }).toMutableList().reversed()
+            return noteList.toMutableList()
     }
 
-    fun categoryAndNoteSearchFilter(
-        noteCategories: List<NoteCategory>,
-        newText: String?
+    fun categoryAndNoteSearchFilter(noteCategories: List<NoteCategory>, newText: String?
     ): List<NoteCategory> {
+
         return noteCategories.filter { noteCategory ->
             noteCategory.categoryName.lowercase(Locale.getDefault())
                 .contains(newText!!.lowercase(Locale.getDefault())) ||
@@ -266,20 +231,23 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun noteSearchFilter(
-        notes: List<Note>,
-        newText: String?
-    ): List<Note> {
-        return notes.filter { note ->
-            note.noteTitle.lowercase(Locale.getDefault())
-                .contains(newText!!.lowercase(Locale.getDefault())) ||
-                    note.noteText.lowercase(Locale.getDefault())
-                        .contains(newText.lowercase(Locale.getDefault()))
-        }
+    fun searchNotes(query:String?, notes: MutableList<Note>): MutableList<Note> {
+            val foundNotes = notes.filter {
+                it.noteTitle.lowercase().contains(query!!) ||
+                        it.noteText.lowercase().contains(query) ||
+                        it.noteCategory.lowercase().contains(query)
+            }
+             return foundNotes.toMutableList()
     }
 
-    fun reminderTime(reminderTime: String = "None") {
-        _reminderTime.value = reminderTime
+    fun removeCategory(categoryName: String) {
+        viewModelScope.launch {
+            notesRepository.deleteCategory(categoryName)
+            getCategories()
+            getAllNotes()
+            getCategoryNames()
+        }
+
     }
 
     init {
