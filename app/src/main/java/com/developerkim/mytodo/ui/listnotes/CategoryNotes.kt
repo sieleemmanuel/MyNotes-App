@@ -1,11 +1,16 @@
 package com.developerkim.mytodo.ui.listnotes
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -14,9 +19,12 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.developerkim.mytodo.R
 import com.developerkim.mytodo.adapters.NoteAdapter
+import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.data.model.NoteCategory
+import com.developerkim.mytodo.databinding.DeleteLayoutBinding
 import com.developerkim.mytodo.databinding.FragmentCategoryNotesBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -26,6 +34,9 @@ class CategoryNotes : Fragment() {
     private val args: CategoryNotesArgs by navArgs()
     private lateinit var notesAdapter: NoteAdapter
     private lateinit var selectedCategory: NoteCategory
+    private lateinit var deleteDialogBinding: DeleteLayoutBinding
+    private lateinit var deleteDialogBuilder: MaterialAlertDialogBuilder
+    private lateinit var confirmDeleteDialog: AlertDialog
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,12 +46,19 @@ class CategoryNotes : Fragment() {
         selectedCategory = args.category
         notesAdapter = NoteAdapter(
             noteClickListener(),
-            viewClickListener(),
-            requireContext())
+            noteLongClickListener(),
+            viewClickListener()
+        )
+
+        deleteDialogBinding = DeleteLayoutBinding.inflate(LayoutInflater.from(requireContext()))
+        deleteDialogBuilder =
+            MaterialAlertDialogBuilder(requireContext())
+                .setBackground(ColorDrawable(Color.TRANSPARENT))
 
         viewModel.getCategory(selectedCategory.categoryName)
         viewModel.noteCategory.observe(viewLifecycleOwner) { noteCategory ->
             notesAdapter.submitList(noteCategory.notes)
+
             binding.apply {
                 setUpRecyclerView()
                 setUpToolbar(selectedCategory)
@@ -53,8 +71,24 @@ class CategoryNotes : Fragment() {
                     )
                 }
             }
+
         }
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.noteCategory.observe(viewLifecycleOwner) { noteCategory ->
+            binding.apply {
+                if (noteCategory.notes!!.isNotEmpty()) {
+                    tvEmptyNotes.visibility = View.GONE
+                    pbLoadingNotes.visibility = View.GONE
+                } else {
+                    tvEmptyNotes.visibility = View.VISIBLE
+                    pbLoadingNotes.visibility = View.GONE
+                }
+            }
+        }
     }
 
     private fun FragmentCategoryNotesBinding.setUpRecyclerView() {
@@ -72,12 +106,11 @@ class CategoryNotes : Fragment() {
             setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.actionDeleteAllNotes -> {
-                        Toast.makeText(
-                            requireContext(),
-                            "ToDo confirm delete",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        showDeleteAllAlert()
+                        showRemoveAllNotesAlert()
+                    }
+                    R.id.actionDeleteCategory -> {
+                        showRemoveCurrentCategoryAlert()
+                        viewModel.removeCategory(selectedCategory.categoryName)
                     }
                 }
                 false
@@ -93,6 +126,7 @@ class CategoryNotes : Fragment() {
                     filterNotes(query!!)
                     return true
                 }
+
                 override fun onQueryTextChange(newText: String?): Boolean {
                     filterNotes(query = newText!!)
                     return true
@@ -102,24 +136,25 @@ class CategoryNotes : Fragment() {
         }
     }
 
-    private fun showDeleteAllAlert() {
+    private fun showRemoveAllNotesAlert() {
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Are you sure you want all items?")
-            .setPositiveButton("Delete") { dialog, _ ->
+            .setTitle("Are you sure you want remove current category notes?")
+            .setPositiveButton("YES") { _, _ ->
+                viewModel.deleteAllCategoryNotes(selectedCategory.categoryName)
                 Toast.makeText(
                     requireContext(),
-                    "TODO: delete all Categories nd notes",
+                    "Notes deleted successfully",
                     Toast.LENGTH_SHORT
                 ).show()
-                dialog.dismiss()
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
+            .setNegativeButton("NO") { dialog, _ ->
                 dialog.dismiss()
             }
             .show()
     }
 
-    private fun noteClickListener() = NoteAdapter.NoteClickListener { note, position ->
+
+    private fun noteClickListener() = NoteAdapter.NoteClickListener { note, _ ->
         findNavController().navigate(
             CategoryNotesDirections.actionCategoryNotesToReadNotesFragment(
                 note.noteCategory, note.noteTitle
@@ -127,21 +162,85 @@ class CategoryNotes : Fragment() {
         )
     }
 
+    private fun noteLongClickListener() =
+        NoteAdapter.NoteLongClickListener { note, btnDeleteNote ->
+            if (!btnDeleteNote.isVisible) {
+                btnDeleteNote.visibility = View.VISIBLE
+            } else {
+                btnDeleteNote.visibility = View.GONE
+            }
+            btnDeleteNote.setOnClickListener {
+                confirmDeleteNote(note, btnDeleteNote)
+            }
+        }
+
     private fun viewClickListener() = NoteAdapter.ViewClickListener { note, _, view, binding ->
         when (view) {
             binding.btnFavorite -> viewModel.setNoteFavorite(note)
         }
     }
 
+    private fun showRemoveCurrentCategoryAlert() {
+        confirmDeleteDialog = deleteDialogBuilder
+            .setView(deleteDialogBinding.root)
+            .show()
+        deleteDialogBinding.apply {
+            tvDeleteCategoryLabel.text =
+                getString(R.string.delete_category_dialog_label, selectedCategory.categoryName)
+            tvDeleteDescription.text = getString(R.string.delete_all_notes_desc_label)
+            btnConfirmDelete.setOnClickListener {
+                viewModel.removeCategory(selectedCategory.categoryName)
+                confirmDeleteDialog.dismiss()
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.note_deleted_label, selectedCategory.categoryName),
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+            btnCancelDelete.setOnClickListener {
+                confirmDeleteDialog.dismiss()
+            }
+        }
+
+
+    }
+
+    private fun confirmDeleteNote(note: Note, btnDeleteNote: ImageView) {
+        confirmDeleteDialog = deleteDialogBuilder
+            .setView(deleteDialogBinding.root)
+            .show()
+        deleteDialogBinding.apply {
+            tvDeleteCategoryLabel.text =
+                getString(R.string.delete_note_dialog_label, note.noteTitle)
+            tvDeleteDescription.text = getString(R.string.delete_all_notes_desc_label)
+            btnConfirmDelete.setOnClickListener {
+                viewModel.deleteNote(note)
+                confirmDeleteDialog.dismiss()
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.note_deleted_label, note.noteTitle),
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+            btnCancelDelete.setOnClickListener {
+                confirmDeleteDialog.dismiss()
+                if (btnDeleteNote.isVisible) {
+                    btnDeleteNote.visibility = View.GONE
+                }
+            }
+        }
+    }
+
+
     private fun filterNotes(query: String) {
         viewModel.noteCategory.observe(viewLifecycleOwner) { currentCategory ->
-            val filteredNotes = viewModel.noteSearchFilter(currentCategory.notes!!, query)
+            val filteredNotes = viewModel.searchNotes(query, currentCategory.notes!!)
             if (filteredNotes.isEmpty()) {
                 Toast.makeText(requireContext(), "No match found", Toast.LENGTH_SHORT).show()
                 notesAdapter.submitList(null)
             } else {
                 notesAdapter.submitList(null)
-                notesAdapter.submitList(filteredNotes.toMutableList())
+                notesAdapter.submitList(filteredNotes)
             }
 
         }

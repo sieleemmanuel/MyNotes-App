@@ -8,13 +8,29 @@
     <color name="colorSecondaryDark">#005005</color>
     <color name="colorOnSecondary">#FFFFFF</color>
     <color name="colorSecondaryVariant">#60ad5e</color>
+    <color name="grey">#AAAAAA</color>
 
-<!--    Category colors-->
-    <color name="colorStudy">#04830A</color>
-    <color name="colorPrivate">#E91E63</color>
-    <color name="colorUncategorized">#0078AE</color>
-    <color name="colorShopping">#C47400</color>
-    <color name="colorDailTasks">#3F51B5</color>
-
+    <array name="hex_colors">
+        <item>#2062AF</item>
+        <item>#3A8088</item>
+        <item>#9F6B0A</item>
+        <item>#DA2A36</item>
+        <item>#784A6D</item>
+        <item>#3D6699</item>
+        <item>#41830C</item>
+        <item>#923B11</item>
+        <item>#E71208</item>
+        <item>#670BF9</item>
+        <item>#0F729A</item>
+        <item>#5A8028</item>
+        <item>#966C40</item>
+        <item>#C15353</item>
+        <item>#796EAB</item>
+    </array>
+    <color name="light_blue_600">#FF039BE5</color>
+    <color name="light_blue_900">#FF01579B</color>
+    <color name="light_blue_A200">#FF40C4FF</color>
+    <color name="light_blue_A400">#FF00B0FF</color>
+    <color name="black_overlay">#66000000</color>
 
 </resources>

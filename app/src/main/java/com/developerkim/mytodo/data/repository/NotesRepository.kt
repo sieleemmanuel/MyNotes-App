@@ -9,7 +9,7 @@ class NotesRepository @Inject constructor(private val notesDao: NoteCategoriesDa
     suspend fun getAllNotes()= notesDao.getAllNoteCategories()
     suspend fun getAllNotesPrivateHidden() = notesDao.getCategoriesPrivateHidden()
     suspend fun deleteAllCategories() = notesDao.clearAllCategories()
-    suspend fun deleteCategory(noteCategory: NoteCategory) = notesDao.deleteCategory(noteCategory.categoryName)
+    suspend fun deleteCategory(categoryName: String) = notesDao.deleteCategory(categoryName)
     suspend fun updateCategory(noteCategory: NoteCategory) = notesDao.update(noteCategory)
     suspend fun getCategoryToUpdate(categoryName: String)= notesDao.getCategory(categoryName)
     suspend fun insert(noteCategory: NoteCategory)=  notesDao.insert(noteCategory)

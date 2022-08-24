@@ -9,7 +9,7 @@
         android:clickable="true"
         android:focusableInTouchMode="true"
         android:focusable="true"
-        tools:context=".ui.update.EditNoteFragment">
+        tools:context=".ui.edit.EditNoteFragment">
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayoutEditor"
         android:layout_width="match_parent"
@@ -32,10 +32,8 @@
         android:id="@+id/nsEditor"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintStart_toStartOf="parent"
         android:fillViewport="true"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clUpdateNote"
             android:layout_width="match_parent"
@@ -105,19 +103,19 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilNoteDescription"
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/dp_5"
+                android:layout_marginBottom="@dimen/dp_16"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 app:boxBackgroundColor="@android:color/transparent"
                 app:boxStrokeWidthFocused="@dimen/dp_0"
                 app:boxStrokeColor="@android:color/transparent"
                 app:boxStrokeWidth="@dimen/dp_0"
-                android:layout_width="@dimen/dp_0"
-                android:layout_height="@dimen/dp_0"
-                android:layout_marginTop="@dimen/dp_5"
-                android:layout_marginBottom="@dimen/dp_16"
                 app:layout_constraintEnd_toEndOf="@id/tilReminderTime"
                 app:layout_constraintStart_toStartOf="@id/tilReminderTime"
-                app:layout_constraintBottom_toTopOf="@+id/btnDoneEditing"
-                app:layout_constraintTop_toBottomOf="@+id/tilReminderTime">
+                app:layout_constraintTop_toBottomOf="@+id/tilReminderTime"
+                app:layout_constraintBottom_toTopOf="@+id/btnDoneEditing">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/updateTextEditText"
@@ -125,9 +123,16 @@
                     android:layout_height="match_parent"
                     android:configChanges="orientation"
                     android:inputType="textMultiLine|textCapSentences"
-                    android:gravity="start"
+                    android:gravity="top|start"
                     android:textColorHint="?attr/colorPrimary"
                     android:hint="@string/hint_description_label"
+                    android:isScrollContainer="true"
+                    android:scrollbarStyle="insideInset"
+                    android:scrollbars="vertical"
+                    android:focusable="true"
+                    app:textInputLayoutFocusedRectEnabled="false"
+                    android:foregroundGravity="top"
+                    android:textSize="@dimen/sp_16"
                     android:text="@string/note_hint_text"
                     />
             </com.google.android.material.textfield.TextInputLayout>
@@ -135,20 +140,16 @@
                 android:id="@+id/btnDoneEditing"
                 android:layout_width="@dimen/dp_0"
                 android:layout_height="?actionBarSize"
-                android:layout_marginStart="@dimen/dp_24"
-                android:layout_marginEnd="@dimen/dp_24"
+                android:layout_marginStart="@dimen/dp_5"
+                android:layout_marginEnd="@dimen/dp_5"
+                android:layout_marginBottom="@dimen/dp_16"
                 android:text="@string/btn_done_text"
-                app:cornerRadius="@dimen/dp_24"
+                app:cornerRadius="@dimen/dp_5"
+                app:layout_constraintTop_toBottomOf="@+id/tilNoteDescription"
                 app:layout_constraintStart_toStartOf="@id/tilNoteDescription"
                 app:layout_constraintEnd_toEndOf="@id/tilNoteDescription"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginBottom="@dimen/dp_24"
                 />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
-
     </androidx.core.widget.NestedScrollView>
-
-
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

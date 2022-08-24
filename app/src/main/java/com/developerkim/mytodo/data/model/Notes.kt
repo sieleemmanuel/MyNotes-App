@@ -10,7 +10,9 @@ data class Note(
     var noteText: String = "",
     var noteDate: String = "",
     var isFavorite: Boolean = false,
-    var reminderTime: String = "None"
+    var reminderTime: String = "None",
+    var noteColor: Int? = null,
+    var reminderCode:Int? = null
 ):Parcelable
 
 

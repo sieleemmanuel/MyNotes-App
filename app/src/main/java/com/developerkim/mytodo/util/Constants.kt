@@ -1,8 +1,9 @@
 package com.developerkim.mytodo.util
 
 class Constants {
-    companion object{
+    companion object {
         const val CHANNEL_ID = "reminder_channel_id"
-        const val NOTIFICATION_ID = 1
+        val NOTIFICATION_ID = System.currentTimeMillis().toInt()
+        val RECEIVER_CODE = System.currentTimeMillis().toInt()
     }
 }

@@ -28,7 +28,7 @@ class NotificationHelper(val context: Context) {
         val icon = BitmapFactory.decodeResource(context.resources, R.drawable.ic_launcher_background)
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
             .setContentText(message)
             .setLargeIcon(icon)
@@ -49,7 +49,7 @@ class NotificationHelper(val context: Context) {
             ).apply {
                 description = "Note Reminder"
             }
-            val notificationManager =context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }

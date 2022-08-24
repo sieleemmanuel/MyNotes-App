@@ -1,13 +1,17 @@
-package com.developerkim.mytodo.ui.update
+package com.developerkim.mytodo.ui.edit
 
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
@@ -18,11 +22,13 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import androidx.work.WorkManager
 import com.developerkim.mytodo.R
+import com.developerkim.mytodo.ReminderReceiver
 import com.developerkim.mytodo.data.model.Note
-import com.developerkim.mytodo.databinding.FragmentUpdateNoteBinding
+import com.developerkim.mytodo.databinding.FragmentEditNoteBinding
 import com.developerkim.mytodo.ui.MainActivity
 import com.developerkim.mytodo.ui.listnotes.MainViewModel
-import com.developerkim.mytodo.ui.newnote.NewNoteFragment
+import com.developerkim.mytodo.ui.addnew.NewNoteFragment
+import com.developerkim.mytodo.util.Constants
 import com.developerkim.mytodo.util.HideKeyboard.hideKeyboard
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -34,19 +40,20 @@ import java.time.LocalTime
 @AndroidEntryPoint
 class EditNoteFragment : Fragment(),
     AdapterView.OnItemSelectedListener {
-    private lateinit var binding: FragmentUpdateNoteBinding
+    private lateinit var binding: FragmentEditNoteBinding
     private val mainViewModel: MainViewModel by activityViewModels()
     private val args: EditNoteFragmentArgs by navArgs()
     private lateinit var noteToEdit: Note
     private lateinit var updateSelectedCategory: String
     private lateinit var appBarConfiguration: AppBarConfiguration
 
+    @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentUpdateNoteBinding.inflate(inflater)
+        binding = FragmentEditNoteBinding.inflate(inflater)
         appBarConfiguration = AppBarConfiguration(findNavController().graph)
         noteToEdit = args.note
 
@@ -70,12 +77,13 @@ class EditNoteFragment : Fragment(),
                 if (noteToEdit!= uNote) {
                     mainViewModel.editNote(noteToEdit, uNote)
                     if (noteToEdit.reminderTime != uNote.reminderTime) {
-                        WorkManager.getInstance(requireContext())
-                            .getWorkInfosByTag(noteToEdit.noteTitle).cancel(true)
-                        NewNoteFragment.setNoteReminder(
-                            uNote.reminderTime,
+                        // replaceReminder(uNote.noteTitle, noteToEdit.noteCategory)
+                        NewNoteFragment.setReminderNotification(
                             uNote.noteTitle,
+                            uNote.reminderTime,
                             uNote.noteCategory,
+                            newNoteFragment = NewNoteFragment(),
+                            noteToEdit.reminderCode!!,
                             requireContext()
                         )
                     }
@@ -90,8 +98,49 @@ class EditNoteFragment : Fragment(),
                     findNavController().popBackStack()
                 }
             }
+            updateTextEditText.setOnTouchListener { v, event ->
+                if (v == updateTextEditText){
+                    v.parent.parent.requestDisallowInterceptTouchEvent(true)
+                    when(event.action /*|| MotionEvent.ACTION_MASK*/){
+                        MotionEvent.ACTION_UP -> v.parent.parent.requestDisallowInterceptTouchEvent(false)
+                    }
+                }
+                false
+            }
         }
         return binding.root
+    }
+
+    private fun replaceReminder(noteTitle:String, selectCategory:String,) {
+        val reminderIntent = Intent(context, ReminderReceiver::class.java)
+        reminderIntent.apply {
+            putExtra(
+                getString(R.string.title_key),
+                "Reminder for $noteTitle"
+            )
+            putExtra(
+                getString(R.string.note_title_arg_key),
+                noteTitle
+            )
+            putExtra(
+                getString(R.string.note_category_arg_key),
+                selectCategory
+            )
+            putExtra(
+                getString(R.string.message_key),
+                "It is time to check out $noteTitle note, Don't forget to do so now!"
+            )
+        }
+        val pendingIntent =
+            PendingIntent.getBroadcast(
+                context,
+                noteToEdit.reminderCode!!,
+                reminderIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
+        val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.cancel(pendingIntent)
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
@@ -99,16 +148,16 @@ class EditNoteFragment : Fragment(),
     }
 
     override fun onNothingSelected(p0: AdapterView<*>?) {
-        Toast.makeText(requireContext(), "no category selected", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "Please  selected a category", Toast.LENGTH_SHORT).show()
     }
 
-    private fun FragmentUpdateNoteBinding.setUpNoteValuesToUpdate() {
+    private fun FragmentEditNoteBinding.setUpNoteValuesToUpdate() {
         updateTitleEditText.setText(noteToEdit.noteTitle)
         updateTextEditText.setText(noteToEdit.noteText)
         edReminderTime.setText(noteToEdit.reminderTime)
     }
 
-    private fun FragmentUpdateNoteBinding.setUpToolbar() {
+    private fun FragmentEditNoteBinding.setUpToolbar() {
         updateNoteToolbar.apply {
             setupWithNavController(findNavController(), appBarConfiguration)
             title = "Edit ${noteToEdit.noteCategory} note"
@@ -176,7 +225,6 @@ class EditNoteFragment : Fragment(),
             } else timePicker.minute
             val reminder = "$formattedDate ${selectedHour}:${minutes}:00"
             binding.edReminderTime.setText(reminder)
-            // mainViewModel.reminderTime(reminder)
         }
     }
 

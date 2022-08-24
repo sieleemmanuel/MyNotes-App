@@ -3,4 +3,6 @@
     <item
         android:id="@+id/actionDeleteAllNotes"
         android:title="@string/delete_all_item" />
+    <item android:id="@+id/actionDeleteCategory"
+        android:title="@string/delete_category_label"/>
 </menu>

@@ -17,6 +17,7 @@
         <item name="android:textColorSecondary">@color/colorOnSecondary</item>
         <item name="toolbarStyle">@style/ToolbarStyling</item>
     </style>
+
     <style name="ToolbarStyling" parent="Widget.MaterialComponents.Toolbar">
         <item name="titleCentered">true</item>
         <item name="titleTextColor">@color/colorOnPrimary</item>
@@ -26,6 +27,11 @@
         <item name="android:textSize">18sp</item>
         <item name="android:textAllCaps">false</item>
         <item name="textAllCaps">false</item>
+    </style>
+
+    <style name="Widget.AppTheme.ButtonBar.Fullscreen" parent="">
+        <item name="android:background">@color/black_overlay</item>
+        <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
     </style>
 
 </resources>
