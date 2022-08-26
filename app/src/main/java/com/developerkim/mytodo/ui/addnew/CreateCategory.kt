@@ -8,10 +8,7 @@ import androidx.fragment.app.DialogFragment
 import com.developerkim.mytodo.databinding.FragmentCreateCategoryBinding
 
 class CreateCategory : DialogFragment() {
-
     private lateinit var binding: FragmentCreateCategoryBinding
-
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -21,9 +18,4 @@ class CreateCategory : DialogFragment() {
         return binding.root
 
     }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
-
 }

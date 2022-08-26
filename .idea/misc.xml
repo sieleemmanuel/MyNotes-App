@@ -29,12 +29,12 @@
         <entry key="app/src/main/res/layout/category_layout.xml" value="0.21145833333333333" />
         <entry key="app/src/main/res/layout/category_list_layout.xml" value="0.19947916666666668" />
         <entry key="app/src/main/res/layout/delete_layout.xml" value="0.29921875" />
-        <entry key="app/src/main/res/layout/fragment_all_notes.xml" value="0.21145833333333333" />
+        <entry key="app/src/main/res/layout/fragment_all_notes.xml" value="0.67" />
         <entry key="app/src/main/res/layout/fragment_category_notes.xml" value="0.21145833333333333" />
         <entry key="app/src/main/res/layout/fragment_create_category.xml" value="0.19947916666666668" />
         <entry key="app/src/main/res/layout/fragment_edit_note.xml" value="0.29921875" />
         <entry key="app/src/main/res/layout/fragment_list_notes.xml" value="0.47708333333333336" />
-        <entry key="app/src/main/res/layout/fragment_new_note.xml" value="0.17647058823529413" />
+        <entry key="app/src/main/res/layout/fragment_new_note.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_read_note.xml" value="0.2" />
         <entry key="app/src/main/res/layout/fragment_update_note.xml" value="0.2" />
         <entry key="app/src/main/res/layout/list_categories.xml" value="0.21145833333333333" />

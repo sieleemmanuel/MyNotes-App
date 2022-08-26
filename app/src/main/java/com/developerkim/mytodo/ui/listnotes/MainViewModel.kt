@@ -47,11 +47,14 @@ class MainViewModel @Inject constructor(
     val noteDate: String =
         currentDateTime.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
 
-    private val _noteCategory = MutableLiveData<NoteCategory>()
-    val noteCategory: LiveData<NoteCategory> = _noteCategory
+    private val _noteCategory = MutableLiveData<NoteCategory?>(null)
+    val noteCategory: LiveData<NoteCategory?> = _noteCategory
 
     private val _pickedColor = MutableLiveData<Int?>(null)
     val pickedColor: LiveData<Int?> = _pickedColor
+
+    private val _categoryExist = MutableLiveData(false)
+    val categoryExist: LiveData<Boolean> = _categoryExist
 
     fun insertNewCategory(newCategory: NoteCategory) {
         viewModelScope.launch {
@@ -60,6 +63,7 @@ class MainViewModel @Inject constructor(
             getAllNotes()
             getCategoryNames()
         }
+
     }
 
     fun insertNewNotes(note: Note) {
@@ -148,15 +152,16 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun getCategories() {
+    private fun getCategories() {
         viewModelScope.launch(Dispatchers.IO) {
             _categories.postValue(notesRepository.getAllNotes())
         }
     }
 
-    fun getCategory(categoryName: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun getCategory(categoryName: String){
+        viewModelScope.launch {
             _noteCategory.postValue(notesRepository.getCategory(categoryName))
+            _categoryExist.postValue(true)
         }
     }
 
