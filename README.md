@@ -3,7 +3,8 @@ This is a simple Note taking App implemented in Kotlin. Built this to learn more
 ## Features
 - Create note by categories
 - Read saved notes
-- Update notes
+- Edit saved notes
+- Add reminder to notes
 - Share note etc
 # Screenshots/Demo
 <div align="center">
@@ -18,8 +19,9 @@ This is a simple Note taking App implemented in Kotlin. Built this to learn more
 
 </div>
 
-## Tools in use
+## Tools and stack in use
 - MVVM Architecture
 - Room Database for persistent storage of notes
 - Navigation components
 - Data Binding
+- Alarm Manager for reminder functonality
