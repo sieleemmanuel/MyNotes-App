@@ -13,8 +13,10 @@ import com.developerkim.mytodo.R
 import com.developerkim.mytodo.data.model.NoteCategory
 import com.developerkim.mytodo.util.Constants.Companion.CHANNEL_ID
 import com.developerkim.mytodo.util.Constants.Companion.NOTIFICATION_ID
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-class NotificationHelper(val context: Context) {
+class NotificationHelper @Inject constructor(@ApplicationContext val context: Context) {
     fun createNotification(title:String, message:String, noteTitle:String, noteCategory: String){
         createNotificationChannel()
         val args = Bundle()

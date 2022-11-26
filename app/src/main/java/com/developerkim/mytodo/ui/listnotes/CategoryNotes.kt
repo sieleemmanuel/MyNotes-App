@@ -37,58 +37,62 @@ class CategoryNotes : Fragment() {
     private lateinit var deleteDialogBinding: DeleteLayoutBinding
     private lateinit var deleteDialogBuilder: MaterialAlertDialogBuilder
     private lateinit var confirmDeleteDialog: AlertDialog
+    private val TAG = CategoryNotes::class.simpleName
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        selectedCategory = args.category
+        viewModel.getCategory(selectedCategory.categoryName)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentCategoryNotesBinding.inflate(inflater)
-        selectedCategory = args.category
         notesAdapter = NoteAdapter(
             noteClickListener(),
             noteLongClickListener(),
             viewClickListener()
         )
-
         deleteDialogBinding = DeleteLayoutBinding.inflate(LayoutInflater.from(requireContext()))
         deleteDialogBuilder =
             MaterialAlertDialogBuilder(requireContext())
                 .setBackground(ColorDrawable(Color.TRANSPARENT))
 
-        viewModel.getCategory(selectedCategory.categoryName)
-        viewModel.noteCategory.observe(viewLifecycleOwner) { noteCategory ->
-            notesAdapter.submitList(noteCategory.notes)
 
-            binding.apply {
-                setUpRecyclerView()
-                setUpToolbar(selectedCategory)
-                performNoteSearch()
-                fabAddCategoryNote.setOnClickListener {
-                    findNavController().navigate(
-                        CategoryNotesDirections.actionCategoryNotesToNewNoteFragment(
-                            selectedCategory.categoryName
-                        )
-                    )
-                }
-            }
-
+        binding.apply {
+            setUpRecyclerView()
+            setUpToolbar(selectedCategory)
+            performNoteSearch()
+            setUpFab()
         }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.noteCategory.observe(viewLifecycleOwner) { noteCategory ->
-            binding.apply {
-                if (noteCategory.notes!!.isNotEmpty()) {
-                    tvEmptyNotes.visibility = View.GONE
-                    pbLoadingNotes.visibility = View.GONE
-                } else {
-                    tvEmptyNotes.visibility = View.VISIBLE
-                    pbLoadingNotes.visibility = View.GONE
+
+        binding.apply {
+            viewModel.categoryExist.observe(viewLifecycleOwner) { categoryExist ->
+                if (categoryExist) {
+                    viewModel.noteCategory.observe(viewLifecycleOwner) { noteCategory ->
+                        if (noteCategory != null ) {
+                            if (noteCategory.notes!!.isNotEmpty()) {
+                                tvEmptyNotes.visibility = View.GONE
+                                pbLoadingNotes.visibility = View.GONE
+                                notesAdapter.submitList(noteCategory.notes)
+                            }else {
+                                tvEmptyNotes.visibility = View.VISIBLE
+                                pbLoadingNotes.visibility = View.GONE
+                                notesAdapter.submitList(null)
+                            }
+                        }
+                    }
                 }
             }
         }
+
     }
 
     private fun FragmentCategoryNotesBinding.setUpRecyclerView() {
@@ -136,6 +140,16 @@ class CategoryNotes : Fragment() {
         }
     }
 
+    private fun FragmentCategoryNotesBinding.setUpFab() {
+        fabAddCategoryNote.setOnClickListener {
+            findNavController().navigate(
+                CategoryNotesDirections.actionCategoryNotesToNewNoteFragment(
+                    selectedCategory.categoryName
+                )
+            )
+        }
+    }
+
     private fun showRemoveAllNotesAlert() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Are you sure you want remove current category notes?")
@@ -152,7 +166,6 @@ class CategoryNotes : Fragment() {
             }
             .show()
     }
-
 
     private fun noteClickListener() = NoteAdapter.NoteClickListener { note, _ ->
         findNavController().navigate(
@@ -171,6 +184,7 @@ class CategoryNotes : Fragment() {
             }
             btnDeleteNote.setOnClickListener {
                 confirmDeleteNote(note, btnDeleteNote)
+                btnDeleteNote.visibility = View.GONE
             }
         }
 
@@ -231,10 +245,9 @@ class CategoryNotes : Fragment() {
         }
     }
 
-
     private fun filterNotes(query: String) {
         viewModel.noteCategory.observe(viewLifecycleOwner) { currentCategory ->
-            val filteredNotes = viewModel.searchNotes(query, currentCategory.notes!!)
+            val filteredNotes = viewModel.searchNotes(query, currentCategory?.notes!!)
             if (filteredNotes.isEmpty()) {
                 Toast.makeText(requireContext(), "No match found", Toast.LENGTH_SHORT).show()
                 notesAdapter.submitList(null)

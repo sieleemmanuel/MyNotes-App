@@ -3,16 +3,13 @@ package com.developerkim.mytodo.ui.listnotes
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AutoCompleteTextView
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -25,11 +22,11 @@ import com.developerkim.mytodo.R
 import com.developerkim.mytodo.adapters.CreateCategoryAdapter
 import com.developerkim.mytodo.adapters.NotesCategoriesAdapter
 import com.developerkim.mytodo.adapters.ViewPagerAdapter
+import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.data.model.NoteCategory
 import com.developerkim.mytodo.databinding.AddCategoryDialogBinding
 import com.developerkim.mytodo.databinding.DeleteLayoutBinding
 import com.developerkim.mytodo.databinding.FragmentListNotesBinding
-import com.developerkim.mytodo.interfaces.NoteSearchListener
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
@@ -45,7 +42,6 @@ class ListNotesFragment : Fragment() {
     private lateinit var viewPagerAdapter: ViewPagerAdapter
     private lateinit var deleteDialogBinding: DeleteLayoutBinding
     private lateinit var deleteDialogBuilder:MaterialAlertDialogBuilder
-    private lateinit var confirmDeleteDialog:AlertDialog
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -192,6 +188,7 @@ class ListNotesFragment : Fragment() {
           }
             btnDeleteCategory.setOnClickListener {
                 confirmDeleteCategory(category, btnDeleteCategory)
+                btnDeleteCategory.visibility = View.GONE
             }
         }
 
@@ -200,7 +197,7 @@ class ListNotesFragment : Fragment() {
     }
 
     private fun confirmDeleteCategory(category: NoteCategory, btnDelete:ImageView) {
-        confirmDeleteDialog = deleteDialogBuilder
+        val confirmDeleteCategoryDialog = deleteDialogBuilder
             .setView(deleteDialogBinding.root)
             .show()
         deleteDialogBinding.apply {
@@ -208,20 +205,22 @@ class ListNotesFragment : Fragment() {
             tvDeleteDescription.text = getString(R.string.delete_all_notes_desc_label)
             btnConfirmDelete.setOnClickListener {
                 viewModel.removeCategory(categoryName = category.categoryName)
-                confirmDeleteDialog.dismiss()
+                confirmDeleteCategoryDialog.dismiss()
+                (deleteDialogBinding.root.parent!! as ViewGroup).removeView(deleteDialogBinding.root)
             }
             btnCancelDelete.setOnClickListener {
-                confirmDeleteDialog.dismiss()
+                confirmDeleteCategoryDialog.dismiss()
                 if (btnDelete.isVisible) {
                     btnDelete.visibility = View.GONE
                 }
+                (deleteDialogBinding.root.parent!! as ViewGroup).removeView(deleteDialogBinding.root)
             }
         }
 
     }
 
     private fun confirmClearAll() {
-        confirmDeleteDialog = deleteDialogBuilder
+       val confirmClearAllDialog = deleteDialogBuilder
             .setView(deleteDialogBinding.root)
             .show()
         deleteDialogBinding.apply {
@@ -229,10 +228,12 @@ class ListNotesFragment : Fragment() {
             tvDeleteDescription.text = getString(R.string.remove_all_notes_label)
             btnConfirmDelete.setOnClickListener {
                 viewModel.clearAllCategories()
-                confirmDeleteDialog.dismiss()
+                confirmClearAllDialog.dismiss()
+                (deleteDialogBinding.root.parent!! as ViewGroup).removeView(deleteDialogBinding.root)
             }
             btnCancelDelete.setOnClickListener {
-                confirmDeleteDialog.dismiss()
+                confirmClearAllDialog.dismiss()
+                (deleteDialogBinding.root.parent!! as ViewGroup).removeView(deleteDialogBinding.root)
             }
         }
     }
@@ -291,7 +292,7 @@ class ListNotesFragment : Fragment() {
                                 val newCategory = NoteCategory(
                                     categoryName = categoryName.toString(),
                                     categoryColor = color,
-                                    notes = mutableListOf()
+                                    notes = mutableListOf<Note>()
                                 )
                                 viewModel.insertNewCategory(newCategory)
                                 autoCompleteTextView?.setText(categoryName, false)

@@ -94,12 +94,11 @@ class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
                             noteText = noteTextEditText.text.toString(),
                             noteDate = mainViewModel.noteDate,
                             reminderTime = edtReminder.text.toString(),
-                            noteColor = noteCategory.categoryColor,
+                            noteColor = noteCategory?.categoryColor,
                             reminderCode = reminderCode
-
                         )
-                        if (edtReminder.text.toString() != getString(R.string.set_reminder_label) ||
-                            edtReminder.text.toString() != getString(R.string.no_reminder_set_label)
+                        mainViewModel.insertNewNotes(note = newNote)
+                        if (edtReminder.text.toString().contains("[0-9/:]".toRegex())
                         ) {
                             setReminderNotification(
                                 noteTitleEditText.text.toString(),
@@ -108,11 +107,10 @@ class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
                                 this@NewNoteFragment,
                                 reminderCode!!,
                                 requireContext())
-
+                            findNavController().popBackStack()
+                        }else{
                             findNavController().popBackStack()
                         }
-                        mainViewModel.insertNewNotes(note = newNote)
-                        mainViewModel.getCategories()
                     }
 
                 }
@@ -121,6 +119,7 @@ class NewNoteFragment : Fragment(), AdapterView.OnItemClickListener {
                         hideKeyboard(view, requireActivity())
                     }
                 }
+
                 tilReminder.editText?.setOnClickListener {
                     showReminderDatePicker()
                 }

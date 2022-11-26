@@ -4,14 +4,10 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.Toast
-import androidx.appcompat.widget.SearchView
-import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -19,11 +15,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.developerkim.mytodo.R
 import com.developerkim.mytodo.adapters.NoteAdapter
-import com.developerkim.mytodo.adapters.NotesCategoriesAdapter
 import com.developerkim.mytodo.data.model.Note
 import com.developerkim.mytodo.databinding.DeleteLayoutBinding
 import com.developerkim.mytodo.databinding.FragmentAllNotesBinding
-import com.developerkim.mytodo.interfaces.NoteSearchListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -131,6 +125,7 @@ class AllNotesFragment : Fragment() {
             }
             btnDeleteNote.setOnClickListener {
                 confirmDeleteNote(note, btnDeleteNote)
+                btnDeleteNote.visibility = View.GONE
             }
         }
 

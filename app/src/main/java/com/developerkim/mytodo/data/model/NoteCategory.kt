@@ -15,7 +15,7 @@ import java.util.*
 data class NoteCategory(
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = "category_name") var categoryName: String = "",
-    @ColumnInfo(name = "category_notes") var notes:MutableList<Note>? = mutableListOf(),
+    @ColumnInfo(name = "category_notes") var notes:MutableList<Note>? =null,
     @ColumnInfo(name = "category_color") var categoryColor: Int? = null
 ):Parcelable
 class Converter{
@@ -23,7 +23,7 @@ class Converter{
     fun listToJson(value: MutableList<Note>?): String = Gson().toJson(value)
 
     @TypeConverter
-    fun jsonToList(value: String):MutableList<Note> =
+    fun jsonToList(value: String): MutableList<Note> =
         (Gson().fromJson(value, Array<Note>::class.java) as Array<Note>).toMutableList()
 
 }
